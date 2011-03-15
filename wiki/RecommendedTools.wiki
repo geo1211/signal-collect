@@ -1,7 +1,8 @@
 #labels Tools,Guide
-#Recommended Tools to Work on S/C
+#Recommended Tools
 
-= This is a short guide that describes how to get the tools that we recommend for working with Scala, Maven and SVN within the Eclipse IDE=
+= Recommended Tools to Work on S/C=
+This is a short guide that describes how to get the tools that we recommend for working with Scala, Maven and SVN within the Eclipse IDE
 
 *Eclipse*
 Install the Eclipse IDE for Java Developers 3.6.2 (_Helios_) from http://www.eclipse.org/downloads/
