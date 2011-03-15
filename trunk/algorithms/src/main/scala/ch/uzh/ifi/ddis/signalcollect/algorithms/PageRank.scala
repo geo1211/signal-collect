@@ -44,7 +44,7 @@ class Link(s: Any, t: Any) extends DefaultEdge(s, t) {
  *  @param id: the identifier of this vertex
  *  @param dampingFactor: @see <a href="http://en.wikipedia.org/wiki/PageRank">PageRank algorithm</a>
  */
-class Page(id: Any, dampingFactor: Double) extends SignalMapVertex(id, 1 - dampingFactor) {
+class Page(id: Any, dampingFactor: Double) extends SignalMapVertex(id, 1 - dampingFactor) with SumOfOutWeights[Any, Double] {
 	
   /** The collect function calculates the rank of this vertex based on the rank
    *  received from neighbors and the damping factor. */
@@ -71,5 +71,6 @@ object PageRank extends Application {
   cg.addEdge[Link](3, 2)
   val stats = cg.execute()
   println(stats)
+  cg.foreach{v => println(v)}
   cg.shutDown
 }
