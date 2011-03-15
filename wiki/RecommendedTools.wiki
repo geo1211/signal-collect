@@ -6,9 +6,9 @@ This is a short guide that describes how to get the tools that we recommend for 
 Install the Eclipse IDE for Java Developers 3.6.2 (_Helios_) from http://www.eclipse.org/downloads/
 
 ==Scala==
-  Install the Scala plugin for Eclipse via _Help_, _Install New Software..._
-  Add as a new location: http://download.scala-ide.org/nightly-update-helios-2.8.1.final
-  Install all the available updates.
+  * Install the Scala plugin for Eclipse via _Help_, _Install New Software..._
+  * Add as a new location: http://download.scala-ide.org/nightly-update-helios-2.8.1.final
+  * Install all the available updates.
 
 ==Maven==
 Install the _Maven integration for Eclipse_ from the _Eclipse Marketplace_: You find it in the Eclipse _Help_ menu, it's the last entry.
