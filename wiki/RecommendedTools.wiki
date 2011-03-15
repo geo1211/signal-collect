@@ -1,19 +1,17 @@
 #labels Tools,Guide
-#Recommended Tools
-
 = Recommended Tools to Work on S/C=
 This is a short guide that describes how to get the tools that we recommend for working with Scala, Maven and SVN within the Eclipse IDE
 
-*Eclipse*
+==Eclipse==
 Install the Eclipse IDE for Java Developers 3.6.2 (_Helios_) from http://www.eclipse.org/downloads/
 
-*Scala*
+==Scala==
 You can install the Scala plugin for Eclipse via _Help_, _Install New Software..._
 Add as a new location: http://download.scala-ide.org/nightly-update-helios-2.8.1.final
 Install all the available updates.
 
-*Maven*
+==Maven==
 Install the _Maven integration for Eclipse_ from the _Eclipse Marketplace_: You can finde it in the Eclipse _Help_ menu, it's the last entry.
 
-*SVN*
+==SVN==
 Install _Subclipse_ from the _Eclipse Marketplace_: You can find it in the Eclipse _Help_ menu, it's the last entry. We recommend to use the SVNKit client, which can be set in _Eclipse_, _Preferences..._, _Team_, _SVN_, _Client_
