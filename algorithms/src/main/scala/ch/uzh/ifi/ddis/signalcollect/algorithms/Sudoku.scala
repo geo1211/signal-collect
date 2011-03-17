@@ -36,34 +36,35 @@ class SudokuAssociation(s: Any, t: Any) extends DefaultEdge(s, t) {
 
 /**
  * Cell in a Sudoku grid.
- * 
+ *
  * @param id ID of the cell, where top left cell has id=0 top right has id of 8 and bottom right has id 80
  *
  */
-class SudokuCell(id: Int, value: Int = 0) extends SignalMapVertex(id, value) {
-  var possibleValues = HashSet[Int](value)
-  if (value == 0) { possibleValues = HashSet(1, 2, 3, 4, 5, 6, 7, 8, 9) }
-
-  def collect: Int = {
-    //update the list of all possible values
-    mostRecentSignals[Int].foreach { senderValue =>
-      {
-        if (possibleValues.contains(senderValue))
-          possibleValues.remove(senderValue)
-      }
-    }
+class SudokuCell(id: Int, initialState: Option[Int] = None) extends SignalMapVertex(id, initialState) {
+  
+	var possibleValues = Set[Option[Int]]()
+	initialState match {
+		case Some(x) => possibleValues+=initialState
+		case None => possibleValues = SudokuHelper.legalNumbers
+	}
+	
+  def collect: Option[Int] = {
+    //make a list of all possible values 
+    possibleValues = possibleValues -- mostRecentSignals[Option[Int]].toSet
+    
     //If own value is determined i.e. if only one possible value is left choose own value
-    if (possibleValues.size == 1)
+    if (possibleValues.size == 1) {
       possibleValues.first
+    }
     else
-      value
+      state
   }
 }
 
 object sudoku {
 
   def main(args: Array[String]): Unit = {
-    //Values that are given, rest has default value of 0
+    //Values that are given, rest has default value 'None'
     val initialSeed = Map(
       4 -> 9,
       5 -> 6,
@@ -106,11 +107,8 @@ object sudoku {
 
     //Add all Cells for Sudoku
     for (index <- 0 to 80) {
-      val seed = initialSeed.get(index)
-      seed match {
-        case Some(i) => cg.addVertex[SudokuCell](index, i)
-        case none => cg.addVertex[SudokuCell](index, 0)
-      }
+      val seedValue = initialSeed.get(index)
+      cg.addVertex[SudokuCell](index, seedValue)
     }
 
     //Determine neighboring cells for each cell and draw the edges between them 
@@ -119,18 +117,19 @@ object sudoku {
         cg.addEdge[SudokuAssociation](i, index)
       })
     }
-    
-    var seed = Map[Int, Int]()
-    cg.foreach { v => seed += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Int]) }
+
+    var seed = Map[Int, Option[Int]]()
+    cg.foreach { v => seed += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
     SudokuHelper.printSudoku(seed)
 
     val stats = cg.execute()
     println(stats)
+    println()
 
-    var result = Map[Int, Int]()
-    cg.foreach { v => result += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Int]) }
+    var result = Map[Int, Option[Int]]()
+    cg.foreach { v => println(v); result += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
     SudokuHelper.printSudoku(result)
-    
+
     cg.shutDown
   }
 }
@@ -140,6 +139,16 @@ object sudoku {
  *
  */
 object SudokuHelper {
+  //All possible numbers for a cell
+  val legalNumbers = {
+	  var numbers = Set[Option[Int]]()
+	  for(i<-1 to 9) {
+	 	  numbers += Some(i)
+	  }
+	   println
+	   numbers
+  }
+  
   //Get Rows, Columns and Bocks from ID
   def getRow(id: Int) = id / 9
   def getColumn(id: Int) = id % 9
@@ -187,20 +196,21 @@ object SudokuHelper {
   /**
    * Formats the data in a classical sudoku layout
    */
-  def printSudoku(data: Map[Int, Int]) = {
-	println()
-	println("Sudoku")
-	println("======")
-	println()
-	println("=========================================")
+  def printSudoku(data: Map[Int, Option[Int]]) = {
+	  
+    println()
+    println("Sudoku")
+    println("======")
+    println()
+    println("=========================================")
 
     for (i <- 0 to 8) {
       val j = i * 9
       print("||")
       for (k <- j to j + 8) {
         data.get(k) match {
-          case Some(v) => print(" " + v + " ")
-          case None => print(" E ") //Error
+          case Some(Some(v)) => print(" " + v + " ")
+          case v => print("   ") //Empty or Error
         }
         if (k % 3 == 2) {
           print("II")
