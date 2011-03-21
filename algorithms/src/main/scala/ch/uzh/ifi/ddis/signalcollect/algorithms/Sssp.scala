@@ -23,62 +23,63 @@ import ch.uzh.ifi.ddis.signalcollect.api._
 import ch.uzh.ifi.ddis.signalcollect.api.vertices._
 import ch.uzh.ifi.ddis.signalcollect.api.edges._
 
-
-/** Represents an edge in a Single-Source Shortest Path compute graph.
+/**
+ * Represents an edge in a Single-Source Shortest Path compute graph.
  *  The edge weight corresponds to the length of the path represented by
  *  this edge.
- * 
+ *
  *  @param s: the identifier of the source vertex
  *  @param t: the identifier of the target vertex
  */
-class Path(s: Any, t: Any) extends DefaultEdge(s, t) {
+class Path(s: Any, t: Any) extends OptionalSignalEdge(s, t) {
 
-  /** Specifies the type of the source vertex. 
+  /**
+   * Specifies the type of the source vertex.
    *  This avoids type-checks/-casts, for example when accessing source.state.
    */
   type SourceVertexType = Location
 
-  /** The signal function calculates the distance of the shortest currently
+  /**
+   * The signal function calculates the distance of the shortest currently
    *  known path from the SSSP source vertex which passes through the source
    *  vertex of this edge. This is obviously the shortest distance to the vertex
    *  where this edge starts plus the length of the path represented by this
-   *  edge (= the weight of this edge). 
+   *  edge (= the weight of this edge).
    */
-  def signal: Int = {
-    if (source.state != Int.MaxValue) {
-      source.state + weight.toInt
-    } else {
-      Int.MaxValue
-    }
+  def signal: Option[Int] = {
+    source.state map (_ + weight.toInt)
   }
 }
 
-/** Represents a location in a SSSP compute graph
- * 
+/**
+ * Represents a location in a SSSP compute graph
+ *
  *  @param id: the identifier of this vertex
  *  @param initialDIstance: the initial distance of this vertex to the source location
  *  if the distance is Int.MaxValue this means that there is no known path. If the distance is
  *  0 this means that this vertex is the source location.
  */
-class Location(id: Any, initialDistance: Int) extends SignalMapVertex(id, initialDistance) {
-	
-  /** The collect function calculates shortest currently known path
+class Location(id: Any, initialDistance: Option[Int]) extends SignalMapVertex(id, initialDistance) {
+
+  /**
+   * The collect function calculates shortest currently known path
    *  from the source location. This is obviously either the shortest known path
    *  up to now (= state) or one of the paths that had been advertised via a signal
-   *  by a neighbor. */
-  def collect: Int = mostRecentSignals[Int].foldLeft(state)(math.min(_, _))
-  
+   *  by a neighbor.
+   */
+  def collect: Option[Int] = Some(mostRecentSignals[Int].foldLeft(state.getOrElse(Int.MaxValue))(math.min(_, _)))
+
 }
 
 /** Builds a Single-Source Shortest Path compute graph and executes the computation */
-object SingleSourceShortestPath extends Application {
+object SSSP extends Application {
   val cg = new AsynchronousComputeGraph()
-  cg.addVertex[Location](1, 0)
-  cg.addVertex[Location](2, Int.MaxValue)
-  cg.addVertex[Location](3, Int.MaxValue)
-  cg.addVertex[Location](4, Int.MaxValue)
-  cg.addVertex[Location](5, Int.MaxValue)
-  cg.addVertex[Location](6, Int.MaxValue)
+  cg.addVertex[Location](1, Some(0))
+  cg.addVertex[Location](2, None)
+  cg.addVertex[Location](3, None)
+  cg.addVertex[Location](4, None)
+  cg.addVertex[Location](5, None)
+  cg.addVertex[Location](6, None)
   cg.addEdge[Path](1, 2)
   cg.addEdge[Path](2, 3)
   cg.addEdge[Path](3, 4)
@@ -87,5 +88,6 @@ object SingleSourceShortestPath extends Application {
   cg.addEdge[Path](5, 6)
   val stats = cg.execute()
   println(stats)
+  cg.foreach(println(_))
   cg.shutDown
 }
