@@ -54,7 +54,7 @@ class SudokuCell(id: Int, initialState: Option[Int] = None) extends SignalMapVer
     
     //If own value is determined i.e. if only one possible value is left choose own value
     if (possibleValues.size == 1) {
-      possibleValues.first
+      possibleValues.head
     }
     else
       state
