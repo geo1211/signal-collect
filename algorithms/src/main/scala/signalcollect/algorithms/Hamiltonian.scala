@@ -8,7 +8,7 @@ object Hamiltonian {
 
 	def main(args : Array[String]) : Unit = {
 
-	val cg = new AsynchronousComputeGraph( workerFactory = Workers.asynchronousDirectDeliveryWorkerFactory )
+	val cg = new AsynchronousComputeGraph()
 
 	/**
 	 * Still need to test performance on complete and larger graphs
@@ -29,7 +29,7 @@ object Hamiltonian {
 	// a problem with isolated vertices is that it is not able to find hamiltonian paths depending on the starting vertex
 	cg.addEdge[MyEdge]( "e", "a", 1 ); cg.addEdge[MyEdge]( "a", "e", 1 )
 
-	val stats = cg.execute()
+	val stats = cg.execute
 	println(stats)
 	cg.foreach { x => println(x) }
 	cg.shutDown

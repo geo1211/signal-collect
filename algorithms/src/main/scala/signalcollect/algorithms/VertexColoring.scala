@@ -111,7 +111,7 @@ object VertexColoring extends Application {
   cg.addEdge[StateForwarderEdge](2, 1)
   cg.addEdge[StateForwarderEdge](2, 3)
   cg.addEdge[StateForwarderEdge](3, 2)
-  val stats = cg.execute()
+  val stats = cg.execute
   println(stats)
   cg.foreach { x => println(x) }
   cg.shutDown

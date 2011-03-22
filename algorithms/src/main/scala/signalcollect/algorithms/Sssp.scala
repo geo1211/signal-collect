@@ -86,7 +86,7 @@ object SSSP extends Application {
   cg.addEdge[Path](1, 5)
   cg.addEdge[Path](4, 6)
   cg.addEdge[Path](5, 6)
-  val stats = cg.execute()
+  val stats = cg.execute
   println(stats)
   cg.foreach(println(_))
   cg.shutDown
