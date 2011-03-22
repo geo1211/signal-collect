@@ -48,8 +48,8 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>ch.uzh.ifi.ddis.signalcollect.algorithms.Main</mainClass>
-							<packageName>ch.uzh.ifi.ddis.signalcollect.algorithms</packageName>
+							<mainClass>signalcollect.algorithms.Main</mainClass>
+							<packageName>signalcollect.algorithms</packageName>
 						</manifest>
 					</archive>
 				</configuration>
