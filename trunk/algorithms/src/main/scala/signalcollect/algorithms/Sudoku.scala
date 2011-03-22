@@ -122,7 +122,7 @@ object sudoku {
     cg.foreach { v => seed += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
     SudokuHelper.printSudoku(seed)
 
-    val stats = cg.execute()
+    val stats = cg.execute
     println(stats)
     println()
 

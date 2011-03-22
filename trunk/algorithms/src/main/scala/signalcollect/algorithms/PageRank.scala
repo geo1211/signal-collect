@@ -77,7 +77,7 @@ object PageRank extends Application {
   cg.addEdge[Link](2, 1)
   cg.addEdge[Link](2, 3)
   cg.addEdge[Link](3, 2)
-  val stats = cg.execute()
+  val stats = cg.execute
   println(stats)
   cg.foreach { v => println(v) }
   cg.shutDown
