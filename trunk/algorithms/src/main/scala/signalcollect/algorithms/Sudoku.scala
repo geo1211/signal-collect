@@ -50,7 +50,7 @@ class SudokuCell(id: Int, initialState: Option[Int] = None) extends SignalMapVer
 	
   def collect: Option[Int] = {
     //make a list of all possible values 
-    possibleValues = possibleValues -- mostRecentSignals[Option[Int]].toSet
+    possibleValues = possibleValues -- typeFilteredSignals[Option[Int]].toSet
     
     //If own value is determined i.e. if only one possible value is left choose own value
     if (possibleValues.size == 1) {
