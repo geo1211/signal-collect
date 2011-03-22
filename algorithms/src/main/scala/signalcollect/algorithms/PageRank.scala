@@ -24,31 +24,39 @@ import signalcollect.api.vertices._
 import signalcollect.api.edges._
 import signalcollect.implementations.graph.SumOfOutWeights
 
-/** Represents an edge in a PageRank compute graph
- * 
+/**
+ * Represents an edge in a PageRank compute graph
+ *
  *  @param s: the identifier of the source vertex
  *  @param t: the identifier of the target vertex
  */
 class Link(s: Any, t: Any) extends DefaultEdge(s, t) {
 
-	type SourceVertexType <: SumOfOutWeights[Any, Double]
-	
-  /** The signal function calculates how much rank the source vertex
-   *  transfers to the target vertex. */
+  type SourceVertexType <: SumOfOutWeights[Any, Double]
+
+  /**
+   * The signal function calculates how much rank the source vertex
+   *  transfers to the target vertex.
+   */
   def signal = source.state.asInstanceOf[Double] * weight / source.sumOfOutWeights
 
 }
 
-/** Represents a page in a PageRank compute graph
- * 
+/**
+ * Represents a page in a PageRank compute graph
+ *
  *  @param id: the identifier of this vertex
  *  @param dampingFactor: @see <a href="http://en.wikipedia.org/wiki/PageRank">PageRank algorithm</a>
  */
 class Page(id: Any, dampingFactor: Double) extends SignalMapVertex(id, 1 - dampingFactor) with SumOfOutWeights[Any, Double] {
+
+  type UpperSignalTypeBound = Double
 	
-  /** The collect function calculates the rank of this vertex based on the rank
-   *  received from neighbors and the damping factor. */
-  def collect: Double = 1 - dampingFactor + dampingFactor * mostRecentSignals[Double].foldLeft(0.0)(_ + _)
+  /**
+   * The collect function calculates the rank of this vertex based on the rank
+   *  received from neighbors and the damping factor.
+   */
+  def collect: Double = 1 - dampingFactor + dampingFactor * mostRecentSignals.foldLeft(0.0)(_ + _)
 
   override def scoreSignal: Double = {
     lastSignalState match {
@@ -56,7 +64,7 @@ class Page(id: Any, dampingFactor: Double) extends SignalMapVertex(id, 1 - dampi
       case Some(oldState) => (state - oldState).abs
     }
   }
-  
+
 }
 
 /** Builds a PageRank compute graph and executes the computation */
@@ -71,6 +79,6 @@ object PageRank extends Application {
   cg.addEdge[Link](3, 2)
   val stats = cg.execute()
   println(stats)
-  cg.foreach{v => println(v)}
+  cg.foreach { v => println(v) }
   cg.shutDown
 }
