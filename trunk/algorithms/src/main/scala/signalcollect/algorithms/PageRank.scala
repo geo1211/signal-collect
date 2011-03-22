@@ -32,13 +32,13 @@ import signalcollect.implementations.graph.SumOfOutWeights
  */
 class Link(s: Any, t: Any) extends DefaultEdge(s, t) {
 
-  type SourceVertexType <: SumOfOutWeights[Any, Double]
+  type SourceVertexType = Page
 
   /**
    * The signal function calculates how much rank the source vertex
    *  transfers to the target vertex.
    */
-  def signal = source.state.asInstanceOf[Double] * weight / source.sumOfOutWeights
+  def signal = source.state * weight / source.sumOfOutWeights
 
 }
 
