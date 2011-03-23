@@ -1,9 +1,30 @@
+/*
+ *  @author Francisco de Freitas
+ *  
+ *  Copyright 2011 University of Zurich
+ *      
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *  
+ */
+
 package signalcollect.algorithms
 
 import signalcollect.api._
 import signalcollect.api.vertices._
 import signalcollect.api.edges.OnlySignalOnChangeEdge
-
+/**
+ * Signal/Collect implementation of finding Hamiltonian paths in graphs.
+ */
 object Hamiltonian {
 
 	def main(args : Array[String]) : Unit = {
@@ -39,7 +60,9 @@ object Hamiltonian {
 }
 
 /**
- * Implementation is rather inefficient since keeping a map of value, key pairs is not so nice for each vertex
+ * The state of a vertex is all the paths currently collected from the graph
+ * Each path will be kept such that there will be no "revisiting" of vertices (each path will not have a repeated vertex id)
+ * Implementation is rather inefficient since it keeps a map where the value is the weights sum and keys as lists
  */
 class MyVertex ( id : String, initialState : Map[ List[String], Int ] ) extends SignalMapVertex ( id, initialState ) {
 	
@@ -68,7 +91,7 @@ class MyVertex ( id : String, initialState : Map[ List[String], Int ] ) extends 
 	}
 	
 	/*
-	 * Prints the shortest hamiltonian path from vertex (initial)
+	 * Prints the shortest Hamiltonian path from vertex such as if the vertex were the initial one
 	 */
 	override def toString = {
 		
@@ -90,7 +113,13 @@ class MyVertex ( id : String, initialState : Map[ List[String], Int ] ) extends 
 	}
 	
 }
-
+/**
+ * The edge implementation of the signal function will signal to all its connected vertexes the 
+ * current collected paths (ignoring those paths that contain the target vertex) by the source 
+ * vertex in order to determine the hamiltonian paths.
+ * 
+ * @param w the initial weight of the vertex
+ */
 class MyEdge(s: Any, t: Any, w: Int) extends OnlySignalOnChangeEdge(s, t) {
 
 	override def weight : Double = w
