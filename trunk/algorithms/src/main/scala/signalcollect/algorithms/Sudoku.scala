@@ -19,17 +19,17 @@
 
 package signalcollect.algorithms
 
-import scala.collection.mutable.HashSet
 import signalcollect.api._
 import signalcollect.api.vertices._
 import signalcollect.api.edges._
+import collection.mutable.{HashMap, SynchronizedMap}
 
 /**
  * Represents all associated Sudoku cells that have to be taken into account to determine
  * the value of a cell
  *
  */
-class SudokuAssociation(s: Any, t: Any) extends DefaultEdge(s, t) {
+class SudokuAssociation(s: Any, t: Any) extends OptionalSignalEdge(s, t) {
   type SourceVertexType = SudokuCell
   def signal = source.state
 }
@@ -41,31 +41,35 @@ class SudokuAssociation(s: Any, t: Any) extends DefaultEdge(s, t) {
  *
  */
 class SudokuCell(id: Int, initialState: Option[Int] = None) extends SignalMapVertex(id, initialState) {
-  
-	var possibleValues = Set[Option[Int]]()
-	initialState match {
-		case Some(x) => possibleValues+=initialState
-		case None => possibleValues = SudokuHelper.legalNumbers
-	}
-	
+
+  type UpperSignalTypeBound = Int
+
+  var possibleValues = SudokuHelper.legalNumbers
+
+  if(initialState.isDefined) possibleValues=Set(initialState.get)
+
   def collect: Option[Int] = {
-    //make a list of all possible values 
-    possibleValues = possibleValues -- typeFilteredSignals[Option[Int]].toSet
-    
+
+    //make a list of all possible values
+    possibleValues = possibleValues -- mostRecentSignals.toSet
+
     //If own value is determined i.e. if only one possible value is left choose own value
     if (possibleValues.size == 1) {
-      possibleValues.head
+      Some(possibleValues.head)
     }
     else
       state
   }
 }
 
-object sudoku {
+object Sudoku {
 
   def main(args: Array[String]): Unit = {
-    //Values that are given, rest has default value 'None'
-    val initialSeed = Map(
+
+    //Setting the values that are given, rest has default value 'None'
+
+    //Very simple Sudoku
+    val sudoku1 = Map(
       4 -> 9,
       5 -> 6,
       8 -> 5,
@@ -103,6 +107,23 @@ object sudoku {
       75 -> 8,
       76 -> 1)
 
+    //bad-ass Sudoku Puzzle (can't be solved yet)
+    val sudoku2 = Map(
+      0->9, 8->4,
+      11->5, 13->3, 15->8, 16->9,
+      21->6, 24 -> 2,
+      28->9, 31->8, 33->3, 35->7,
+      38->1, 42->4,
+      45->7, 47->3, 49->2, 52->8,
+      56->9, 59->6,
+      64->7, 65->8, 67->5, 69->1,
+      72->6, 80->3
+    )
+
+
+    //select a sudoku puzzle
+    val initialSeed = sudoku1
+
     val cg = new AsynchronousComputeGraph()
 
     //Add all Cells for Sudoku
@@ -111,14 +132,14 @@ object sudoku {
       cg.addVertex[SudokuCell](index, seedValue)
     }
 
-    //Determine neighboring cells for each cell and draw the edges between them 
+    //Determine neighboring cells for each cell and draw the edges between them
     for (index <- 0 to 80) {
       SudokuHelper.cellsToConsider(index).foreach({ i =>
         cg.addEdge[SudokuAssociation](i, index)
       })
     }
 
-    var seed = Map[Int, Option[Int]]()
+    var seed = new HashMap[Int, Option[Int]]()
     cg.foreach { v => seed += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
     SudokuHelper.printSudoku(seed)
 
@@ -126,11 +147,12 @@ object sudoku {
     println(stats)
     println()
 
-    var result = Map[Int, Option[Int]]()
-    cg.foreach { v => println(v); result += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
+    var result = new HashMap[Int, Option[Int]]() with SynchronizedMap[Int, Option[Int]]
+    cg.foreach { v => result += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
+    cg.shutDown
     SudokuHelper.printSudoku(result)
 
-    cg.shutDown
+
   }
 }
 
@@ -141,14 +163,11 @@ object sudoku {
 object SudokuHelper {
   //All possible numbers for a cell
   val legalNumbers = {
-	  var numbers = Set[Option[Int]]()
-	  for(i<-1 to 9) {
-	 	  numbers += Some(i)
-	  }
-	   println
-	   numbers
+    var numbers = (1 to 9).toSet
+    println
+    numbers
   }
-  
+
   //Get Rows, Columns and Bocks from ID
   def getRow(id: Int) = id / 9
   def getColumn(id: Int) = id % 9
@@ -196,8 +215,8 @@ object SudokuHelper {
   /**
    * Formats the data in a classical sudoku layout
    */
-  def printSudoku(data: Map[Int, Option[Int]]) = {
-	  
+  def printSudoku(data: HashMap[Int, Option[Int]]) = {
+
     println()
     println("Sudoku")
     println("======")
