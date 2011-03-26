@@ -23,6 +23,8 @@ import signalcollect.api._
 import signalcollect.api.vertices._
 import signalcollect.api.edges._
 import collection.mutable.{HashMap, SynchronizedMap}
+import collection.mutable.ListMap
+import signalcollect.interfaces.{ComputationStatistics, ComputeGraph}
 
 /**
  * Represents all associated Sudoku cells that have to be taken into account to determine
@@ -45,7 +47,6 @@ class SudokuCell(id: Int, initialState: Option[Int] = None) extends SignalMapVer
   type UpperSignalTypeBound = Int
 
   var possibleValues = SudokuHelper.legalNumbers
-
   if(initialState.isDefined) possibleValues=Set(initialState.get)
 
   def collect: Option[Int] = {
@@ -122,13 +123,89 @@ object Sudoku {
 
 
     //select a sudoku puzzle
-    val initialSeed = sudoku1
+    val initialSeed = sudoku2
 
-    val cg = new AsynchronousComputeGraph()
+    var cg = computeGraphFactory(initialSeed)
+
+    //print initial Sudoku
+    var seed = new HashMap[Int, Option[Int]]()
+    cg.foreach { v => seed += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
+    SudokuHelper.printSudoku(seed)
+
+    val stats = cg.execute
+
+    //If simple constraint propagation did not solve the problem apply a dept search algorithm to find a suitable solution
+    if(!isDone(cg)) {
+      cg = tryPossibilities(cg, stats)
+      if(cg == null) {
+        println()
+        println("Sorry this Sudoku is not solvable")
+        exit(5)
+      }
+    }
+    println(stats)
+    println()
+
+    var result = new HashMap[Int, Option[Int]]() with SynchronizedMap[Int, Option[Int]]
+    cg.foreach { v => result += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
+    cg.shutDown
+    SudokuHelper.printSudoku(result)
+  }
+
+  /**
+   * Check if all cells have a value assigned to it
+   */
+  def isDone(cg: ComputeGraph): Boolean = {
+    var isDone=true
+    cg.foreach(v => if(v.state.asInstanceOf[Option[Int]] == None) isDone = false)
+    isDone
+  }
+
+
+  /**
+   * Recursive depth first search for possible values
+   */
+  def tryPossibilities(cg: ComputeGraph, stats: ComputationStatistics): ComputeGraph = {
+
+    val possibleValues = new ListMap[Int, Set[Int]]()
+    cg.foreach(v => possibleValues.put(v.id.asInstanceOf[Int], v.asInstanceOf[SudokuCell].possibleValues))
+    cg.shutDown
+
+    //Sort all cells that are not yet decided
+    val possibilities=possibleValues.toList.sortBy(_._2.size).filter(_._2.size>1) // Just selects the smallest set of possible values among the cells
+    if(possibilities.size == 0) {
+      return null
+    }
+
+    var solutionFound = false
+
+    // Try different values for the cell with the highest probability for each possible value i.e. the one with
+    // the smallest number of alternatives.
+    val iterator = possibilities.head._2.iterator
+    while(iterator.hasNext && !solutionFound) {
+      var determinedValues = possibleValues.filter(_._2.size==1).map(x => (x._1, x._2.head)).toMap[Int, Int]
+      determinedValues+=(possibilities.head._1 -> iterator.next)
+      var cgTry = computeGraphFactory(determinedValues)
+      stats.cumulateStatistics(cgTry.execute)
+      if(isDone(cgTry)) {
+        solutionFound = true
+        return cgTry
+      }
+      else {
+        val result = tryPossibilities(cgTry, stats)
+        if(result != null)
+          return result //Search was successful
+      }
+    }
+    null
+  }
+
+  def computeGraphFactory(seed: Map[Int, Int]): ComputeGraph = {
+    var cg = new AsynchronousComputeGraph
 
     //Add all Cells for Sudoku
     for (index <- 0 to 80) {
-      val seedValue = initialSeed.get(index)
+      val seedValue = seed.get(index)
       cg.addVertex[SudokuCell](index, seedValue)
     }
 
@@ -138,22 +215,9 @@ object Sudoku {
         cg.addEdge[SudokuAssociation](i, index)
       })
     }
-
-    var seed = new HashMap[Int, Option[Int]]()
-    cg.foreach { v => seed += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
-    SudokuHelper.printSudoku(seed)
-
-    val stats = cg.execute
-    println(stats)
-    println()
-
-    var result = new HashMap[Int, Option[Int]]() with SynchronizedMap[Int, Option[Int]]
-    cg.foreach { v => result += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
-    cg.shutDown
-    SudokuHelper.printSudoku(result)
-
-
+    cg
   }
+
 }
 
 /**
