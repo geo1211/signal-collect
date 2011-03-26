@@ -136,7 +136,7 @@ object Sudoku {
 
     //If simple constraint propagation did not solve the problem apply a dept search algorithm to find a suitable solution
     if(!isDone(cg)) {
-      cg = tryPossibilities(cg, stats)
+      cg = tryPossibilities(cg)
       if(cg == null) {
         println()
         println("Sorry this Sudoku is not solvable")
@@ -165,7 +165,7 @@ object Sudoku {
   /**
    * Recursive depth first search for possible values
    */
-  def tryPossibilities(cg: ComputeGraph, stats: ComputationStatistics): ComputeGraph = {
+  def tryPossibilities(cg: ComputeGraph): ComputeGraph = {
 
     val possibleValues = new ListMap[Int, Set[Int]]()
     cg.foreach(v => possibleValues.put(v.id.asInstanceOf[Int], v.asInstanceOf[SudokuCell].possibleValues))
@@ -186,13 +186,13 @@ object Sudoku {
       var determinedValues = possibleValues.filter(_._2.size==1).map(x => (x._1, x._2.head)).toMap[Int, Int]
       determinedValues+=(possibilities.head._1 -> iterator.next)
       var cgTry = computeGraphFactory(determinedValues)
-      stats.cumulateStatistics(cgTry.execute)
+      cgTry.execute
       if(isDone(cgTry)) {
         solutionFound = true
         return cgTry
       }
       else {
-        val result = tryPossibilities(cgTry, stats)
+        val result = tryPossibilities(cgTry)
         if(result != null)
           return result //Search was successful
       }
