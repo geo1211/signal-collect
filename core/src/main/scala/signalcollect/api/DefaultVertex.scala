@@ -17,9 +17,10 @@
  *  
  */
 
-package signalcollect.api.vertices
+package signalcollect.api
 
-import signalcollect.implementations.graph.ResetStateAfterSignaling
+import signalcollect.implementations.graph.SumOfOutWeights
+import signalcollect.implementations.graph.IncomingEdgeCount
 import signalcollect.interfaces._
 import signalcollect.implementations.graph.AbstractVertex
 import signalcollect.implementations.graph.UncollectedSignalsList
@@ -29,4 +30,12 @@ import scala.collection.mutable.Buffer
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.LinkedHashMap
 
-abstract class ResetStateAfterSignalingVertex[IdType, StateType](id: IdType, val initialState: StateType) extends DefaultVertex[IdType, StateType](id, initialState) with ResetStateAfterSignaling[IdType, StateType]
+abstract class DefaultVertex[IdType, StateType](val id: IdType, initialState: StateType) extends AbstractVertex[IdType, StateType] with UncollectedSignalsList[IdType, StateType] with MostRecentSignalMap[IdType, StateType] with IncomingEdgeCount[IdType, StateType] with SumOfOutWeights[IdType, StateType] {
+  
+	var state = initialState
+  
+	override def toString: String = {
+		this.getClass.getSimpleName + "> Id: " + id + ", State: " + state
+	}
+	
+}

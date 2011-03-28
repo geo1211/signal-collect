@@ -17,9 +17,15 @@
  *  
  */
 
-package signalcollect.api.edges
+package signalcollect.api
 
 import signalcollect.interfaces._
-import signalcollect.implementations.graph.AbstractEdge
+import signalcollect.implementations.graph.AbstractVertex
+import signalcollect.implementations.graph.UncollectedSignalsList
+import signalcollect.implementations.graph.MostRecentSignalMap
+import scala.collection.mutable.Map
+import scala.collection.mutable.Buffer
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.LinkedHashMap
 
-abstract class DefaultEdge[@specialized SourceIdType, @specialized TargetIdType](val sourceId: SourceIdType, val targetId: TargetIdType) extends AbstractEdge[SourceIdType, TargetIdType]
+abstract class UncollectedSignalsVertex[IdType, StateType](val id: IdType, var state: StateType) extends AbstractVertex[IdType, StateType] with UncollectedSignalsList[IdType, StateType]

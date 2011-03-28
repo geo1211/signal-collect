@@ -20,8 +20,6 @@
 package signalcollect.algorithms
 
 import signalcollect.api._
-import signalcollect.api.vertices._
-import signalcollect.api.edges._
 import scala.util.Random
 
 /**
@@ -70,7 +68,7 @@ class ColoredVertex(id: Any, numColors: Int, initialColor: Int, isFixed: Boolean
       } else {
         val r = Random.nextDouble
         if (r > 0.8) {
-          val freeColors = colors -- typeFilteredSignals[Int]
+          val freeColors = colors -- signals[Int]
           val numberOfFreeColors = freeColors.size
           if (numberOfFreeColors > 0) {
         	  freeColors.toSeq(Random.nextInt(numberOfFreeColors))

@@ -17,20 +17,8 @@
  *  
  */
 
-package signalcollect.interfaces
+package signalcollect.graphproviders
 
-import signalcollect.api.AsynchronousComputeGraph
-
-object ComputeGraph {
-  lazy val defaultNumberOfThreads = Runtime.getRuntime.availableProcessors
-}
-
-trait ComputeGraph extends GraphApi {
-  def execute: ComputationStatistics
-  def shutDown
-  def foreach(f: (Vertex[_, _]) => Unit)
-
-  def setSignalThreshold(t: Double)
-  def setCollectThreshold(t: Double)
-  def setStepsLimit(l: Int)
+trait SparqlEndpoint {
+  def execute(query: String): Iterable[Bindings]
 }

@@ -17,15 +17,20 @@
  *  
  */
 
-package signalcollect.api.vertices
+package signalcollect.api
 
 import signalcollect.interfaces._
-import signalcollect.implementations.graph.AbstractVertex
-import signalcollect.implementations.graph.UncollectedSignalsList
-import signalcollect.implementations.graph.MostRecentSignalMap
-import scala.collection.mutable.Map
-import scala.collection.mutable.Buffer
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.LinkedHashMap
+import signalcollect.implementations.graph.AbstractEdge
 
-abstract class SignalMapVertex[IdType, StateType](val id: IdType, var state: StateType) extends AbstractVertex[IdType, StateType] with MostRecentSignalMap[IdType, StateType]
+abstract class OnlySignalOnChangeEdge[@specialized SourceIdType, @specialized TargetIdType](val sourceId: SourceIdType, val targetId: TargetIdType) extends AbstractEdge[SourceIdType, TargetIdType] {
+
+  var lastSignalSent: Option[SignalType] = None
+
+  override def executeSignalOperation(mb: MessageBus[Any, Any]) {
+    val newSignal = signal
+    if (!lastSignalSent.isDefined || !lastSignalSent.get.equals(newSignal)) {
+      	mb.sendToWorkerForIdHash(Signal(sourceId, targetId, newSignal), targetHashCode)
+      	lastSignalSent = Some(newSignal)
+    }
+  }
+}

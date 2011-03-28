@@ -17,15 +17,8 @@
  *  
  */
 
-package signalcollect.api.vertices
+package signalcollect.graphproviders
 
-import signalcollect.interfaces._
-import signalcollect.implementations.graph.AbstractVertex
-import signalcollect.implementations.graph.UncollectedSignalsList
-import signalcollect.implementations.graph.MostRecentSignalMap
-import scala.collection.mutable.Map
-import scala.collection.mutable.Buffer
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.LinkedHashMap
-
-abstract class UncollectedMessagesVertex[IdType, StateType](val id: IdType, var state: StateType) extends AbstractVertex[IdType, StateType] with UncollectedSignalsList[IdType, StateType]
+trait Bindings {
+  def get(s: String): Option[String]
+}
