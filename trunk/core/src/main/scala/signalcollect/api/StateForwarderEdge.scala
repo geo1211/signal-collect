@@ -17,19 +17,15 @@
  *  
  */
 
-package signalcollect.api.edges
+package signalcollect.api
 
 import signalcollect.interfaces._
 import signalcollect.implementations.graph.AbstractEdge
 
-abstract class OptionalSignalEdge[@specialized SourceIdType, @specialized TargetIdType](val sourceId: SourceIdType, val targetId: TargetIdType) extends AbstractEdge[SourceIdType, TargetIdType] {
+object StateForwarderEdge {
+	def apply(sId: Any, tId: Any) = new StateForwarderEdge(sId, tId)
+}
 
-  def signal: Option[_]
-
-  override def executeSignalOperation(mb: MessageBus[Any, Any]) {
-    val optionalSignal = signal
-    if (optionalSignal.isDefined) {
-      	mb.sendToWorkerForIdHash(Signal(sourceId, targetId, optionalSignal.get), targetHashCode)
-    }
-  }
+class StateForwarderEdge(sId: Any, tId: Any) extends DefaultEdge(sId, tId) {
+  def signal = source.state
 }

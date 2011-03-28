@@ -17,15 +17,15 @@
  *  
  */
 
-package signalcollect.api.edges
+package signalcollect.api
 
 import signalcollect.interfaces._
-import signalcollect.implementations.graph.AbstractEdge
+import signalcollect.implementations.graph.AbstractVertex
+import signalcollect.implementations.graph.UncollectedSignalsList
+import signalcollect.implementations.graph.MostRecentSignalMap
+import scala.collection.mutable.Map
+import scala.collection.mutable.Buffer
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.LinkedHashMap
 
-object StateForwarderEdge {
-	def apply(sId: Any, tId: Any) = new StateForwarderEdge(sId, tId)
-}
-
-class StateForwarderEdge(sId: Any, tId: Any) extends DefaultEdge(sId, tId) {
-  def signal = source.state
-}
+abstract class SignalMapVertex[IdType, StateType](val id: IdType, var state: StateType) extends AbstractVertex[IdType, StateType] with MostRecentSignalMap[IdType, StateType]

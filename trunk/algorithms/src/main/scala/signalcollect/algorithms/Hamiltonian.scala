@@ -20,8 +20,7 @@
 package signalcollect.algorithms
 
 import signalcollect.api._
-import signalcollect.api.vertices._
-import signalcollect.api.edges.OnlySignalOnChangeEdge
+
 /**
  * Signal/Collect implementation of finding Hamiltonian paths in graphs.
  */
