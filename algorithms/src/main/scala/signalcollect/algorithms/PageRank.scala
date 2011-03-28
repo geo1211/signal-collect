@@ -20,8 +20,6 @@
 package signalcollect.algorithms
 
 import signalcollect.api._
-import signalcollect.api.vertices._
-import signalcollect.api.edges._
 import signalcollect.implementations.graph.SumOfOutWeights
 
 /**
