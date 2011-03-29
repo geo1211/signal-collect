@@ -4,11 +4,12 @@ This is a short guide that describes how to get the tools that we recommend for 
 
 ==Eclipse==
 Install the Eclipse IDE for Java Developers 3.6.2 (_Helios_) from http://www.eclipse.org/downloads/
+ * Within Eclipse go to _Help_, _Check for updates..._, update to newest Helios release
 
 ==Scala==
 Install the Scala plugin for Eclipse:
   * Within Eclipse go to _Help_, _Install New Software..._
-  * Add as a new location: http://download.scala-ide.org/nightly-update-helios-2.8.1.final
+  * Add as a new location: http://download.scala-ide.org/releases/wip_experiment-2.0.0-beta1
   * Install all the available updates.
 
 ==Maven==
