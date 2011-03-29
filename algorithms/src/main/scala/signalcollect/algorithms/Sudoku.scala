@@ -140,7 +140,7 @@ object Sudoku {
       if(cg == null) {
         println()
         println("Sorry this Sudoku is not solvable")
-        exit(5)
+        sys.exit(5)
       }
     }
     println(stats)

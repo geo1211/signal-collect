@@ -100,7 +100,7 @@ class ColoredVertex(id: Any, numColors: Int, initialColor: Int, isFixed: Boolean
  * of the source vertex as the signal, which means that this algorithm does
  * not require a custom edge type.
  */
-object VertexColoring extends Application {
+object VertexColoring extends App {
   val cg = new AsynchronousComputeGraph()
   cg.addVertex[ColoredVertex](1, 2, 1, false)
   cg.addVertex[ColoredVertex](2, 2, 1, false)
