@@ -16,4 +16,4 @@ Install the Scala plugin for Eclipse:
 Install the _Maven integration for Eclipse_ from the _Eclipse Marketplace_: You find it in the Eclipse _Help_ menu, it's the last entry.
 
 ==SVN==
-Install _Subclipse_ from the _Eclipse Marketplace_: You can find it in the Eclipse _Help_ menu, it's the last entry. We recommend to use the SVNKit client, which can be set in _Eclipse_, _Preferences..._, _Team_, _SVN_, _Client_
+Install _Subclipse_ from the _Eclipse Marketplace_: You can find it in the Eclipse _Help_ menu, it's the last entry. We recommend using the SVNKit client, which can be set in _Eclipse_, _Preferences..._, _Team_, _SVN_, _Client_
