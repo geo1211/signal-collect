@@ -9,7 +9,7 @@ Install the Eclipse IDE for Java Developers 3.6.2 (_Helios_) from http://www.ecl
 ==Scala==
 Install the Scala plugin for Eclipse:
   * Within Eclipse go to _Help_, _Install New Software..._
-  * Add as a new location: http://download.scala-ide.org/releases/wip_experiment-2.0.0-beta1
+  * Add as a new location: http://download.scala-ide.org/releases/wip_experiment-2.0.0-beta2
   * Install all the available updates.
 
 ==Maven==
