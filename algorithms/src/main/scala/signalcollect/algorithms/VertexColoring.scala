@@ -38,7 +38,7 @@ class ColoredVertex(id: Any, numColors: Int, initialColor: Int, isFixed: Boolean
 
   /**
    * Indicates that every signal this vertex receives is
-   *  an instance of Int. This avoids type-checks/-casts.
+   * an instance of Int. This avoids type-checks/-casts.
    */
   override type UpperSignalTypeBound = Int
 
@@ -68,10 +68,10 @@ class ColoredVertex(id: Any, numColors: Int, initialColor: Int, isFixed: Boolean
       } else {
         val r = Random.nextDouble
         if (r > 0.8) {
-          val freeColors = colors -- signals[Int]
+          val freeColors = colors -- signals
           val numberOfFreeColors = freeColors.size
           if (numberOfFreeColors > 0) {
-        	  freeColors.toSeq(Random.nextInt(numberOfFreeColors))
+            freeColors.toSeq(Random.nextInt(numberOfFreeColors))
           } else {
             getRandomColor
           }
@@ -84,7 +84,7 @@ class ColoredVertex(id: Any, numColors: Int, initialColor: Int, isFixed: Boolean
       state
     }
   }
-  
+
   /**
    * The signal score is 1 if this vertex hasn't signaled before or if it has
    *  changed its color (kept track of by informNeighbors). Else it's 0.
