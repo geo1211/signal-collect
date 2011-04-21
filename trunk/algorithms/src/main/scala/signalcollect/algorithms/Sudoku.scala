@@ -61,10 +61,7 @@ class SudokuCell(id: Int, initialState: Option[Int] = None) extends SignalMapVer
   }
 }
 
-object Sudoku {
-
-  def main(args: Array[String]): Unit = {
-
+object Sudoku extends App {
     //Setting the values that are given, rest has default value 'None'
 
     //Very simple Sudoku
@@ -148,7 +145,6 @@ object Sudoku {
     cg.foreach { v => result += Pair(v.id.asInstanceOf[Int], v.state.asInstanceOf[Option[Int]]) }
     cg.shutDown
     SudokuHelper.printSudoku(result)
-  }
 
   /**
    * Check if all cells have a value assigned to it
