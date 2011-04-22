@@ -103,7 +103,7 @@ object Sudoku extends App {
       75 -> 8,
       76 -> 1)
 
-    //bad-ass Sudoku Puzzle (can't be solved yet)
+    //bad-ass Sudoku Puzzle
     val sudoku2 = Map(
       0->9, 8->4,
       11->5, 13->3, 15->8, 16->9,
@@ -164,21 +164,29 @@ object Sudoku extends App {
     val possibleValues = new ListMap[Int, Set[Int]]()
     cg.foreach(v => possibleValues.put(v.id.asInstanceOf[Int], v.asInstanceOf[SudokuCell].possibleValues))
     cg.shutDown
-
-    //Sort all cells that are not yet decided
-    val possibilities=possibleValues.toList.sortBy(_._2.size).filter(_._2.size>1) // Just selects the smallest set of possible values among the cells
-    if(possibilities.size == 0) {
-      return null
+    
+    // Try different values for the cell with the highest probability for each possible value i.e. the one with
+    // the smallest number of alternatives.
+    def mostConstrainedCell: (Int, Set[Int]) = {
+    	//Sort all cells that are not yet decided
+    	val possibilities=possibleValues.toList.sortBy(_._2.size).filter(_._2.size>1) // Just selects the smallest set of possible values among the cells
+    	if(possibilities.size == 0) {
+    		println("No solution found")
+    	      System.exit(-1)
+    	}
+    	possibilities.head
     }
+    
 
     var solutionFound = false
 
-    // Try different values for the cell with the highest probability for each possible value i.e. the one with
-    // the smallest number of alternatives.
-    val iterator = possibilities.head._2.iterator
+
+    val candidate = mostConstrainedCell
+    
+    val iterator = candidate._2.iterator
     while(iterator.hasNext && !solutionFound) {
       var determinedValues = possibleValues.filter(_._2.size==1).map(x => (x._1, x._2.head)).toMap[Int, Int]
-      determinedValues+=(possibilities.head._1 -> iterator.next)
+      determinedValues+=(candidate._1 -> iterator.next)
       var cgTry = computeGraphFactory(determinedValues)
       cgTry.execute
       if(isDone(cgTry)) {
