@@ -26,5 +26,20 @@ $ brew update
 $ brew install mongodb
 }}}
 
+After the installation a folder for the MongoDB needs to be created. For the default configuration settings use: 
+{{{
+$ mkdir -p /data/db
+}}}
+
+When you have created your data folder you can start the MongoDB server by entering:
+{{{
+$ ./mongodb-xxxxxxx/bin/mongod
+}}}
+And enter the MongoDB shell from another terminal with:
+{{{
+$ ./mongodb-xxxxxxx/bin/mongo
+}}}
+Hint: Adding the "bin" folder path (e.g. "/usr/bin/scala/bin/") to your PATH variable might come in handy.
+
 ===Binaries for various OS===
 Binaries for OSX, Linux, Windows & Solaris can be found here: [http://www.mongodb.org/downloads]
