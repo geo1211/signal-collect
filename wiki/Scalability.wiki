@@ -1,0 +1,30 @@
+#Steps needed to make signal-collect scala for large graphs
+
+= Introduction =
+
+= On Disk Storage =
+Signal-collet allows the user to store vertices on disk to increase the numer of vertices that fit into one graph and overcome the constraint due to limited main memory.
+
+== MongoDB==
+===MongoDB Installation===
+A very straight forward installation tutorial can be found in the MongoDB documentation wiki: 
+[http://www.mongodb.org/display/DOCS/Quickstart]
+
+The most important Steps are summarized here:
+
+===OSX Installation===
+The easiest way to install MongoDB is via [http://www.macports.org MacPorts] or [http://mxcl.github.com/homebrew Homebrew] package manager.
+
+For Macports use:
+{{{
+$ sudo port install mongodb
+}}}
+
+With the Homebrew package the MongoDB package can be installed with this commands:
+{{{
+$ brew update
+$ brew install mongodb
+}}}
+
+===Binaries for various OS===
+Binaries for OSX, Linux, Windows & Solaris can be found here: [http://www.mongodb.org/downloads]
