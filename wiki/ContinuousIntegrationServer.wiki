@@ -1,4 +1,4 @@
 #labels Phase-QA
 = Continuous Integration Server for Signal/Collect "core" =
 
-Thanks to the kind people at CodeBetter, JetBrains}, IdeaVine, and Devlicio.us we have a *[http://teamcity.codebetter.com/viewLog.html?buildTypeId=bt381&buildId=lastFinished continuous integration server]* for Signal/Collect "core".
+Thanks to the kind people at CodeBetter, JetBrains, IdeaVine, and Devlicio.us we have a *[http://teamcity.codebetter.com/viewLog.html?buildTypeId=bt381&buildId=lastFinished continuous integration server]* for Signal/Collect "core".
