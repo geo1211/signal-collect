@@ -4,7 +4,7 @@
 
 == Requirements ==
 
-If you previously followed our tutorial on setting up Eclipse with the recommended tools then this tutorial is for you. Otherwise you should do it first.
+If you previously followed our RecommendedTools  tutorial then this tutorial is for you. Otherwise you should do it first.
 
 == Considerations ==
 
