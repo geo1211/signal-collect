@@ -28,15 +28,14 @@ Note.: this is step can ben replaced simply by checking out the project using th
 
 == Step 3 ==
 
-Once the project has been delete from the IDE, still in the same perspective, select right-click on the *Package explorer* empty area and choose _Import_ -> _Maven_ -> _Existing maven projects_
+Once the project has been deleted from the IDE, still in the same perspective, select right-click on the *Package explorer* empty area and choose _Import_ -> _Maven_ -> _Existing maven projects_
 
 The root directory for the project should be your workspace where you actually checked out the project (if you used eclipse to check it out).
 
-Browse to the directory and finish the wizard.
+Browse to the directory, select the directory where the project is (not the project directory itself) and you should see that the wizard found the *pom.xml* configuration. With that just finish the wizard.
 
 == Step 4 ==
 
 The project is now added to the IDE with the Maven management in place. The last step now is to right click it and select _Configure_ -> _Add Scala nature_
 
 With that, you're ready to go.
-
