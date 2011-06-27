@@ -21,7 +21,6 @@ package signalcollect.implementations.storage
 import signalcollect.implementations.messaging._
 import signalcollect.interfaces._
 import signalcollect.api.Factory
-import signalcollect.api.Factory.StorageFactory
 
 /**
  * Trait to provide additional storage functionality for the default 'Factory' in signalcollect's api
@@ -29,14 +28,21 @@ import signalcollect.api.Factory.StorageFactory
 trait AlternativeStorages {
 
   //Mongo DB Storage (requires a running mongoDB installation)
-  class MongoDBStorage(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with MongoDB
-  lazy val MongoDB: StorageFactory = new MongoDBStorage(_)
+  object MongoDB extends StorageFactory {
+    class MongoDBStorage(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with MongoDB
+    def createInstance(messageBus: MessageBus[Any, Any]): Storage = new MongoDBStorage(messageBus)
+  }
 
   //Mongo DB Storage that also stores all toSignal/toCollect lists on disk
-  class AllOnDiskMongoDBStorage(messageBus: MessageBus[Any, Any]) extends MongoDBStorage(messageBus) with MongoDBToDoList
-  lazy val AllOnDiskMongoDB: StorageFactory = new AllOnDiskMongoDBStorage(_)
+  object AllOnDiskMongoDB extends StorageFactory {
+    class MongoDBStorage(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with MongoDB
+    class AllOnDiskMongoDBStorage(messageBus: MessageBus[Any, Any]) extends MongoDBStorage(messageBus) with MongoDBToDoList
+    def createInstance(messageBus: MessageBus[Any, Any]): Storage = new AllOnDiskMongoDBStorage(messageBus)
+  }
 
   //Orient DB Storage (can be run directly from jar, pure java)
-  class OrientDBStorage(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with Orient
-  lazy val OrientDB: StorageFactory = new OrientDBStorage(_)
+  object OrientDB extends StorageFactory {
+    class OrientDBStorage(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with Orient
+    def createInstance(messageBus: MessageBus[Any, Any]): Storage = new OrientDBStorage(messageBus)
+  }
 }
