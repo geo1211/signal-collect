@@ -19,6 +19,7 @@
 
 package signalcollect.implementations.storage
 
+import signalcollect.implementations.storage.wrappers._
 import signalcollect.interfaces._
 import javax.persistence.{ Id, Version }
 import com.orientechnologies.orient.core.id.ORecordId
@@ -30,14 +31,7 @@ import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import com.orientechnologies.orient.core.db.`object`.{ ODatabaseObject, ODatabaseObjectPool, ODatabaseObjectTx }
 
-/**
- * Adapter class for serialized vertices
- */
-case class OrientWrapper(vertexID: String, var serializedVertex: Array[Byte]) {
-  @Id
-  var id: String = _
-  def this() = this(null, null) // default ctor for unmarshalling
-}
+
 
 class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore with DefaultSerializer {
 
@@ -59,7 +53,7 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
   } else {
     db.open("admin", "admin") //Default
   }
-  db.getEntityManager.registerEntityClasses("signalcollect.implementations.storage") // Registers the adapter class
+  db.getEntityManager.registerEntityClasses("signalcollect.implementations.storage.wrappers") // Registers the adapter class
 
   def get(id: Any): Vertex[_, _] = {
     val serialized = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", id.toString.asInstanceOf[AnyRef])
