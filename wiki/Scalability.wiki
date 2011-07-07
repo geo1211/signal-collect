@@ -3,7 +3,7 @@
 = Introduction =
 
 = On Disk Storage =
-Signal-collet allows the user to store vertices on disk to increase the numer of vertices that fit into one graph and overcome the constraint due to limited main memory.
+Signal-Collect allows the user to store vertices on disk to increase the numer of vertices that fit into one graph and overcome the constraint due to limited main memory.
 
 == MongoDB==
 ===MongoDB Installation===
