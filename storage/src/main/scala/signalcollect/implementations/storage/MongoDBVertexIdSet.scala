@@ -20,11 +20,12 @@ package signalcollect.implementations.storage
 
 import signalcollect.interfaces._
 import com.mongodb.casbah.Imports._
+import signalcollect.implementations.serialization._
 
 class MongoDBVertexIdSet(vertexStore: Storage) extends VertexIdSet with DefaultSerializer {
 
   protected var toHandle = vertexSetFactory
-  protected def vertexSetFactory = MongoConnection()("todo")(getRandomString("", 16))
+  protected def vertexSetFactory = MongoConnection()("todo")(RandomString("", 16))
 
   def add(vertexId: Any): Unit = {
     toHandle += MongoDBObject("k" -> write(vertexId))

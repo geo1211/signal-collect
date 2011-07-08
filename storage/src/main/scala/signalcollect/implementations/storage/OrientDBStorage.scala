@@ -30,10 +30,9 @@ import com.orientechnologies.orient.core.sql.OCommandExecutorSQLDelete
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import com.orientechnologies.orient.core.db.`object`.{ ODatabaseObject, ODatabaseObjectPool, ODatabaseObjectTx }
+import signalcollect.implementations.serialization._
 
-
-
-class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore with DefaultSerializer {
+class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore with VertexSerializer {
 
   implicit def dbWrapper(db: ODatabaseObjectTx) = new {
     def queryBySql[T](sql: String, params: AnyRef*): List[T] = {
@@ -50,10 +49,10 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
   var db: ODatabaseObjectTx = new ODatabaseObjectTx(uri)
   if (!db.exists) {
     db.create()
+    db.getEntityManager.registerEntityClasses("signalcollect.implementations.storage.wrappers") // Registers the adapter class
   } else {
     db.open("admin", "admin") //Default
   }
-  db.getEntityManager.registerEntityClasses("signalcollect.implementations.storage.wrappers") // Registers the adapter class
 
   def get(id: Any): Vertex[_, _] = {
     val serialized = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", id.toString.asInstanceOf[AnyRef])
@@ -112,5 +111,5 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
  * To allow mixing-in this storage implementation into a more general storage implementation
  */
 trait Orient extends DefaultStorage {
-  override protected def vertexStoreFactory = new OrientDBStorage(this, getRandomString("/tmp/orient", 3))
+  override protected def vertexStoreFactory = new OrientDBStorage(this, RandomString("/var/tmp/orient", 10))
 }
