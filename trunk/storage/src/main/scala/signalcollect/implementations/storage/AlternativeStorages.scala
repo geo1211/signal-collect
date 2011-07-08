@@ -23,9 +23,9 @@ import signalcollect.interfaces._
 import signalcollect.api.Factory
 
 /**
- * Trait to provide additional storage functionality for the default 'Factory' in signalcollect's api
+ * Provides additional storage functionality as alternatives to the ones contained in signal/collect's Factory object
  */
-trait AlternativeStorages {
+object AlternativeStorages {
 
   //Mongo DB Storage (requires a running mongoDB installation)
   object MongoDB extends StorageFactory {

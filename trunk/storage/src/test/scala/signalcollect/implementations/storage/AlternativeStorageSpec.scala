@@ -98,7 +98,7 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
   }
 
   "OrientDB" should {
-    if (hasReadAndWritePermission("/tmp/")) {
+    if (hasReadAndWritePermission("/var/tmp/")) {
       val defaultMessageBus = mock[DefaultMessageBus[Any, Any]]
       val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
       class OrientDB(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with Orient

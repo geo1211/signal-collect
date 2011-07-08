@@ -24,6 +24,7 @@ import signalcollect.api.DefaultVertex
 import java.util.Set
 import java.util.HashMap
 import org.apache.log4j.helpers.LogLog
+import signalcollect.implementations.serialization._
 
 /**
  * Uses Mongo DB to Store the vertices and their according edges on disk
@@ -33,8 +34,9 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
   LogLog.setQuietMode(true) //make Log4J remain quiet
   val messageBus = storage.getMessageBus
 
-  val randomID = getRandomString("sc-", 16) //To make sure that different workers operate on different MongoDB collections 
-  var mongoStore = MongoConnection()("sc")(randomID) //connect to localhost at port 27017 
+//  val randomID = getRandomString("sc-", 16) //To make sure that different workers operate on different MongoDB collections 
+  val connectionID = "sc-mongo"
+  var mongoStore = MongoConnection()("sc")(connectionID) //connect to localhost at port 27017 
 
   def put(vertex: Vertex[_, _]): Boolean = {
     val builder = MongoDBObject.newBuilder
