@@ -111,5 +111,5 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
  * To allow mixing-in this storage implementation into a more general storage implementation
  */
 trait Orient extends DefaultStorage {
-  override protected def vertexStoreFactory = new OrientDBStorage(this, RandomString("/var/tmp/orient", 10))
+  override protected def vertexStoreFactory = new OrientDBStorage(this, RandomString("./sc-orient", 10))
 }
