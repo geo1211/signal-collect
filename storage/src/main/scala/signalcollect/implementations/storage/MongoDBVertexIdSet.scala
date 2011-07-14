@@ -60,6 +60,8 @@ class MongoDBVertexIdSet(vertexStore: Storage) extends VertexIdSet with DefaultS
   def resumeProcessingSnapshot[U](f: (Vertex[_, _]) => U, breakConditionReached: () => Boolean): Boolean = {
 	  true
   }
+  
+  def cleanUp = toHandle.drop
 }
 
 trait MongoDBToDoList extends DefaultStorage {

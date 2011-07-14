@@ -31,6 +31,7 @@ import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import com.orientechnologies.orient.core.db.`object`.{ ODatabaseObject, ODatabaseObjectPool, ODatabaseObjectTx }
 import signalcollect.implementations.serialization._
+import java.io.File
 
 class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore with VertexSerializer {
 
@@ -49,10 +50,10 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
   var db: ODatabaseObjectTx = new ODatabaseObjectTx(uri)
   if (!db.exists) {
     db.create()
-    db.getEntityManager.registerEntityClasses("signalcollect.implementations.storage.wrappers") // Registers the adapter class
   } else {
     db.open("admin", "admin") //Default
   }
+  db.getEntityManager.registerEntityClasses("signalcollect.implementations.storage.wrappers") // Registers the adapter class
 
   def get(id: Any): Vertex[_, _] = {
     val serialized = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", id.toString.asInstanceOf[AnyRef])
@@ -83,10 +84,10 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
 
   def remove(id: Any) = {
     val queryResult = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", id.toString.asInstanceOf[AnyRef])
-    if(!queryResult.isEmpty) {
-    	db.delete(queryResult.last)
-    	storage.toSignal.remove(id)
-    	storage.toCollect.remove(id)     
+    if (!queryResult.isEmpty) {
+      db.delete(queryResult.last)
+      storage.toSignal.remove(id)
+      storage.toCollect.remove(id)
     }
   }
 
@@ -105,11 +106,22 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
   }
 
   def size: Long = db.countClass(classOf[OrientWrapper])
+
+  def cleanUp {
+    val iterator = db.browseClass[OrientWrapper]("OrientWrapper")
+    while (iterator.hasNext) {
+      val entry = iterator.next
+      db.delete(entry)
+    }
+  }
 }
 
 /**
  * To allow mixing-in this storage implementation into a more general storage implementation
  */
 trait Orient extends DefaultStorage {
-  override protected def vertexStoreFactory = new OrientDBStorage(this, RandomString("./sc-orient", 10))
+  override protected def vertexStoreFactory = {
+    val currentDir = new File(".")
+    new OrientDBStorage(this, currentDir.getCanonicalPath + File.pathSeparator + "sc-orient/")
+  }
 }
