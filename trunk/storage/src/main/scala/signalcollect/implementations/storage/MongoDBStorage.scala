@@ -34,9 +34,9 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
   LogLog.setQuietMode(true) //make Log4J remain quiet
   val messageBus = storage.getMessageBus
 
-//  val randomID = getRandomString("sc-", 16) //To make sure that different workers operate on different MongoDB collections 
-  val connectionID = "sc-mongo"
-  var mongoStore = MongoConnection()("sc")(connectionID) //connect to localhost at port 27017 
+  val collectionID = RandomString("sc-", 16) //To make sure that different workers operate on different MongoDB collections 
+//  val collectionID = "sc-mongo"
+  var mongoStore = MongoConnection()("sc")(collectionID) //connect to localhost at port 27017 
 
   def put(vertex: Vertex[_, _]): Boolean = {
     val builder = MongoDBObject.newBuilder
@@ -51,6 +51,7 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
       storage.toSignal.add(vertex.id)
       true
     }
+    
   }
 
   def get(id: Any): Vertex[_, _] = {
@@ -82,6 +83,10 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
   }
 
   def size = mongoStore.size
+  
+  def cleanUp {
+    mongoStore.drop
+  }
 }
 
 trait MongoDB extends DefaultStorage {

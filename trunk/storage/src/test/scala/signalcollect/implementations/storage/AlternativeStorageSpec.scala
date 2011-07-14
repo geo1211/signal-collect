@@ -83,7 +83,7 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
         mongoStore.vertices.get(1).hashCode === vertexList(1).hashCode
       }
 
-      "reflect Changes" in {
+      "reflect changes" in {
         val v1_old: Vertex[_, _] = mongoStore.vertices.get(1)
         val v1_changed = new Page(1, 0.4)
         mongoStore.vertices.updateStateOfVertex(v1_changed)
@@ -94,11 +94,17 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
         v1_new.state === v1_changed.state
         mongoStore.vertices.size === 3l //old entry is replaced
       }
+      
+      "clean up after execution" in {
+    	  mongoStore.cleanUp
+    	  1===1
+      }
     }
   }
 
   "OrientDB" should {
-    if (hasReadAndWritePermission("/var/tmp/")) {
+    val currentDir = new java.io.File(".")
+    if (hasReadAndWritePermission(currentDir.getCanonicalPath)) {
       val defaultMessageBus = mock[DefaultMessageBus[Any, Any]]
       val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
       class OrientDB(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with Orient
@@ -146,7 +152,11 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
       "delete a vertex" in {
         orientStore.vertices.remove(1)
         orientStore.vertices.size === 2l //old entry is replaced
-
+      }
+      
+      "clean up after execution" in {
+        orientStore.cleanUp
+        1===1
       }
     } else { //No permission in /tmp folder
       "fail gracefully because no write permissions for temp folder exist" in {
