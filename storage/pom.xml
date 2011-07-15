@@ -9,7 +9,7 @@
 		<repository>
 			<id>scala-tools.org</id>
 			<name>Scala-Tools Maven2 Releases Repository</name>
-			<url>http://scala-tools.org/repo-snapshots/</url>
+			<url>http://scala-tools.org/repo-releases/</url>
 		</repository>
 		<repository>
 			<id>orientechnologies-repository</id>
@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>org.specs2</groupId>
 			<artifactId>specs2_2.9.0-1</artifactId>
-			<version>1.4</version>
+			<version>1.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
