@@ -61,9 +61,9 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
         1 === 1
       }
     } else {
-      val defaultMessageBus = mock[DefaultMessageBus[Any, Any]]
+      val defaultMessageBus = mock[DefaultMessageBus[Any]]
       val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
-      class MongoDBStorage(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with MongoDB
+      class MongoDBStorage(messageBus: MessageBus[Any]) extends DefaultStorage(messageBus) with MongoDB
       val mongoStore = new MongoDBStorage(defaultMessageBus)
       vertexList.foreach(v => mongoStore.vertices.put(v))
 
@@ -105,9 +105,9 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
   "OrientDB" should {
     val currentDir = new java.io.File(".")
     if (hasReadAndWritePermission(currentDir.getCanonicalPath)) {
-      val defaultMessageBus = mock[DefaultMessageBus[Any, Any]]
+      val defaultMessageBus = mock[DefaultMessageBus[Any]]
       val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
-      class OrientDB(messageBus: MessageBus[Any, Any]) extends DefaultStorage(messageBus) with Orient
+      class OrientDB(messageBus: MessageBus[Any]) extends DefaultStorage(messageBus) with Orient
       val orientStore = new OrientDB(defaultMessageBus)
       vertexList.foreach(v => orientStore.vertices.put(v))
 
