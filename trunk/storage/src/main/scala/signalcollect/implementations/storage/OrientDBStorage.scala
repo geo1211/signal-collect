@@ -122,6 +122,6 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
 trait Orient extends DefaultStorage {
   override protected def vertexStoreFactory = {
     val currentDir = new File(".")
-    new OrientDBStorage(this, currentDir.getCanonicalPath + File.pathSeparator + "sc-orient/")
+    new OrientDBStorage(this, currentDir.getCanonicalPath + "/sc-orient/")
   }
 }
