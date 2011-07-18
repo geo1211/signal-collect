@@ -22,7 +22,6 @@ package signalcollect.configuration
 import signalcollect.api._
 import signalcollect.interfaces._
 import signalcollect.configuration.provisioning._
-import signalcollect.configuration.bootstrap._
 
 object DefaultDistributedGraphBuilder extends DistributedGraphBuilder
 
