@@ -17,7 +17,7 @@
  *  
  */
 
-package signalcollect.util
+package com.signalcollect.util
 
 /**
  * Ports and service names used by the distributed system

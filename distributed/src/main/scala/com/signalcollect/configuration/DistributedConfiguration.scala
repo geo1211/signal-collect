@@ -17,10 +17,10 @@
  *  
  */
 
-package signalcollect.configuration
+package com.signalcollect.configuration
 
-import signalcollect.interfaces._
-import signalcollect.configuration.provisioning._
+import com.signalcollect.interfaces._
+import com.signalcollect.configuration.provisioning._
 
 import java.util.HashMap
 

@@ -1,11 +1,11 @@
-package signalcollect.api
+package com.signalcollect.api
 
-import signalcollect.configuration._
-import signalcollect.interfaces._
-import signalcollect.implementations.storage._
-import signalcollect.implementations.worker._
-import signalcollect.implementations.messaging._
-import signalcollect.implementations.coordinator.WorkerApi
+import com.signalcollect.configuration._
+import com.signalcollect.interfaces._
+import com.signalcollect.implementations.storage._
+import com.signalcollect.implementations.worker._
+import com.signalcollect.implementations.messaging._
+import com.signalcollect.implementations.coordinator.WorkerApi
 
 import akka.actor.Actor
 import akka.actor.Actor._
@@ -13,7 +13,7 @@ import akka.actor.ActorRef
 import akka.dispatch.Dispatchers
 import akka.actor.TypedActor
 
-import signalcollect.util.Constants
+import com.signalcollect.util.Constants
 
 object Factory {
 
