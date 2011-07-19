@@ -17,7 +17,7 @@
  *  
  */
 
-package signalcollect.implementations.storage.wrappers
+package com.signalcollect.implementations.storage.wrappers
 
 import javax.persistence.{ Id, Version }
 

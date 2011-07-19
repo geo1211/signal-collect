@@ -16,11 +16,11 @@
  *  limitations under the License.
  */
 
-package signalcollect.implementations.storage
+package com.signalcollect.implementations.storage
 
-import signalcollect.implementations.messaging._
-import signalcollect.interfaces._
-import signalcollect.api.Factory
+import com.signalcollect.implementations.messaging._
+import com.signalcollect.interfaces._
+import com.signalcollect.api.Factory
 
 /**
  * Provides additional storage functionality as alternatives to the ones contained in signal/collect's Factory object

@@ -16,15 +16,15 @@
  *  limitations under the License.
  */
 
-package signalcollect.implementations.storage
+package com.signalcollect.implementations.storage
 
 import com.mongodb.casbah.Imports._
-import signalcollect.interfaces._
-import signalcollect.api.DefaultVertex
+import com.signalcollect.interfaces._
+import com.signalcollect.api.DefaultVertex
 import java.util.Set
 import java.util.HashMap
 import org.apache.log4j.helpers.LogLog
-import signalcollect.implementations.serialization._
+import com.signalcollect.implementations.serialization._
 
 /**
  * Uses Mongo DB to Store the vertices and their according edges on disk
