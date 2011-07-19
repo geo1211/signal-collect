@@ -17,10 +17,10 @@
  *  
  */
 
-package signalcollect.configuration
+package com.signalcollect.configuration
 
-import signalcollect.api._
-import signalcollect.interfaces._
+import com.signalcollect.api._
+import com.signalcollect.interfaces._
 
 /**
  * The NodeProvisioning class will be responsible for providing these values for each worker

@@ -17,12 +17,12 @@
  *  
  */
 
-package signalcollect.api
+package com.signalcollect.api
 
-import signalcollect.interfaces._
-import signalcollect.configuration._
-import signalcollect.implementations.coordinator._
-import signalcollect.implementations.logging._
+import com.signalcollect.interfaces._
+import com.signalcollect.configuration._
+import com.signalcollect.implementations.coordinator._
+import com.signalcollect.implementations.logging._
 
 /**
  * The bootstrap sequence for initializing the distributed infrastructure 

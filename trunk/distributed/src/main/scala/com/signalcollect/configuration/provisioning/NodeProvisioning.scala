@@ -17,7 +17,7 @@
  *  
  */
 
-package signalcollect.configuration.provisioning
+package com.signalcollect.configuration.provisioning
 
 import scala.collection.mutable.HashMap
 
