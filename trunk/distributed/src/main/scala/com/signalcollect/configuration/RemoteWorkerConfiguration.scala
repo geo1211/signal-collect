@@ -19,7 +19,7 @@
 
 package com.signalcollect.configuration
 
-import com.signalcollect.api._
+import com.signalcollect.api.factory._
 import com.signalcollect.interfaces._
 
 /**
@@ -31,8 +31,8 @@ trait RemoteWorkerConfiguration extends WorkerConfiguration {
 }
 
 case class DefaultRemoteWorkerConfiguration(
-  workerFactory: WorkerFactory = Factory.Worker.AkkaRemote,
-  messageBusFactory: MessageBusFactory = Factory.MessageBus.AkkaBus,
-  storageFactory: StorageFactory = Factory.Storage.InMemory,
+  workerFactory: WorkerFactory = worker.AkkaRemote,
+  messageBusFactory: MessageBusFactory = messageBus.AkkaBus,
+  storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
   port: Int = 0) extends RemoteWorkerConfiguration

@@ -1,3 +1,23 @@
+/*
+ *  @author Francisco de Freitas
+ *  
+ *  Copyright 2011 University of Zurich
+ *      
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *  
+ */
+
+
 package com.signalcollect.api
 
 import com.signalcollect.configuration._
@@ -15,24 +35,17 @@ import akka.actor.TypedActor
 
 import com.signalcollect.util.Constants
 
-object Factory {
+package factory {
 
-  object Storage {
-
-    object InMemory extends StorageFactory {
-      def createInstance(messageBus: MessageBus[Any]): Storage = new DefaultStorage(messageBus)
-    }
-  }
-
-  object MessageBus {
+  /*package messageBus {
 
     object AkkaBus extends MessageBusFactory {
       def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBus[Any](numberOfWorkers, mapper)
     }
 
-  }
+  }*/
 
-  object Worker {
+  package worker {
     /**
      * Creating akka workers and returning actor refs for the distributed case
      */
@@ -44,7 +57,7 @@ object Factory {
 
         config.executionArchitecture match {
 
-          case LocalExecutionArchitecture => throw new Exception("Akka remote workers should only be used in the Distributed case.")
+          case LocalExecutionArchitecture => throw new Exception("Akka remote workers can only be used in the Distributed case.")
 
           /**
            *  In case its distributed, worker instantiation is different.
