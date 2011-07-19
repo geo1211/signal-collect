@@ -16,11 +16,11 @@
  *  limitations under the License.
  */
 
-package signalcollect.implementations.storage
+package com.signalcollect.implementations.storage
 
-import signalcollect.interfaces._
+import com.signalcollect.interfaces._
 import com.mongodb.casbah.Imports._
-import signalcollect.implementations.serialization._
+import com.signalcollect.implementations.serialization._
 
 class MongoDBVertexIdSet(vertexStore: Storage) extends VertexIdSet with DefaultSerializer {
 

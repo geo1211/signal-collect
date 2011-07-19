@@ -16,16 +16,16 @@
  *  limitations under the License.
  */
 
-package signalcollect.implementations.storage
+package com.signalcollect.implementations.storage
 
 import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.matcher.Matcher
 import org.specs2.mock.Mockito
-import signalcollect.interfaces._
-import signalcollect.implementations.messaging.DefaultMessageBus
-import signalcollect.algorithms.Page
+import com.signalcollect.interfaces._
+import com.signalcollect.implementations.messaging.DefaultMessageBus
+import com.signalcollect.examples.Page
 import java.io._
 import com.mongodb.casbah.Imports._
 import org.apache.log4j.helpers.LogLog
