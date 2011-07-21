@@ -33,8 +33,15 @@ import com.orientechnologies.orient.core.db.`object`.{ ODatabaseObject, ODatabas
 import com.signalcollect.implementations.serialization._
 import java.io.File
 
+/**
+ * OrientDB storage back end for persistent vertex storage {@link http://www.orientechnologies.com/orient-db.htm}
+ * Needs no additional installation because it runs directly from jar
+ */
 class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore with VertexSerializer {
 
+  /**
+   * Wrapper to allow SQL like queries
+   */
   implicit def dbWrapper(db: ODatabaseObjectTx) = new {
     def queryBySql[T](sql: String, params: AnyRef*): List[T] = {
       val params4java = params.toArray
@@ -43,29 +50,41 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
     }
   }
 
-  val messageBus = storage.getMessageBus
-
-  // Create DB or connect to existing
-  var uri: String = "local:" + DBLocation
+  /**
+   *  Create DB or connect to existing
+   */
+  val dblocation = DBLocation + RandomString("", 5) + "/"
+  val f = new File(dblocation).mkdir
+  val uri: String = "local:" + dblocation
   var db: ODatabaseObjectTx = new ODatabaseObjectTx(uri)
   if (!db.exists) {
     db.create()
   } else {
-    db.open("admin", "admin") //Default
+    db.open("admin", "admin") //Default parameters
   }
   db.getEntityManager.registerEntityClasses("com.signalcollect.implementations.storage.wrappers") // Registers the adapter class
 
+  /**
+   * Reads the serialized vertices from the database and reconstructs a vertex object
+   *
+   * @param id ID of the vertex to deserialize
+   * @return the deserialized vertex
+   */
   def get(id: Any): Vertex[_, _] = {
     val serialized = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", id.toString.asInstanceOf[AnyRef])
     if (serialized.isEmpty) {
       null
     } else {
-      var vertex: Vertex[_, _] = read(serialized.last.serializedVertex)
-      vertex.setMessageBus(messageBus)
-      vertex
+      read(serialized.last.serializedVertex)
     }
   }
 
+  /**
+   * Serializes a vertex object and adds it to the database
+   *
+   * @param vertex the vertex to store
+   * @return insertion was successful i.e. the vertex was not already contained in the database
+   */
   def put(vertex: Vertex[_, _]): Boolean = {
     var alreadyStored = false
     if (size > 0) {
@@ -74,14 +93,17 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
     }
     if (!alreadyStored) {
       db.save(new OrientWrapper(vertex.id.toString, write(vertex)))
-      storage.toCollect.add(vertex.id)
+      storage.toCollect.addVertex(vertex.id)
       storage.toSignal.add(vertex.id)
-      true
-    } else {
-      false
-    }
+    } 
+    !alreadyStored
   }
 
+  /**
+   * Deletes entries for vertices with this id
+   *
+   * @param id the id of the vertex to delete
+   */
   def remove(id: Any) = {
     val queryResult = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", id.toString.asInstanceOf[AnyRef])
     if (!queryResult.isEmpty) {
@@ -91,28 +113,40 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
     }
   }
 
+  /**
+   * Replaces the serialized state of a vertex
+   *
+   * @param vertex the vertex that replaces the currently stored vertex with the same id
+   */
   def updateStateOfVertex(vertex: Vertex[_, _]) = {
     var wrappedVertex = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", vertex.id.toString.asInstanceOf[AnyRef]).last
     wrappedVertex.serializedVertex = write(vertex)
     db.save(wrappedVertex)
   }
 
+  /**
+   * Applies the specified function on all stored vertices and saves their changed state.
+   * 
+   * @param f the function to apply to all vertices in the database
+   */
   def foreach[U](f: (Vertex[_, _]) => U) {
     val iterator = db.browseClass[OrientWrapper]("OrientWrapper")
     while (iterator.hasNext) {
       val vertex: Vertex[_, _] = read(iterator.next.serializedVertex)
       f(vertex)
+      updateStateOfVertex(vertex)
     }
   }
 
   def size: Long = db.countClass(classOf[OrientWrapper])
 
+  /**
+   * Deletes the whole database
+   */
   def cleanUp {
-    val iterator = db.browseClass[OrientWrapper]("OrientWrapper")
-    while (iterator.hasNext) {
-      val entry = iterator.next
-      db.delete(entry)
-    }
+    val folder = new File(dblocation)
+    folder.listFiles.foreach(file => file.delete)
+    folder.delete
   }
 }
 
@@ -122,6 +156,17 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
 trait Orient extends DefaultStorage {
   override protected def vertexStoreFactory = {
     val currentDir = new File(".")
-    new OrientDBStorage(this, currentDir.getCanonicalPath + "/sc-orient/")
+    val userName = System.getenv("USER")
+    val jobId = System.getenv("PBS_JOBID")
+    if (userName != null && jobId != null) {
+      val torqueTempFolder = new File("/home/torque/tmp/" + userName + "." + jobId + "/")
+      if (torqueTempFolder.exists && torqueTempFolder.isDirectory) {
+        new OrientDBStorage(this, torqueTempFolder.getAbsolutePath)
+      } else {
+        new OrientDBStorage(this, currentDir.getCanonicalPath + "/sc-orient/")
+      }
+    } else {
+      new OrientDBStorage(this, currentDir.getCanonicalPath + "/sc-orient/")
+    }
   }
 }
