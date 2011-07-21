@@ -22,9 +22,13 @@ import com.signalcollect.interfaces._
 import com.mongodb.casbah.Imports._
 import com.signalcollect.implementations.serialization._
 
+/**
+ * Stores Vertex IDs in a MongoDB collection
+ */
 class MongoDBVertexIdSet(vertexStore: Storage) extends VertexIdSet with DefaultSerializer {
 
   protected var toHandle = vertexSetFactory
+  
   protected def vertexSetFactory = MongoConnection()("todo")(RandomString("", 16))
 
   def add(vertexId: Any): Unit = {
@@ -43,24 +47,20 @@ class MongoDBVertexIdSet(vertexStore: Storage) extends VertexIdSet with DefaultS
     toHandle.isEmpty
   }
 
-  def size(): Long = { toHandle.size }
+  def size: Int = toHandle.size
 
-  def foreach[U](f: (Vertex[_, _]) => U) = {
+  def foreach[U](f: (Any) => U) = {
     toHandle.foreach{s => f(vertexStore.vertices.get(read((s.getAs[Array[Byte]]("k")).get))); toHandle.remove(s) 
     }
   }
 
-  def foreachWithSnapshot[U](f: (Vertex[_, _]) => U, breakCondition: () => Boolean):Boolean = {
+  def foreachWithSnapshot[U](f: (Any) => U, breakCondition: () => Boolean):Boolean = {
 	  val toHandleSnapshot = toHandle
       toHandle = vertexSetFactory
       toHandleSnapshot.foreach{s => f(vertexStore.vertices.get(read((s.getAs[Array[Byte]]("k")).get))); toHandle.remove(s)}
 	  true
   }
-  
-  def resumeProcessingSnapshot[U](f: (Vertex[_, _]) => U, breakConditionReached: () => Boolean): Boolean = {
-	  true
-  }
-  
+ 
   def cleanUp = toHandle.drop
 }
 

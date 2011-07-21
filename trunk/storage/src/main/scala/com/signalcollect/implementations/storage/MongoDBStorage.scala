@@ -21,52 +21,79 @@ package com.signalcollect.implementations.storage
 import com.mongodb.casbah.Imports._
 import com.signalcollect.interfaces._
 import com.signalcollect.api.DefaultVertex
-import java.util.Set
 import java.util.HashMap
 import org.apache.log4j.helpers.LogLog
 import com.signalcollect.implementations.serialization._
 
 /**
- * Uses Mongo DB to Store the vertices and their according edges on disk
- * The lists of Vertices to collect/signal are kept in memory.
+ * MongoDB storage back end for persistent vertex storage {@link http://www.mongodb.org/}
+ * Utilizes the casbah driver for MongoDB on scala. {@link http://api.mongodb.org/scala/casbah/current/}
+ *
+ * Uses MongoDB to Store the vertices and their outgoing edges on disk
+ * 
+ * >> Requires a running MongoDB deamon <<
  */
 class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerializer {
+
   LogLog.setQuietMode(true) //make Log4J remain quiet
-  val messageBus = storage.getMessageBus
 
-  val collectionID = RandomString("sc-", 16) //To make sure that different workers operate on different MongoDB collections 
-//  val collectionID = "sc-mongo"
-  var mongoStore = MongoConnection()("sc")(collectionID) //connect to localhost at port 27017 
+  /*
+   * Connect to a MongoDB collection
+   */
+  val databaseName = "sc"
+  val collectionID = RandomString("sc-", 16) //To make sure that different workers operate on different MongoDB collections
+  var mongoStore = MongoConnection()(databaseName)(collectionID) //connect to localhost at port 27017 
 
+  /**
+   * Serializes a vertex object and adds it to the MongoDB collection
+   *
+   * @param vertex the vertex to store
+   * @return insertion was successful i.e. the vertex was not already contained in the store
+   */
   def put(vertex: Vertex[_, _]): Boolean = {
     val builder = MongoDBObject.newBuilder
     builder += "id" -> vertex.id.toString
     if (mongoStore.findOne(builder.result) != None) {
       false
     } else {
-      vertex.setMessageBus(messageBus)
       builder += "obj" -> write(vertex)
       mongoStore += builder.result
-      storage.toCollect.add(vertex.id)
+      storage.toCollect.addVertex(vertex.id)
       storage.toSignal.add(vertex.id)
       true
     }
-    
+
   }
 
+  /**
+   * Reads the serialized vertices from the database and reconstructs a vertex object
+   *
+   * @param id ID of the vertex to deserialize
+   * @return the deserialized vertex
+   */
   def get(id: Any): Vertex[_, _] = {
     mongoStore.findOne(MongoDBObject("id" -> id.toString)) match {
-      case Some(x) => val serialized = x.getAs[Array[Byte]]("obj"); val vertex = read(serialized.get).asInstanceOf[Vertex[_, _]]; vertex.setMessageBus(messageBus); vertex;
+      case Some(x) => val serialized = x.getAs[Array[Byte]]("obj"); read(serialized.get).asInstanceOf[Vertex[_, _]]
       case _ => null
     }
   }
 
+  /**
+   * Deletes entries for vertices with this id
+   *
+   * @param id the id of the vertex to delete
+   */
   def remove(id: Any) = {
     mongoStore.remove(MongoDBObject("id" -> id.toString))
     storage.toCollect.remove(id)
     storage.toSignal.remove(id)
   }
 
+  /**
+   * Replaces the serialized state of a vertex
+   *
+   * @param vertex the vertex that replaces the currently stored vertex with the same id
+   */
   def updateStateOfVertex(vertex: Vertex[_, _]) = {
     val q = MongoDBObject("id" -> vertex.id.toString)
     val serialized = write(vertex)
@@ -74,6 +101,11 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
     mongoStore.update(q, updated)
   }
 
+  /**
+   * Applies the specified function on all stored vertices and saves their changed state.
+   * 
+   * @param f the function to apply to all vertices in the database
+   */
   def foreach[U](f: (Vertex[_, _]) => U) {
     mongoStore.foreach(dbobj => {
       val vertex = read(dbobj.getAs[Array[Byte]]("obj").get).asInstanceOf[Vertex[_, _]]
@@ -83,12 +115,18 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
   }
 
   def size = mongoStore.size
-  
+
+  /**
+   * Drops the collection (but not the database)
+   */
   def cleanUp {
     mongoStore.drop
   }
 }
 
+/**
+ * Allows mixing in MongoDB in the DefaultStorage Implementation to change its storage back end.
+ */
 trait MongoDB extends DefaultStorage {
   override protected def vertexStoreFactory = new MongoDBStorage(this)
 }

@@ -55,7 +55,7 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
         mongoIsRunning = false
       }
     }
-    //val process = Runtime.getRuntime.exec("mongod")
+
     if (!mongoIsRunning) {
       "fail gracefully if MongoDB is not present" in {
         1 === 1
