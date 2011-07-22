@@ -22,7 +22,6 @@ import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.matcher.Matcher
-import org.specs2.mock.Mockito
 import com.signalcollect.interfaces._
 import com.signalcollect.implementations.messaging.DefaultMessageBus
 import com.signalcollect.examples.Page
@@ -31,7 +30,7 @@ import com.mongodb.casbah.Imports._
 import org.apache.log4j.helpers.LogLog
 
 @RunWith(classOf[JUnitRunner])
-class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
+class AlternativeStorageSpec extends SpecificationWithJUnit {
   LogLog.setQuietMode(true)
 
   /**
@@ -61,10 +60,9 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
         1 === 1
       }
     } else {
-      val defaultMessageBus = mock[DefaultMessageBus[Any]]
       val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
-      class MongoDBStorage(messageBus: MessageBus[Any]) extends DefaultStorage(messageBus) with MongoDB
-      val mongoStore = new MongoDBStorage(defaultMessageBus)
+      class MongoDBStorage extends DefaultStorage with MongoDB
+      val mongoStore = new MongoDBStorage
       vertexList.foreach(v => mongoStore.vertices.put(v))
 
       "Hold all inserted Vertices" in {
@@ -105,10 +103,9 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
   "OrientDB" should {
     val currentDir = new java.io.File(".")
     if (hasReadAndWritePermission(currentDir.getCanonicalPath)) {
-      val defaultMessageBus = mock[DefaultMessageBus[Any]]
       val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
-      class OrientDB(messageBus: MessageBus[Any]) extends DefaultStorage(messageBus) with Orient
-      val orientStore = new OrientDB(defaultMessageBus)
+      class OrientDB extends DefaultStorage with Orient
+      val orientStore = new OrientDB
       vertexList.foreach(v => orientStore.vertices.put(v))
 
       "Hold all inserted Vertices" in {
@@ -158,7 +155,7 @@ class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
         orientStore.cleanUp
         1===1
       }
-    } else { //No permission in /tmp folder
+    } else { //No permission in current folder
       "fail gracefully because no write permissions for temp folder exist" in {
         1 === 1
       }
