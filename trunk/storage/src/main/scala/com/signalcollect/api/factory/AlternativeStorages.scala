@@ -31,21 +31,21 @@ package factory {
 
     //Mongo DB Storage (requires a running mongoDB installation)
     object MongoDB extends StorageFactory {
-      class MongoDBStorage(messageBus: MessageBus[Any]) extends DefaultStorage(messageBus) with MongoDB
-      def createInstance(messageBus: MessageBus[Any]): Storage = new MongoDBStorage(messageBus)
+      class MongoDBStorage extends DefaultStorage with MongoDB
+      def createInstance: Storage = new MongoDBStorage
     }
 
     //Mongo DB Storage that also stores all toSignal/toCollect lists on disk
     object AllOnDiskMongoDB extends StorageFactory {
-      class MongoDBStorage(messageBus: MessageBus[Any]) extends DefaultStorage(messageBus) with MongoDB
-      class AllOnDiskMongoDBStorage(messageBus: MessageBus[Any]) extends MongoDBStorage(messageBus) with MongoDBToDoList
-      def createInstance(messageBus: MessageBus[Any]): Storage = new AllOnDiskMongoDBStorage(messageBus)
+      class MongoDBStorage extends DefaultStorage with MongoDB
+      class AllOnDiskMongoDBStorage extends MongoDBStorage with MongoDBToDoList
+      def createInstance: Storage = new AllOnDiskMongoDBStorage
     }
 
     //Orient DB Storage (can be run directly from jar, pure java)
     object OrientDB extends StorageFactory {
-      class OrientDBStorage(messageBus: MessageBus[Any]) extends DefaultStorage(messageBus) with Orient
-      def createInstance(messageBus: MessageBus[Any]): Storage = new OrientDBStorage(messageBus)
+      class OrientDBStorage extends DefaultStorage with Orient
+      def createInstance: Storage = new OrientDBStorage
     }
   }
 }
