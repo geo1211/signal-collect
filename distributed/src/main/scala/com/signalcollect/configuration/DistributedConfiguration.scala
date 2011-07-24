@@ -29,9 +29,11 @@ import java.util.HashMap
  */
 trait DistributedConfiguration extends Configuration {
 
+  def userName: String
+
   def numberOfNodes: Int
 
-  def nodesAddress: Vector[String]
+  def nodesAddress: List[String]
 
   def coordinatorAddress: String
 
@@ -46,12 +48,13 @@ trait DistributedConfiguration extends Configuration {
 }
 
 case class DefaultDistributedConfiguration(
+  userName: String = System.getProperty("user.name"),
   numberOfWorkers: Int = Runtime.getRuntime.availableProcessors,
   customLogger: Option[MessageRecipient[LogMessage]] = None,
   executionArchitecture: ExecutionArchitecture = DistributedExecutionArchitecture,
   executionConfiguration: ExecutionConfiguration = DefaultExecutionConfiguration,
   workerConfiguration: WorkerConfiguration = DefaultRemoteWorkerConfiguration(),
   numberOfNodes: Int = 1,
-  nodesAddress: Vector[String],
+  nodesAddress: List[String] = List("localhost"),
   coordinatorAddress: String = "localhost",
   nodeProvisioning: NodeProvisioning = new EqualNodeProvisioning(Vector("localhost"), Runtime.getRuntime.availableProcessors)) extends DistributedConfiguration

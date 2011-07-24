@@ -17,7 +17,6 @@
  *  
  */
 
-
 package com.signalcollect.api
 
 import com.signalcollect.configuration._
@@ -37,32 +36,55 @@ import com.signalcollect.util.Constants
 
 package factory {
 
-  /*package messageBus {
-
-    object AkkaBus extends MessageBusFactory {
-      def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBus[Any](numberOfWorkers, mapper)
-    }
-
-  }*/
-
   package worker {
+
     /**
-     * Creating akka workers and returning actor refs for the distributed case
+     * Worker real creation
+     * 
+     * This is used by zombies to start remote workers
      */
-    object AkkaRemote extends AkkaWorkerFactory {
+    object AkkaRemoteWorker extends WorkerFactory {
       def createInstance(workerId: Int,
-        config: Configuration,
-        coordinator: WorkerApi,
-        mapper: VertexToWorkerMapper): ActorRef = {
+                         config: Configuration,
+                         coordinator: WorkerApi,
+                         mapper: VertexToWorkerMapper): Unit = {
 
         config.executionArchitecture match {
 
-          case LocalExecutionArchitecture => throw new Exception("Akka remote workers can only be used in the Distributed case.")
+          case LocalExecutionArchitecture       => throw new Exception("Akka remote workers can only be used in the Distributed case.")
+
+          case DistributedExecutionArchitecture =>
+            // get remote worker configuration
+            val workerConf = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).asInstanceOf[RemoteWorkerConfiguration]
+            
+            // info coming from config
+            remote.start(workerConf.ipAddress, workerConf.port)
+            remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf[AkkaWorker])
+            
+        }
+      }
+
+    }
+
+    /**
+     * Creating akka worker references for the distributed case.
+     * The factory just gets the hook to the remote worker.
+     *
+     * This factory should be used in the coordinator side
+     *
+     */
+    object AkkaRemoteReference extends AkkaWorkerFactory {
+      def createInstance(workerId: Int,
+                         config: Configuration,
+                         coordinator: WorkerApi,
+                         mapper: VertexToWorkerMapper): ActorRef = {
+
+        config.executionArchitecture match {
+
+          case LocalExecutionArchitecture => throw new Exception("Akka remote references can only be used in the Distributed case.")
 
           /**
-           *  In case its distributed, worker instantiation is different.
-           *  The factory will be just getting the hook to the remote worker.
-           *  Creation of workers in a distributed case happen via the Distributed Bootstrap
+           *  The Real creation of workers in a distributed case happen via the Distributed Bootstrap using [AkkaRemoteWorker] factory
            */
           case DistributedExecutionArchitecture =>
             // get remote worker configuration

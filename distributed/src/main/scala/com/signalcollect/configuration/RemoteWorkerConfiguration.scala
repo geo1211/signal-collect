@@ -31,7 +31,7 @@ trait RemoteWorkerConfiguration extends WorkerConfiguration {
 }
 
 case class DefaultRemoteWorkerConfiguration(
-  workerFactory: WorkerFactory = worker.AkkaRemote,
+  workerFactory: WorkerFactory = worker.AkkaRemoteReference,
   messageBusFactory: MessageBusFactory = messageBus.AkkaBus,
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
