@@ -30,12 +30,12 @@ object DefaultDistributedGraphBuilder extends DistributedGraphBuilder
  * If the user passes a configuration object but then uses a method of this class, the configuration's object
  * parameter gets overriden ("inserted" in the config object) by the method call's parameter which was passed.
  */
-class DistributedGraphBuilder(protected val config: Configuration = new DefaultLocalConfiguration) extends Serializable {
+class DistributedGraphBuilder(protected val config: Configuration = new DefaultDistributedConfiguration) extends Serializable {
 
   def build: ComputeGraph = {
     config.executionArchitecture match {
       case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => new DistributedBootstrap(config).boot
+      case DistributedExecutionArchitecture => new DistributedBootstrap(config.asInstanceOf[DistributedConfiguration]).boot
     }
   }
 
@@ -92,7 +92,7 @@ class DistributedGraphBuilder(protected val config: Configuration = new DefaultL
       case DistributedExecutionArchitecture => newRemoteBuilder(numberOfNodes = newNumberOfNodes)
     }
   }
-  def withNodesAddress(newNodesAddress: Vector[String]) = {
+  def withNodesAddress(newNodesAddress: List[String]) = {
     config.executionArchitecture match {
       case LocalExecutionArchitecture => throw new Exception("Usage of distributed configuration requires Distributed Execution Architecture")
       case DistributedExecutionArchitecture => newRemoteBuilder(nodesAddress = newNodesAddress)
@@ -122,7 +122,7 @@ class DistributedGraphBuilder(protected val config: Configuration = new DefaultL
     executionArchitecture: ExecutionArchitecture = config.executionArchitecture,
     executionConfiguration: ExecutionConfiguration = config.executionConfiguration,
     numberOfNodes: Int = config.asInstanceOf[DistributedConfiguration].numberOfNodes,
-    nodesAddress: Vector[String] = config.asInstanceOf[DistributedConfiguration].nodesAddress,
+    nodesAddress: List[String] = config.asInstanceOf[DistributedConfiguration].nodesAddress,
     coordinatorAddress: String = config.asInstanceOf[DistributedConfiguration].coordinatorAddress,
     nodeProvisioning: NodeProvisioning = config.asInstanceOf[DistributedConfiguration].nodeProvisioning): ComputeGraphBuilder = {
     new ComputeGraphBuilder(

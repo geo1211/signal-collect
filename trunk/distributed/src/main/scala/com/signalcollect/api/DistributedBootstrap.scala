@@ -21,46 +21,76 @@ package com.signalcollect.api
 
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration._
+import com.signalcollect.configuration.ssh._
 import com.signalcollect.implementations.coordinator._
 import com.signalcollect.implementations.logging._
+import com.signalcollect.implementations.messaging._
+import com.signalcollect.util._
+
+import akka.actor.Actor
+import akka.actor.Actor._
+import akka.remoteinterface._
+
+import java.net.InetAddress
 
 /**
- * The bootstrap sequence for initializing the distributed infrastructure 
+ * The bootstrap sequence for initializing the distributed infrastructure
  */
-class DistributedBootstrap(val config: Configuration) extends Bootstrap {
+class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstrap {
+
+  val workersPerNode = config.asInstanceOf[DistributedConfiguration].nodeProvisioning.workerPorts
 
   override def boot: ComputeGraph = {
     deploy
     super.boot
   }
 
+  /**
+   * Start the necessary services for remote deploy of workers and communication with the coordinator
+   */
   def deploy {
-    // start managers
+    
+    val coordinatorIp = InetAddress.getLocalHost.getHostAddress
+    
+    // start manager for talking to remote nodes
+    Actor.remote.start(coordinatorIp, Constants.MANAGER_SERVICE_PORT)
+    Actor.remote.register(Constants.MASTER_MANAGER_SERVICE_NAME, actorOf[AkkaCoordinatorForwarder])
+
+    // start coordinator forwarder which will receive coordinator messages
+    Actor.remote.start(coordinatorIp, Constants.COORDINATOR_SERVICE_PORT)
+    Actor.remote.register(Constants.COORDINATOR_SERVICE_NAME, actorOf[AkkaCoordinatorForwarder])
+    
+    // TODO: do you want to run workers in the coordinator node?
+    val nodesWithWorkers = config.nodesAddress.filter( x => !x.equals(coordinatorIp) )
+    
+    // prepare the jar
+    val helper = new ZombieJarHelper(config.numberOfWorkers, config.userName)
+    
+    // copy the jar to hosts
+    helper.copyJarToHosts(nodesWithWorkers)
+
+    // in each computation node
+    nodesWithWorkers.foreach {
+      host =>
+        val numWorkersOnNode = workersPerNode.get(host).get.size
+        
+        // start zombie at remote node 
+        helper.startJarAtHost(host, coordinatorIp) 
+    }
+    
+    // TODO: add here a blocking operation that asks the manager if everyone has joined, wait until everyone has
+
   }
-  
+
   protected def createLogger: MessageRecipient[LogMessage] = new DefaultLogger
 
   def createWorkers(workerApi: WorkerApi) {
 
-    val workersPerNode = config.asInstanceOf[DistributedConfiguration].nodeProvisioning.workerPorts
+    // workerApi.createWorker(workerId).asInstanceOf[ActorRef].start
 
     // TODO: correctly start remote workers
-    // TODO: add supervising hierarchical layer for knowing whether a worker is alive or not
+    // create, send message, get it back, signal OK
     
-/*    def createAkkaWorker(workerId: Int, workerConfiguration: RemoteWorkerConfiguration) {
-
-    val workerFactory = Factory.Worker.Akka
-
-    // create the worker configuration for remote worker instantiation
-    config.asInstanceOf[DistributedConfiguration].workerConfigurations.put(workerId, workerConfiguration)
-
-    // create the worker
-    val worker = workerFactory.createInstance(workerId, config, this, mapper)
-
-    // put it to the array of workers
-    workers(workerId) = worker
-
-  }*/
 
   }
 
@@ -69,6 +99,9 @@ class DistributedBootstrap(val config: Configuration) extends Bootstrap {
   }
 
   def shutdown {
+    
+    
+    
     // signal managers
     println("shutdown")
   }
@@ -80,38 +113,6 @@ class DistributedBootstrap(val config: Configuration) extends Bootstrap {
  *  0 = initial type (master or zombie)
  *  1 = ipAddress of coordinator
  */
-//class Bootstrap(bootstrapConfig: BootstrapConfiguration) {
-
-  /**
-   *
-   * What do I need to start the execution?
-   *
-   * 1. execute location
-   * 	1.1 local
-   * 	1.2 kraken
-   * 2. execution architecture
-   * 	2.1 local
-   * 	2.2 distributed
-   * 		2.2.1 resource allocation config
-   * 3. ComputeGraphBuilder
-   * 	3.1 LocalComputeGraph (?)
-   * 	3.2 DistributedComputeGraph
-   *
-   * 	3.1.1 & 3.2.1 Worker Initialization
-   * 		Local Initialization or Distributed Worker Initialization
-   *
-   * 4. Job configuration
-   * 	4.1 algorithm
-   * 	4.2 results mode
-   * 		4.2.1 local print + csv
-   * 		4.2.2 spreadsheet config
-   * 5. configuration object for compute graph
-   *
-   */
-
-/*} Managers stuff below
-
-class LocalBootstrap(bootstrapConfig: BootstrapConfiguration) extends Bootstrap(bootstrapConfig) {*/
 
   /*  val numberOfNodes = args.size - 3
   
@@ -171,11 +172,6 @@ class LocalBootstrap(bootstrapConfig: BootstrapConfiguration) extends Bootstrap(
 
 }
 
-*/
-  /**
-   * Serialization is using Java serialization
-   *
-   * TODO: Add JSON serialization, seems to be the only one that supports 'any'
    */ /*
 
 case class Hello(ipAddress: String)

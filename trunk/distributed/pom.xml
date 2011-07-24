@@ -9,7 +9,7 @@
 		<repository>
 			<id>scala-tools.org</id>
 			<name>Scala-Tools Maven2 Releases Repository</name>
-			<url>http://scala-tools.org/repo-snapshots/</url>
+			<url>http://scala-tools.org/repo-releases/</url>
 		</repository>
 	</repositories>
 	<dependencies>
@@ -19,6 +19,19 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.ethz.ganymed</groupId>
+			<artifactId>ganymed-ssh2</artifactId>
+			<version>build210</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<!-- Commmand Line Parser -->
+		<dependency>
+			<groupId>org.clapper</groupId>
+			<artifactId>argot_2.8.1</artifactId>
+			<version>0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
