@@ -21,6 +21,7 @@ package com.signalcollect.configuration.provisioning
 
 import scala.collection.mutable.HashMap
 import com.signalcollect.util.Constants
+import com.signalcollect.configuration._
 
 /**
  *
@@ -28,20 +29,19 @@ import com.signalcollect.util.Constants
  * In case in case it's and odd number of workers and nodes, the first node gets one more worker than the others
  * eg. 25 workers in 3 nodes = 9 on the first, 8 on the other 2
  */
-class EqualNodeProvisioning(nodesAddress: Vector[String], numberOfWorkers: Int) extends NodeProvisioning {
+class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvisioning {
 
   override def toString = "EqualNodeProvisioning"
 
   protected def workersPerNode: HashMap[String, Int] = {
 
-    //val nodesAddress = bootstrapConfig.nodesAddress
-    val numberOfNodes = nodesAddress.size
-    //val numberOfWorkers = config.numberOfWorkers
+    val nodesAddress = config.nodesAddress
+    val numberOfNodes = config.numberOfNodes
 
     val workersPerNode = new HashMap[String, Int]
 
     // equal division of workers among all nodes
-    val div = numberOfWorkers.asInstanceOf[Double] / numberOfNodes.asInstanceOf[Double]
+    val div = config.numberOfWorkers.asInstanceOf[Double] / numberOfNodes.asInstanceOf[Double]
 
     // for each node address
     for (i <- 0 to numberOfNodes) {

@@ -23,120 +23,81 @@ import com.signalcollect.api._
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration.provisioning._
 
-object DefaultDistributedGraphBuilder extends DistributedGraphBuilder
+object ComputeGraphBuilder {
+  def getBuilder(distributedArchitecture: DistributedArchitecture, config: Configuration = new DefaultDistributedConfiguration): DistributedComputeGraphBuilder = new DistributedComputeGraphBuilder(config)
+}
+
+// TODO: overloaded method passing the architecture returns the right builder
 
 /**
  * Builder for the creation of a compute graph needs a configuration object for the creation.
  * If the user passes a configuration object but then uses a method of this class, the configuration's object
  * parameter gets overriden ("inserted" in the config object) by the method call's parameter which was passed.
  */
-class DistributedGraphBuilder(protected val config: Configuration = new DefaultDistributedConfiguration) extends Serializable {
+class DistributedComputeGraphBuilder(protected val config: Configuration) extends Serializable {
 
-  def build: ComputeGraph = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => new DistributedBootstrap(config.asInstanceOf[DistributedConfiguration]).boot
-    }
-  }
+  def build: ComputeGraph = new LocalBootstrap(config).boot
 
   /**
    * Common configuration
    */
-  def withNumberOfWorkers(newNumberOfWorkers: Int) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => newRemoteBuilder(numberOfWorkers = newNumberOfWorkers)
-    }
-  }
-  def withLogger(logger: MessageRecipient[LogMessage]) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => newRemoteBuilder(customLogger = Some(logger))
-    }
-  }
-  def withExecutionArchitecture(newExecutionArchitecture: ExecutionArchitecture) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => newRemoteBuilder(executionArchitecture = newExecutionArchitecture)
-    }
-  }
-  def withExecutionConfiguration(newExecutionConfiguration: ExecutionConfiguration) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => newRemoteBuilder(executionConfiguration = newExecutionConfiguration)
-    }
-  }
+  def withNumberOfWorkers(newNumberOfWorkers: Int) = newRemoteBuilder(numberOfWorkers = newNumberOfWorkers)
+
+  def withLogger(logger: MessageRecipient[LogMessage]) = newRemoteBuilder(customLogger = Some(logger))
+
+  def withExecutionConfiguration(newExecutionConfiguration: ExecutionConfiguration) = newRemoteBuilder(executionConfiguration = newExecutionConfiguration)
 
   /**
    * Worker configuration
    */
-  def withMessageBusFactory(newMessageBusFactory: MessageBusFactory) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => newRemoteBuilder(messageBusFactory = newMessageBusFactory)
-    }
-  }
-  def withStorageFactory(newStorageFactory: StorageFactory) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Wrong Compute Graph Builder. Please use DefaultComputeGraphBuilder for local runs")
-      case DistributedExecutionArchitecture => newRemoteBuilder(storageFactory = newStorageFactory)
-    }
-  }
+  def withWorkerFactory(newWorkerFactory: WorkerFactory) = newRemoteBuilder(workerFactory = newWorkerFactory)
+
+  def withMessageBusFactory(newMessageBusFactory: MessageBusFactory) = newRemoteBuilder(messageBusFactory = newMessageBusFactory)
+
+  def withStorageFactory(newStorageFactory: StorageFactory) = newRemoteBuilder(storageFactory = newStorageFactory)
 
   /**
    * Distributed configuration
    */
-  def withNumberOfNodes(newNumberOfNodes: Int) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Usage of distributed configuration requires Distributed Execution Architecture")
-      case DistributedExecutionArchitecture => newRemoteBuilder(numberOfNodes = newNumberOfNodes)
-    }
-  }
-  def withNodesAddress(newNodesAddress: List[String]) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Usage of distributed configuration requires Distributed Execution Architecture")
-      case DistributedExecutionArchitecture => newRemoteBuilder(nodesAddress = newNodesAddress)
-    }
-  }
-  def withCoordinatorAddress(newCoordinatorAddress: String) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Usage of distributed configuration requires Distributed Execution Architecture")
-      case DistributedExecutionArchitecture => newRemoteBuilder(coordinatorAddress = newCoordinatorAddress)
-    }
-  }
-  def withNodeProvisioning(newNodeProvisioning: NodeProvisioning) = {
-    config.executionArchitecture match {
-      case LocalExecutionArchitecture => throw new Exception("Usage of distributed configuration requires Distributed Execution Architecture")
-      case DistributedExecutionArchitecture => newRemoteBuilder(nodeProvisioning = newNodeProvisioning)
-    }
-  }
+  def withUserName(newUserName: String) = newRemoteBuilder(userName = newUserName)
+
+  def withNumberOfNodes(newNumberOfNodes: Int) = newRemoteBuilder(numberOfNodes = newNumberOfNodes)
+
+  def withNodesAddress(newNodesAddress: List[String]) = newRemoteBuilder(nodesAddress = newNodesAddress)
+
+  def withCoordinatorAddress(newCoordinatorAddress: String) = newRemoteBuilder(coordinatorAddress = newCoordinatorAddress)
+
+  def withNodeProvisioningFactory(newProvisionFactory: ProvisionFactory) = newRemoteBuilder(provisionFactory = newProvisionFactory)
 
   /**
    * Builds distributed compute graph
    */
   def newRemoteBuilder(
+    userName: String = config.asInstanceOf[DistributedConfiguration].userName,
     numberOfWorkers: Int = config.numberOfWorkers,
     customLogger: Option[MessageRecipient[LogMessage]] = config.customLogger,
+    workerFactory: WorkerFactory = config.workerConfiguration.workerFactory,
     messageBusFactory: MessageBusFactory = config.workerConfiguration.messageBusFactory,
     storageFactory: StorageFactory = config.workerConfiguration.storageFactory,
-    executionArchitecture: ExecutionArchitecture = config.executionArchitecture,
     executionConfiguration: ExecutionConfiguration = config.executionConfiguration,
     numberOfNodes: Int = config.asInstanceOf[DistributedConfiguration].numberOfNodes,
     nodesAddress: List[String] = config.asInstanceOf[DistributedConfiguration].nodesAddress,
     coordinatorAddress: String = config.asInstanceOf[DistributedConfiguration].coordinatorAddress,
-    nodeProvisioning: NodeProvisioning = config.asInstanceOf[DistributedConfiguration].nodeProvisioning): ComputeGraphBuilder = {
-    new ComputeGraphBuilder(
+    provisionFactory: ProvisionFactory = config.asInstanceOf[DistributedConfiguration].provisionFactory): DistributedComputeGraphBuilder = {
+    new DistributedComputeGraphBuilder(
       DefaultDistributedConfiguration(
+        userName = userName,
         numberOfWorkers = numberOfWorkers,
         customLogger = customLogger,
-        workerConfiguration = DefaultLocalWorkerConfiguration(
+        executionConfiguration = executionConfiguration,
+        workerConfiguration = DefaultRemoteWorkerReferenceConfiguration(
+          workerFactory = workerFactory,
           messageBusFactory = messageBusFactory,
           storageFactory = storageFactory),
-        executionConfiguration = executionConfiguration,
         numberOfNodes = numberOfNodes,
         nodesAddress = nodesAddress,
         coordinatorAddress = coordinatorAddress,
-        nodeProvisioning = nodeProvisioning))
+        provisionFactory = provisionFactory))
 
   }
 }

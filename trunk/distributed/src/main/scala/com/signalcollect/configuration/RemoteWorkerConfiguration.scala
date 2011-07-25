@@ -30,9 +30,20 @@ trait RemoteWorkerConfiguration extends WorkerConfiguration {
   def port: Int
 }
 
+/**
+ * Used by ZOMBIES
+ */
 case class DefaultRemoteWorkerConfiguration(
-  workerFactory: WorkerFactory = worker.AkkaRemoteReference,
+  workerFactory: WorkerFactory = worker.AkkaRemoteWorker,
   messageBusFactory: MessageBusFactory = messageBus.AkkaBus,
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
   port: Int = 0) extends RemoteWorkerConfiguration
+
+/**
+ * Used by the COORDINATOR
+ */
+case class DefaultRemoteWorkerReferenceConfiguration(
+  workerFactory: WorkerFactory = worker.AkkaRemoteReference,
+  messageBusFactory: MessageBusFactory = messageBus.AkkaBus,
+  storageFactory: StorageFactory = storage.InMemory) extends WorkerConfiguration
