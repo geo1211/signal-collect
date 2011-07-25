@@ -19,49 +19,48 @@
 
 package com.signalcollect.api
 
-import com.signalcollect.configuration._
 import com.signalcollect.interfaces._
-import com.signalcollect.implementations.storage._
 import com.signalcollect.implementations.worker._
-import com.signalcollect.implementations.messaging._
-import com.signalcollect.implementations.coordinator.WorkerApi
+import com.signalcollect.configuration._
+import com.signalcollect.configuration.provisioning._
 
 import akka.actor.Actor
 import akka.actor.Actor._
 import akka.actor.ActorRef
-import akka.dispatch.Dispatchers
-import akka.actor.TypedActor
 
 import com.signalcollect.util.Constants
 
 package factory {
 
+  package provision {
+
+    object EqualProvisioning extends ProvisionFactory {
+      def createInstance(config: DistributedConfiguration): NodeProvisioning = new EqualNodeProvisioning(config)
+    }
+  }
+
   package worker {
 
     /**
      * Worker real creation
-     * 
+     *
      * This is used by zombies to start remote workers
      */
     object AkkaRemoteWorker extends WorkerFactory {
       def createInstance(workerId: Int,
-                         config: Configuration,
-                         coordinator: WorkerApi,
-                         mapper: VertexToWorkerMapper): Unit = {
+                         workerConfig: WorkerConfiguration,
+                         numberOfWorkers: Int,
+                         coordinator: Any,
+                         mapper: VertexToWorkerMapper): Any = {
 
-        config.executionArchitecture match {
+        // TODO: test if coordinator is an actor class?
 
-          case LocalExecutionArchitecture       => throw new Exception("Akka remote workers can only be used in the Distributed case.")
+        // info coming from config
+        remote.start(workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, workerConfig.asInstanceOf[RemoteWorkerConfiguration].port)
 
-          case DistributedExecutionArchitecture =>
-            // get remote worker configuration
-            val workerConf = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).asInstanceOf[RemoteWorkerConfiguration]
-            
-            // info coming from config
-            remote.start(workerConf.ipAddress, workerConf.port)
-            remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf[AkkaWorker])
-            
-        }
+        // register worker
+        remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)))
+
       }
 
     }
@@ -75,24 +74,17 @@ package factory {
      */
     object AkkaRemoteReference extends AkkaWorkerFactory {
       def createInstance(workerId: Int,
-                         config: Configuration,
-                         coordinator: WorkerApi,
+                         workerConfig: WorkerConfiguration,
+                         numberOfWorkers: Int,
+                         coordinator: Any,
                          mapper: VertexToWorkerMapper): ActorRef = {
 
-        config.executionArchitecture match {
+        /**
+         *  The Real creation of workers in a distributed case happen via the Distributed Bootstrap using [AkkaRemoteWorker] factory
+         */
 
-          case LocalExecutionArchitecture => throw new Exception("Akka remote references can only be used in the Distributed case.")
-
-          /**
-           *  The Real creation of workers in a distributed case happen via the Distributed Bootstrap using [AkkaRemoteWorker] factory
-           */
-          case DistributedExecutionArchitecture =>
-            // get remote worker configuration
-            val workerConf = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).asInstanceOf[RemoteWorkerConfiguration]
-
-            // get the hook for the remote actor as a actor ref
-            Actor.remote.actorFor(Constants.WORKER_SERVICE_NAME + "" + workerId, workerConf.ipAddress, workerConf.port)
-        }
+        // get the hook for the remote actor as a actor ref
+        Actor.remote.actorFor(Constants.WORKER_SERVICE_NAME + "" + workerId, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, workerConfig.asInstanceOf[RemoteWorkerConfiguration].port)
 
       }
     }

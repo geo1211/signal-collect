@@ -38,20 +38,52 @@ import java.net.InetAddress
  */
 class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstrap {
 
-  val workersPerNode = config.asInstanceOf[DistributedConfiguration].nodeProvisioning.workerPorts
-
+  /**
+   * Get per worker the Ip address of the machine where it will be instantiated + the port where it will listen
+   * Add to that the configuration necessary for remote initialization
+   */
   override def boot: ComputeGraph = {
+
+    // create provisioning
+    val provisioning = config.provisionFactory.createInstance(config)
+
+    var workerIdCounter = 0
+
+    // create worker configuration for each worker
+    for (ipPorts <- provisioning.workerPorts) {
+
+      val ip = ipPorts._1
+      val ports = ipPorts._2
+
+      // for each worker
+      for (port <- ports) {
+
+        // create specific configuration for the worker staying at the zombie
+        val remoteWorkerConfiguration = DefaultRemoteWorkerConfiguration(ipAddress = ip, port = port)
+
+        // add the worker configuration to the list
+        config.workerConfigurations.put(workerIdCounter, remoteWorkerConfiguration)
+
+        // increment id counter
+        workerIdCounter = workerIdCounter + 1
+      }
+    }
+
+    // deploy network services and remote infrastructure
     deploy
+    
+    // continue with coordinator normal bootstrap
     super.boot
+    
   }
 
   /**
    * Start the necessary services for remote deploy of workers and communication with the coordinator
    */
   def deploy {
-    
+
     val coordinatorIp = InetAddress.getLocalHost.getHostAddress
-    
+
     // start manager for talking to remote nodes
     Actor.remote.start(coordinatorIp, Constants.MANAGER_SERVICE_PORT)
     Actor.remote.register(Constants.MASTER_MANAGER_SERVICE_NAME, actorOf[AkkaCoordinatorForwarder])
@@ -59,25 +91,29 @@ class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstr
     // start coordinator forwarder which will receive coordinator messages
     Actor.remote.start(coordinatorIp, Constants.COORDINATOR_SERVICE_PORT)
     Actor.remote.register(Constants.COORDINATOR_SERVICE_NAME, actorOf[AkkaCoordinatorForwarder])
-    
-    // TODO: do you want to run workers in the coordinator node?
-    val nodesWithWorkers = config.nodesAddress.filter( x => !x.equals(coordinatorIp) )
-    
+
+    /**
+     *  TODO: do you want to run workers in the coordinator node?
+     *  
+     *  well, I guess if one puts the coordinator's ip in the nodesAddress, then yes
+     */
+    //val nodesWithWorkers = config.nodesAddress.filter(x => !x.equals(coordinatorIp))
+    val nodesWithWorkers = config.nodesAddress
+
     // prepare the jar
     val helper = new ZombieJarHelper(config.numberOfWorkers, config.userName)
-    
+
     // copy the jar to hosts
     helper.copyJarToHosts(nodesWithWorkers)
 
     // in each computation node
     nodesWithWorkers.foreach {
       host =>
-        val numWorkersOnNode = workersPerNode.get(host).get.size
-        
+
         // start zombie at remote node 
-        helper.startJarAtHost(host, coordinatorIp) 
+        helper.startJarAtHost(host, coordinatorIp)
     }
-    
+
     // TODO: add here a blocking operation that asks the manager if everyone has joined, wait until everyone has
 
   }
@@ -90,7 +126,6 @@ class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstr
 
     // TODO: correctly start remote workers
     // create, send message, get it back, signal OK
-    
 
   }
 
@@ -99,9 +134,7 @@ class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstr
   }
 
   def shutdown {
-    
-    
-    
+
     // signal managers
     println("shutdown")
   }

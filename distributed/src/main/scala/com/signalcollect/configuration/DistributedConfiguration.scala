@@ -19,10 +19,10 @@
 
 package com.signalcollect.configuration
 
+import com.signalcollect.api.factory._
 import com.signalcollect.interfaces._
-import com.signalcollect.configuration.provisioning._
 
-import java.util.HashMap
+import scala.collection.mutable.HashMap
 
 /**
  * Configuration for the distributed execution of signal/collect
@@ -37,13 +37,15 @@ trait DistributedConfiguration extends Configuration {
 
   def coordinatorAddress: String
 
-  def nodeProvisioning: NodeProvisioning
+  def provisionFactory: ProvisionFactory
 
   /**
    * The difference now is that the distributed architecture requires that workers have ports and addresses
-   * This information is only used for initializing workers
+   * This information is only used for initializing workers at the Zombie side
+   * 
+   * WARNING: Don't use this for initializing workers on the coordinator side
    */
-  def workerConfigurations: HashMap[Int, WorkerConfiguration] = new HashMap[Int, WorkerConfiguration]()
+  def workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = new HashMap[Int, RemoteWorkerConfiguration]()
 
 }
 
@@ -51,10 +53,9 @@ case class DefaultDistributedConfiguration(
   userName: String = System.getProperty("user.name"),
   numberOfWorkers: Int = Runtime.getRuntime.availableProcessors,
   customLogger: Option[MessageRecipient[LogMessage]] = None,
-  executionArchitecture: ExecutionArchitecture = DistributedExecutionArchitecture,
   executionConfiguration: ExecutionConfiguration = DefaultExecutionConfiguration,
-  workerConfiguration: WorkerConfiguration = DefaultRemoteWorkerConfiguration(),
+  workerConfiguration: WorkerConfiguration = DefaultRemoteWorkerReferenceConfiguration(),
   numberOfNodes: Int = 1,
   nodesAddress: List[String] = List("localhost"),
   coordinatorAddress: String = "localhost",
-  nodeProvisioning: NodeProvisioning = new EqualNodeProvisioning(Vector("localhost"), Runtime.getRuntime.availableProcessors)) extends DistributedConfiguration
+  provisionFactory: ProvisionFactory = provision.EqualProvisioning) extends DistributedConfiguration
