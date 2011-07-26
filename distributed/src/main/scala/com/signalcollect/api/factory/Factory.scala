@@ -32,6 +32,12 @@ import com.signalcollect.util.Constants
 
 package factory {
 
+  package builder {
+    object DistributedBuilder extends BuilderFactory {
+      def getBuilder(config: Configuration = new DefaultDistributedConfiguration): DistributedComputeGraphBuilder = new DistributedComputeGraphBuilder(config)
+    }
+  }
+
   package provision {
 
     object EqualProvisioning extends ProvisionFactory {
