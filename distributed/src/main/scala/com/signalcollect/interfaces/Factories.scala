@@ -22,6 +22,21 @@ package com.signalcollect.interfaces
 import com.signalcollect.configuration._
 import com.signalcollect.configuration.provisioning._
 
+import akka.actor.ActorRef
+
 trait ProvisionFactory extends Factory {
   def createInstance(config: DistributedConfiguration): NodeProvisioning
 }
+
+trait AkkaWorkerFactory extends WorkerFactory {
+  override def createInstance(workerId: Int,
+                              workerConfig: WorkerConfiguration,
+                              numberOfWorkers: Int,
+                              coordinator: Any,
+                              mapper: VertexToWorkerMapper): ActorRef
+}
+
+trait MessageBusFactory extends Factory {
+  def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any]
+}
+

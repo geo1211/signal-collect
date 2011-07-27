@@ -21,7 +21,6 @@ package com.signalcollect.api
 
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration._
-import com.signalcollect.configuration.ssh._
 import com.signalcollect.implementations.coordinator._
 import com.signalcollect.implementations.logging._
 import com.signalcollect.implementations.messaging._
@@ -100,7 +99,7 @@ class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstr
     //val nodesWithWorkers = config.nodesAddress.filter(x => !x.equals(coordinatorIp))
     val nodesWithWorkers = config.nodesAddress
 
-    // prepare the jar
+    /*// prepare the jar
     val helper = new ZombieJarHelper(config.numberOfWorkers, config.userName)
 
     // copy the jar to hosts
@@ -112,7 +111,7 @@ class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstr
 
         // start zombie at remote node 
         helper.startJarAtHost(host, coordinatorIp)
-    }
+    }*/
 
     // TODO: add here a blocking operation that asks the manager if everyone has joined, wait until everyone has
 

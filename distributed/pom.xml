@@ -11,8 +11,28 @@
 			<name>Scala-Tools Maven2 Releases Repository</name>
 			<url>http://scala-tools.org/repo-releases/</url>
 		</repository>
+
+		<!-- FOR AKKA LOCAL LIB -->
+		<repository>
+			<id>project</id>
+			<name>Project Maven Repository</name>
+			<layout>default</layout>
+			<url>file://${basedir}/lib</url>
+		</repository>
 	</repositories>
+
 	<dependencies>
+
+		<!-- SCALA COMPILER -->
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- SCALA COMPILER -->
+
+		<!-- SC CORE -->
 		<dependency>
 			<groupId>signal-collect</groupId>
 			<artifactId>core</artifactId>
@@ -20,25 +40,34 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!-- SC CORE -->
+
+		<!-- AKKA -->
 		<dependency>
-			<groupId>ch.ethz.ganymed</groupId>
-			<artifactId>ganymed-ssh2</artifactId>
-			<version>build210</version>
+			<groupId>se.scalablesolutions.akka</groupId>
+			<artifactId>akka-actor</artifactId>
+			<version>1.2-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<!-- Commmand Line Parser -->
 		<dependency>
-			<groupId>org.clapper</groupId>
-			<artifactId>argot_2.8.1</artifactId>
-			<version>0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>${scala.version}</version>
+			<groupId>se.scalablesolutions.akka</groupId>
+			<artifactId>akka-remote</artifactId>
+			<version>1.2-SNAPSHOT</version>
+			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!-- AKKA -->
+
+		<!-- HAZELCAST -->
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-all</artifactId>
+			<version>1.9.3</version>
+		</dependency>
+		<!-- HAZELCAST -->
+
+		<!-- TESTING -->
 		<dependency>
 			<groupId>org.specs2</groupId>
 			<artifactId>specs2_2.9.0-1</artifactId>
@@ -59,6 +88,8 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<!-- TESTING -->
+
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>

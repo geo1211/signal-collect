@@ -23,12 +23,14 @@ import com.signalcollect.api._
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration.provisioning._
 
+object DefaultDistributedComputeGraphBuilder extends DistributedComputeGraphBuilder
+
 /**
  * Builder for the creation of a compute graph needs a configuration object for the creation.
  * If the user passes a configuration object but then uses a method of this class, the configuration's object
  * parameter gets overriden ("inserted" in the config object) by the method call's parameter which was passed.
  */
-class DistributedComputeGraphBuilder(protected val config: Configuration) extends ComputeGraphBuilder {
+class DistributedComputeGraphBuilder(protected val config: Configuration = new DefaultDistributedConfiguration) extends Serializable {
 
   def build: ComputeGraph = new LocalBootstrap(config).boot
 
