@@ -21,6 +21,7 @@ package com.signalcollect.api
 
 import com.signalcollect.interfaces._
 import com.signalcollect.implementations.worker._
+import com.signalcollect.implementations.messaging._
 import com.signalcollect.configuration._
 import com.signalcollect.configuration.provisioning._
 
@@ -32,12 +33,6 @@ import com.signalcollect.util.Constants
 
 package factory {
 
-  package builder {
-    object DistributedBuilder extends BuilderFactory {
-      def getBuilder(config: Configuration = new DefaultDistributedConfiguration): DistributedComputeGraphBuilder = new DistributedComputeGraphBuilder(config)
-    }
-  }
-
   package provision {
 
     object EqualProvisioning extends ProvisionFactory {
@@ -45,7 +40,23 @@ package factory {
     }
   }
 
+  package messageBus {
+
+    object AkkaBus extends MessageBusFactory {
+      def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBus[Any](numberOfWorkers, mapper)
+    }
+
+  }
+
   package worker {
+
+    object AkkaLocal extends AkkaWorkerFactory {
+      def createInstance(workerId: Int,
+                         workerConfig: WorkerConfiguration,
+                         numberOfWorkers: Int,
+                         coordinator: Any,
+                         mapper: VertexToWorkerMapper): ActorRef = actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper))
+    }
 
     /**
      * Worker real creation

@@ -44,4 +44,7 @@ object Manager {
    * The configuration will allow a Zombie to instantiate remote workers
    */
   case class ConfigResponse(config: DistributedConfiguration) extends ManagerMessage
+  
+  
+  case class CheckAllJoined
 }

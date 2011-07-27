@@ -23,6 +23,7 @@ import akka.actor.Actor
 import akka.actor.Actor._
 
 import com.signalcollect.api.factory._
+import com.signalcollect.implementations.messaging._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
@@ -33,7 +34,9 @@ import java.net.InetAddress
 class ZombieManager(masterIp: String) extends Manager with Actor {
 
   var config: DistributedConfiguration = _
-  
+
+  protected lazy val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
+
   // get master hook
   val master = remote.actorFor(Constants.MASTER_MANAGER_SERVICE_NAME, masterIp, Constants.MANAGER_SERVICE_PORT)
 
@@ -57,27 +60,24 @@ class ZombieManager(masterIp: String) extends Manager with Actor {
 
     // get only those workers that should be instantiated at this node 
     val workers = config.workerConfigurations.filter(x => x._2.ipAddress.equals(nodeIpAddress))
-    
-    // start the workers
-    for ( idConfig <- workers ) {
-      
-      val workerId = idConfig._1
-      
-      val workerConfig = idConfig._2
-      
-      val workerFactory = worker.AkkaRemoteWorker
-      
-      // debug
-      if ( !workerConfig.workerFactory.equals(worker.AkkaRemoteWorker) )
-        sys.error("ooops, remote worker factory should be used. check bootstrap/configuration setup")
-        
-      
-      
-      
-      
-    }
 
-    // TODO, merge remote worker config + workerConfigurations array + change factory of worker config
+    // start the workers
+    for (idConfig <- workers) {
+
+      val workerId = idConfig._1
+
+      val workerConfig = idConfig._2
+
+      val workerFactory = workerConfig.workerFactory /*worker.AkkaRemoteWorker*/
+
+      /*// debug
+      if (!workerConfig.workerFactory.equals(worker.AkkaRemoteWorker))
+        sys.error("ooops, remote worker factory should be used. check bootstrap/configuration setup")*/
+
+      // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
+      val worker = workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, master, mapper)
+
+    } // end for each worker
 
   }
 }

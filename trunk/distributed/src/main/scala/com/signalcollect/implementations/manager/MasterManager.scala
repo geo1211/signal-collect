@@ -26,13 +26,16 @@ import com.signalcollect.configuration.DistributedConfiguration
 
 class MasterManager(config: DistributedConfiguration) extends Manager with Actor {
 
-  var nodeCounter = config.nodesAddress.size
+  var nodeCount = config.nodesAddress.size
 
   var nodesJoined: List[String] = _
 
   var allJoined = false
 
   def receive = {
+    
+    case CheckAllJoined =>
+      self.reply(allJoined)
 
     // a zombie requested the configuration
     case ConfigRequest(from) =>
@@ -48,7 +51,7 @@ class MasterManager(config: DistributedConfiguration) extends Manager with Actor
       self.reply(ConfigResponse(config))
 
       // book keeping
-      if (nodesJoined.size == nodeCounter)
+      if (nodesJoined.size == nodeCount)
         allJoined = true
 
   }

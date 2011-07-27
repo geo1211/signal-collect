@@ -19,9 +19,6 @@
 
 package com.signalcollect
 
-import org.clapper.argot._
-import org.clapper.argot.ArgotConverters._
-
 import akka.actor.Actor
 import akka.actor.Actor._
 
@@ -30,14 +27,9 @@ import com.signalcollect.implementations.manager.ZombieManager
 
 import java.net.InetAddress
 
-object Zombie {
+class Zombie {
 
-  /**
-   * @param args the command line arguments
-   */
-  def main(args: Array[String]): Unit = {
-
-    val masterIp = args(0)
+  def start(masterIp: String) {
 
     // start local manager
     remote.start(InetAddress.getLocalHost.getHostAddress, Constants.MANAGER_SERVICE_PORT)
