@@ -31,21 +31,21 @@ import com.signalcollect.util.Constants
 
 import java.net.InetAddress
 
-class ZombieManager(masterIp: String) extends Manager with Actor {
+class ZombieManager(leaderIp: String) extends Manager with Actor {
 
   var config: DistributedConfiguration = _
 
   protected lazy val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
 
-  // get master hook
-  val master = remote.actorFor(Constants.MASTER_MANAGER_SERVICE_NAME, masterIp, Constants.MANAGER_SERVICE_PORT)
+  // get leader hook
+  val leader = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, leaderIp, Constants.MANAGER_SERVICE_PORT)
 
   // ask for config
-  master ! ConfigRequest
+  leader ! ConfigRequest
 
   def receive = {
 
-    // get configuration from master manager
+    // get configuration from leader
     case ConfigResponse(c) =>
       config = c
       createWorkers
@@ -75,9 +75,12 @@ class ZombieManager(masterIp: String) extends Manager with Actor {
         sys.error("ooops, remote worker factory should be used. check bootstrap/configuration setup")*/
 
       // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
-      val worker = workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, master, mapper)
+      val worker = workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, leader, mapper)
 
     } // end for each worker
+
+    // tell the leader you are alive
+    leader ! ZombieIsReady(nodeIpAddress)
 
   }
 }
