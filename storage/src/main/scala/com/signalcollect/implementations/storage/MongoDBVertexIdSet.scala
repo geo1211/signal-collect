@@ -28,7 +28,7 @@ import com.signalcollect.implementations.serialization._
 class MongoDBVertexIdSet(vertexStore: Storage) extends VertexIdSet with DefaultSerializer {
 
   protected var toHandle = vertexSetFactory
-  
+
   protected def vertexSetFactory = MongoConnection()("todo")(RandomString("", 16))
 
   def add(vertexId: Any): Unit = {
@@ -42,28 +42,27 @@ class MongoDBVertexIdSet(vertexStore: Storage) extends VertexIdSet with DefaultS
   def clear {
     toHandle = vertexSetFactory
   }
-  
+
   def isEmpty(): Boolean = {
     toHandle.isEmpty
   }
 
   def size: Int = toHandle.size
 
-  def foreach[U](f: (Any) => U) = {
-    toHandle.foreach{s => f(vertexStore.vertices.get(read((s.getAs[Array[Byte]]("k")).get))); toHandle.remove(s) 
+  def foreach[U](f: (Any) => U, removeAfterProcessing: Boolean) = {
+    toHandle.foreach { s =>
+      {
+        f(vertexStore.vertices.get(read((s.getAs[Array[Byte]]("k")).get)))
+        if(removeAfterProcessing) {
+        	toHandle.remove(s)          
+        }
+      }
     }
   }
 
-  def foreachWithSnapshot[U](f: (Any) => U, breakCondition: () => Boolean):Boolean = {
-	  val toHandleSnapshot = toHandle
-      toHandle = vertexSetFactory
-      toHandleSnapshot.foreach{s => f(vertexStore.vertices.get(read((s.getAs[Array[Byte]]("k")).get))); toHandle.remove(s)}
-	  true
-  }
- 
-  def cleanUp = toHandle.drop
+  def cleanUp = toHandle.dropCollection()
 }
 
 trait MongoDBToDoList extends DefaultStorage {
-	override protected def vertexSetFactory: VertexIdSet = new MongoDBVertexIdSet(this)
+  override protected def vertexSetFactory: VertexIdSet = new MongoDBVertexIdSet(this)
 }
