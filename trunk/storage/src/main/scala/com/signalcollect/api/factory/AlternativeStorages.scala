@@ -47,5 +47,11 @@ package factory {
       class OrientDBStorage extends DefaultStorage with Orient
       def createInstance: Storage = new OrientDBStorage
     }
+    
+    //Orient DB Storage (can be run directly from jar, pure java)
+    object SerializingInMemory extends StorageFactory {
+      class SerializingInMemoryStorage extends DefaultStorage with Serializing
+      def createInstance: Storage = new SerializingInMemoryStorage
+    }
   }
 }
