@@ -26,15 +26,12 @@ object Constants {
 
   def MANAGER_SERVICE_PORT = 2552
 
-  def MASTER_MANAGER_SERVICE_NAME = "master-service"
+  def LEADER_MANAGER_SERVICE_NAME = "leader-service"
   def ZOMBIE_MANAGER_SERVICE_NAME = "zombie-service"
 
   // used by only one machine
   def COORDINATOR_SERVICE_PORT = 2553
   def COORDINATOR_SERVICE_NAME = "coordinator-service"
-
-  /*  def AKKA_MESSAGEBUS_SERVICE_PORT = 2554
-  def AKKA_MESSAGEBUS_SERVICE_NAME = "message-bus"*/
 
   def LOGGER_SERVICE_NAME = "logger-service"
   def LOGGER_SERVICE_PORT = 2555

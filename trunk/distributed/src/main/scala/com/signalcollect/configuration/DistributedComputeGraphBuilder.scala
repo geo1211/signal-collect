@@ -30,9 +30,9 @@ object DefaultDistributedComputeGraphBuilder extends DistributedComputeGraphBuil
  * If the user passes a configuration object but then uses a method of this class, the configuration's object
  * parameter gets overriden ("inserted" in the config object) by the method call's parameter which was passed.
  */
-class DistributedComputeGraphBuilder(protected val config: Configuration = new DefaultDistributedConfiguration) extends Serializable {
+class DistributedComputeGraphBuilder(protected val config: DistributedConfiguration = new DefaultDistributedConfiguration) extends Serializable {
 
-  def build: ComputeGraph = new LocalBootstrap(config).boot
+  def build: Option[ComputeGraph] = new DistributedBootstrap(config).boota
 
   /**
    * Common configuration

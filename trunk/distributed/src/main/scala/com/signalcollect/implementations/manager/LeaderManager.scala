@@ -24,35 +24,53 @@ import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration.DistributedConfiguration
 
-class MasterManager(config: DistributedConfiguration) extends Manager with Actor {
+class LeaderManager(config: DistributedConfiguration) extends Manager with Actor {
 
   var nodeCount = config.nodesAddress.size
 
   var nodesJoined: List[String] = _
+  var nodesReady: List[String] = _
 
+  var allReady = false
   var allJoined = false
 
   def receive = {
-    
-    case CheckAllJoined =>
-      self.reply(allJoined)
+
+    // a zombie is ready (workers are instantiated)
+    case ZombieIsReady(addr) =>
+      // debug FIXME
+      if (allReady)
+        sys.error("oops, this shouldn't happen")
+
+      // add node ready
+      nodesReady = addr :: nodesReady
+
+      // book keeping
+      if (nodesReady.size == nodeCount)
+        allReady = true
+
+    case CheckAllReady =>
+      self.reply(allReady)
 
     // a zombie requested the configuration
-    case ConfigRequest(from) =>
+    case ConfigRequest(addr) =>
 
       // debug FIXME
       if (allJoined)
         sys.error("oops, this shouldn't happen")
 
       // add node joined
-      nodesJoined = from :: nodesJoined
-
-      // send back configuration
-      self.reply(ConfigResponse(config))
+      nodesJoined = addr :: nodesJoined
 
       // book keeping
       if (nodesJoined.size == nodeCount)
         allJoined = true
+
+      // send back configuration
+      self.reply(ConfigResponse(config))
+
+    case CheckAllJoined =>
+      self.reply(allJoined)
 
   }
 
