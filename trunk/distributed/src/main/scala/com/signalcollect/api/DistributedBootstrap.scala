@@ -19,7 +19,10 @@
 
 package com.signalcollect.api
 
+import com.signalcollect.api.factory._
 import com.signalcollect.interfaces._
+import com.signalcollect.interfaces.Manager
+import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
 import com.signalcollect.implementations.manager._
 import com.signalcollect.implementations.coordinator._
@@ -27,11 +30,15 @@ import com.signalcollect.implementations.logging._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.util._
 
-import akka.actor.Actor
+import akka.actor.{ ActorRegistry, Actor }
 import akka.actor.Actor._
+import akka.actor.ActorRef
 import akka.remoteinterface._
 
-import java.net.InetAddress
+import com.hazelcast.core._
+
+import scala.util.Random
+import scala.collection.JavaConversions._
 
 sealed trait NodeType
 case class ZombieType extends NodeType
@@ -39,62 +46,102 @@ case class LeaderType extends NodeType
 
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
+ *
+ * akka.conf usage:
+ *
+ * -Dakka.config=lib/akka.conf
+ *
  */
-class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstrap {
-  
-  val localIp = InetAddress.getLocalHost.getHostAddress
+class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends Bootstrap {
+
+  val localIp = java.net.InetAddress.getLocalHost.getHostAddress
 
   def start: NodeType = {
 
-    /** Everyone is a leader in the beginning */
-    Actor.remote.start(localIp, Constants.MANAGER_SERVICE_PORT)
-    Actor.remote.register(Constants.LEADER_MANAGER_SERVICE_NAME, actorOf[LeaderManager])
+    println("Starting node services...")
+
+    println("<<<<<< Hazelcast >>>>>>")
+
+    // hazelcast config
+    val hcConfigXml = new com.hazelcast.config.FileSystemXmlConfig(new java.io.File("lib/hazelcast.xml"))
 
     // hazelcast cluster
+    val cluster = Hazelcast.init(hcConfigXml).getCluster
+
+    val distributedMap: com.hazelcast.core.IMap[String, Long] = Hazelcast.getMap("members")
 
     // map put ip + random generated long
+    distributedMap.put(localIp /*+ ":" + cluster.getLocalMember().getPort()*/ , Random.nextLong.abs)
 
-    // wait map keyset == number of nodes
+    println("... Waiting untill all have joined ...") // TODO: ADD TIMEOUT
+    // wait until all nodes have joined
+    while (config.numberOfNodes != distributedMap.keySet().size()) {
+      Thread.sleep(500)
+    }
 
     // convert map to scala map
+    val keys = distributedMap.toMap
 
     // get ip with smallest long
+    val leaderId = distributedMap.foldLeft(Long.MaxValue)((min, kv) => Math.min(min, kv._2))
+
+    var leaderIp = ""
+
+    distributedMap.foreach(x => if (x._2 == leaderId) leaderIp = x._1)
+
+    println("Leader IP = " + leaderIp)
+    println("LOCAL IP = " + localIp)
 
     // put this ip on the coordinator address in config
+    config.coordinatorAddress = leaderIp
+
     // put the other ips on the nodesAddress in config
+    config.nodesAddress = distributedMap.keySet().toList
+
+    /** Everyone is a leader in the beginning */
+    Actor.remote.start(localIp, Constants.MANAGER_SERVICE_PORT)
+    Actor.remote.register(Constants.LEADER_MANAGER_SERVICE_NAME, actorOf(new LeaderManager(config)))
 
     // if local ip == ip with smallest long, then I am the leader
+    if (localIp equals leaderIp) {
+      println("I'm the leader")
+      LeaderType()
+    } // else I am zombie, shutdown my leader manager
+    else {
+      println("ZOMBIE... Braaaaaiinnnsss")
+      remote.shutdown()
 
-    // else I am zombie, shutdown my leader manager
-
-    ZombieType()
+      ZombieType()
+    }
 
   }
 
-  // TODO: Change this
-  override def boot: ComputeGraph = null
-  
   /**
    * Get per worker the Ip address of the machine where it will be instantiated + the port where it will listen
    * Add to that the configuration necessary for remote initialization
+   *
+   * @return optional compute graph. The compute graph is only used by the leader
    */
-  def boota: Option[ComputeGraph] = {
+  override def boot: Option[ComputeGraph] = {
 
     // from leader election phase, get node type
     val nodeType = start
-    
+
+    // optional compute graph
     var optionalCg: Option[ComputeGraph] = None
 
     // check for node type
     nodeType match {
 
+      /** ZOMBIE */
       case ZombieType() =>
-        
-        deployZombie
-        
 
+        deployZombie // will not return a compute graph
+
+      /** LEADER */
       case LeaderType() =>
-        // the leader needs to have access to the spreadsheet api + the code in the run of jobexecutor
+
+        println("Provisioning start...")
 
         // create provisioning
         val provisioning = config.provisionFactory.createInstance(config)
@@ -125,22 +172,24 @@ class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstr
         deployLeader
 
         // continue with coordinator normal bootstrap
-        optionalCg = Some(super.boot)
+        optionalCg = super.boot
     }
-    
+
     optionalCg
 
   }
-  
+
   /**
    * Start the necessary services for zombies to communicate with leader
    */
   def deployZombie {
-    
+
+    println("Deploying zombie")
+
     // start zombie manager
-    remote.start(InetAddress.getLocalHost.getHostAddress, Constants.MANAGER_SERVICE_PORT)
+    remote.start(localIp, Constants.MANAGER_SERVICE_PORT)
     remote.register(Constants.ZOMBIE_MANAGER_SERVICE_NAME, actorOf(new ZombieManager(config.coordinatorAddress)))
-    
+
   }
 
   /**
@@ -149,21 +198,91 @@ class DistributedBootstrap(val config: DistributedConfiguration) extends Bootstr
    */
   def deployLeader {
 
+    println("Deploying leader")
+
     // start coordinator forwarder which will receive coordinator messages
     remote.start(localIp, Constants.COORDINATOR_SERVICE_PORT)
     remote.register(Constants.COORDINATOR_SERVICE_NAME, actorOf[AkkaCoordinatorForwarder])
 
-    // TODO: add here a blocking operation that asks the manager if everyone has joined, wait until everyone has
+    // create my local workers, i.e, create workers staying at the leader
+    createLocalWorkers
+
+    println("LEADER WAITING!!!!!")
+    val leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.MANAGER_SERVICE_PORT)
+
+    var allReady = false
+
+    val timeout = 500l
+
+    // blocking operation that asks the manager if everyone is ready, wait until everyone is
+    println("... Waiting untill all zombies are ready ...") // TODO: ADD TIMEOUT
+    while (!allReady) {
+      Thread.sleep(100)
+
+      val result: Option[Any] = leaderManager !! (CheckAllReady, timeout)
+
+      result match {
+        case Some(reply) => allReady = reply.asInstanceOf[Boolean] // handle reply
+        case None        => sys.error("no reply within " + timeout + " ms")
+      }
+
+    }
 
   }
 
   protected def createLogger: MessageRecipient[LogMessage] = new DefaultLogger
 
+  /**
+   * Real worker instantiation / initialization at the leader node
+   *
+   */
+  protected def createLocalWorkers {
+    println("<<<<<< Local Workers >>>>>>")
+
+    val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
+
+    // get only those workers that should be instantiated at this node 
+    val workers = config.workerConfigurations.filter(x => x._2.ipAddress.equals(localIp))
+
+    // start the workers
+    for (idConfig <- workers) {
+
+      val workerId = idConfig._1
+
+      val workerConfig = idConfig._2
+
+      val workerFactory = workerConfig.workerFactory /*worker.AkkaRemoteWorker*/
+
+      /*// debug
+      if (!workerConfig.workerFactory.equals(worker.AkkaRemoteWorker))
+        sys.error("ooops, remote worker factory should be used. check bootstrap/configuration setup")*/
+
+      val localCoordinatorForward = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, localIp, Constants.COORDINATOR_SERVICE_PORT)
+
+      // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
+      val worker = workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, localCoordinatorForward, mapper)
+
+    } // end for each worker
+
+  }
+
+  /**
+   * Leader "creation" of all workers
+   */
   def createWorkers(workerApi: WorkerApi) {
 
-    // workerApi.createWorker(workerId).asInstanceOf[ActorRef]
+    println("*******************")
+    println("***** WORKERS *****")
+    println("*******************")
 
-    // TODO: correctly start remote workers
+    // create a hook for all worker instances (whether local or remote), the leader will distribute them when executing workerApi.initialize @see WorkerApi.initialize
+    for (workerId <- 0 until config.numberOfWorkers) {
+      config.workerConfiguration.workerFactory match {
+        case worker.AkkaRemoteReference => workerApi.createWorker(workerId, config.workerConfigurations.get(workerId).get).asInstanceOf[ActorRef]
+        case _                          => throw new Exception("Only Akka remote references supported by this DistributedAkkaBootstrap")
+      }
+    }
+
     // create, send message, get it back, signal OK
 
   }

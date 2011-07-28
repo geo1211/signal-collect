@@ -20,6 +20,11 @@
 package com.signalcollect.implementations.manager
 
 import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.remoteinterface._
+
+import java.util.Date
+
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration.DistributedConfiguration
@@ -28,13 +33,23 @@ class LeaderManager(config: DistributedConfiguration) extends Manager with Actor
 
   var nodeCount = config.nodesAddress.size
 
-  var nodesJoined: List[String] = _
-  var nodesReady: List[String] = _
+  var zombieRefs: List[ActorRef] = List()
+
+  var nodesJoined: List[String] = List()
+  var nodesReady: List[String] = List()
 
   var allReady = false
   var allJoined = false
 
   def receive = {
+
+    /**
+     * When a remote shutdown is requested (not required for the algorithm run, only for graceful shutdown)
+     * To trigger this message, issue a remote.shutdown() from the manager that created the actor (in the remote case)
+     */
+    case RemoteServerShutdown(server) =>
+      println("Leader shutdown received at " + new Date)
+      self.exit()
 
     // a zombie is ready (workers are instantiated)
     case ZombieIsReady(addr) =>
@@ -45,11 +60,13 @@ class LeaderManager(config: DistributedConfiguration) extends Manager with Actor
       // add node ready
       nodesReady = addr :: nodesReady
 
-      // book keeping
-      if (nodesReady.size == nodeCount)
-        allReady = true
+      val ref = self.sender.get
+      zombieRefs = ref :: zombieRefs
 
     case CheckAllReady =>
+      if (nodesReady.size == nodeCount - 1)
+        allReady = true
+
       self.reply(allReady)
 
     // a zombie requested the configuration
@@ -63,7 +80,7 @@ class LeaderManager(config: DistributedConfiguration) extends Manager with Actor
       nodesJoined = addr :: nodesJoined
 
       // book keeping
-      if (nodesJoined.size == nodeCount)
+      if (nodesJoined.size == nodeCount - 1)
         allJoined = true
 
       // send back configuration

@@ -44,7 +44,7 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
     val div = config.numberOfWorkers.asInstanceOf[Double] / numberOfNodes.asInstanceOf[Double]
 
     // for each node address
-    for (i <- 0 to numberOfNodes) {
+    for (i <- 0 to numberOfNodes - 1) {
       // in case its and odd number of workers and nodes, the first node gets one more worker than the others
       if (i == 0)
         workersPerNode += nodesAddress(i) -> (math.ceil(div).asInstanceOf[Int])
@@ -64,8 +64,10 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
     // e.g.: 192.168.1.1 -> List(2554,2555)
     val workers = new HashMap[String, List[Int]]
 
+    val workersPerNodeMap = workersPerNode
+    
     // iterator for map
-    val it = workersPerNode.iterator
+    val it = workersPerNodeMap.iterator
 
     // for each node ip address
     while (it.hasNext) {

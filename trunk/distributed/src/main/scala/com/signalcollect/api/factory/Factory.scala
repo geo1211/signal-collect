@@ -41,6 +41,11 @@ package factory {
   }
 
   package messageBus {
+    
+    object AkkaBusRemote extends MessageBusFactory {
+      def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBusWithRemote[Any](numberOfWorkers, mapper)
+    }
+    
 
     object AkkaBus extends MessageBusFactory {
       def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBus[Any](numberOfWorkers, mapper)

@@ -36,7 +36,7 @@ object AkkaLocalComputeGraphBuilder extends LocalComputeGraphBuilder
  */
 class LocalComputeGraphBuilder(protected val config: Configuration = new DefaultLocalConfiguration) extends Serializable {
 
-  def build: ComputeGraph = new LocalAkkaBootstrap(config).boot
+  def build: Option[ComputeGraph] = new LocalAkkaBootstrap(config).boot
 
   /**
    * Common configuration

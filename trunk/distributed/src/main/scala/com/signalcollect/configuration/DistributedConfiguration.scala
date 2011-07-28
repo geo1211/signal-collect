@@ -41,11 +41,9 @@ trait DistributedConfiguration extends Configuration {
 
   /**
    * The difference now is that the distributed architecture requires that workers have ports and addresses
-   * This information is only used for initializing workers at the Zombie side
-   * 
-   * WARNING: Don't use this for initializing workers on the coordinator side
+   * Used both at the zombie and coordinator
    */
-  def workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = new HashMap[Int, RemoteWorkerConfiguration]()
+  def workerConfigurations: HashMap[Int, RemoteWorkerConfiguration]
 
 }
 
@@ -56,6 +54,7 @@ case class DefaultDistributedConfiguration(
   executionConfiguration: ExecutionConfiguration = DefaultExecutionConfiguration,
   workerConfiguration: WorkerConfiguration = DefaultRemoteWorkerReferenceConfiguration(),
   numberOfNodes: Int = 1,
-  nodesAddress: List[String] = List("localhost"),
-  coordinatorAddress: String = "localhost",
-  provisionFactory: ProvisionFactory = provision.EqualProvisioning) extends DistributedConfiguration
+  var nodesAddress: List[String] = List("localhost"),
+  var coordinatorAddress: String = "localhost",
+  provisionFactory: ProvisionFactory = provision.EqualProvisioning,
+  var workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = new HashMap[Int, RemoteWorkerConfiguration]()) extends DistributedConfiguration
