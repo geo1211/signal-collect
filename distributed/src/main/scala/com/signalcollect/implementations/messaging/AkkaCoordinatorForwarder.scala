@@ -21,10 +21,17 @@ package com.signalcollect.implementations.messaging
 
 import akka.actor.Actor
 import com.signalcollect.interfaces.MessageRecipient
+import com.signalcollect.interfaces.Manager
+import com.signalcollect.interfaces.Manager._
 
-class AkkaCoordinatorForwarder(coordinator: Any) extends Actor {
+class AkkaCoordinatorForwarder extends Actor {
+
+  var coordinator: Any = _
 
   def receive = {
+
+    case CoordinatorReference(x) =>
+      coordinator = x
 
     case x => coordinator.asInstanceOf[MessageRecipient[Any]].receive(x)
 

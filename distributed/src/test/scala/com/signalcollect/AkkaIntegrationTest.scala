@@ -42,7 +42,7 @@ import org.specs2.runner.JUnitRunner
 class AkkaIntegrationTest extends SpecificationWithJUnit {
 
   val computeGraphFactories: List[Int => ComputeGraph] = List(
-        (numberOfWorkers: Int) => AkkaLocalComputeGraphBuilder.withNumberOfWorkers(numberOfWorkers).withMessageBusFactory(messageBus.AkkaBus).withWorkerFactory(worker.AkkaLocal).build)
+        (numberOfWorkers: Int) => AkkaLocalComputeGraphBuilder.withNumberOfWorkers(numberOfWorkers).withMessageBusFactory(messageBus.AkkaBus).withWorkerFactory(worker.AkkaLocal).build.get)
 
   val executionModes = List(OptimizedAsynchronousExecutionMode, SynchronousExecutionMode)
 

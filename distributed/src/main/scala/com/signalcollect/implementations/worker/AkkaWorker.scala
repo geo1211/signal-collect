@@ -20,9 +20,13 @@
 package com.signalcollect.implementations.worker
 
 import akka.actor.Actor
+import akka.actor.Actor._
 import akka.dispatch._
-import Actor._
 import akka.actor.ReceiveTimeout
+import akka.remoteinterface._
+
+import java.util.Date
+
 import com.signalcollect.implementations._
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration._
@@ -52,7 +56,8 @@ class AkkaWorker(workerId: Int,
    * Stops the worker execution
    */
   override def shutdown = {
-    self.stop()
+    debug("WorkerId" + workerId + "=> shutdown received at " + new Date)
+    self.exit()
   }
 
   /**
@@ -73,6 +78,14 @@ class AkkaWorker(workerId: Int,
   def receive = {
 
     /**
+     * When a remote shutdown is requested (not required for the algorithm run, only for graceful shutdown)
+     * To trigger this message, issue a remote.shutdown() from the manager that created the actor (in the remote case)
+     */
+    case RemoteServerShutdown(server) =>
+      debug("WorkerId" + workerId + "=> shutdown received at " + new Date)
+      self.exit()
+
+    /**
      * ReceiveTimeout message only gets sent after akka actor mailbox has been empty for "receiveTimeout" milliseconds
      */
     case ReceiveTimeout =>
@@ -82,6 +95,9 @@ class AkkaWorker(workerId: Int,
           setIdle(true)
       }
 
+    /**
+     * Anything else
+     */
     case msg =>
 
       // TODO: Integration specs passed without usage of the parameter

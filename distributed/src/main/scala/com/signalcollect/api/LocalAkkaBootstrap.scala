@@ -25,6 +25,7 @@ import com.signalcollect.implementations.coordinator._
 import com.signalcollect.implementations.logging._
 import com.signalcollect.api.factory._
 
+import akka.config.FilesystemImporter
 import akka.actor.ActorRef
 
 /**
@@ -39,8 +40,8 @@ class LocalAkkaBootstrap(val config: Configuration) extends Bootstrap {
     for (workerId <- 0 until config.numberOfWorkers) {
 
       config.workerConfiguration.workerFactory match {
-        case worker.AkkaLocal => workerApi.createWorker(workerId).asInstanceOf[ActorRef].start
-        case _            => throw new Exception("Only Akka workers supported by this AkkaBootstrap")
+        case worker.AkkaLocal => workerApi.createWorker(workerId, config.workerConfiguration).asInstanceOf[ActorRef].start
+        case _                => throw new Exception("Only Akka workers supported by this AkkaBootstrap")
       }
     }
 

@@ -22,6 +22,7 @@ package com.signalcollect.configuration
 import com.signalcollect.api._
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration.provisioning._
+import scala.collection.mutable.HashMap
 
 object DefaultDistributedComputeGraphBuilder extends DistributedComputeGraphBuilder
 
@@ -30,9 +31,9 @@ object DefaultDistributedComputeGraphBuilder extends DistributedComputeGraphBuil
  * If the user passes a configuration object but then uses a method of this class, the configuration's object
  * parameter gets overriden ("inserted" in the config object) by the method call's parameter which was passed.
  */
-class DistributedComputeGraphBuilder(protected val config: DistributedConfiguration = new DefaultDistributedConfiguration) extends Serializable {
+class DistributedComputeGraphBuilder(protected val config: DefaultDistributedConfiguration = new DefaultDistributedConfiguration) extends Serializable {
 
-  def build: Option[ComputeGraph] = new DistributedBootstrap(config).boota
+  def build: Option[ComputeGraph] = new DistributedBootstrap(config).boot
 
   /**
    * Common configuration
@@ -79,7 +80,8 @@ class DistributedComputeGraphBuilder(protected val config: DistributedConfigurat
     numberOfNodes: Int = config.asInstanceOf[DistributedConfiguration].numberOfNodes,
     nodesAddress: List[String] = config.asInstanceOf[DistributedConfiguration].nodesAddress,
     coordinatorAddress: String = config.asInstanceOf[DistributedConfiguration].coordinatorAddress,
-    provisionFactory: ProvisionFactory = config.asInstanceOf[DistributedConfiguration].provisionFactory): DistributedComputeGraphBuilder = {
+    provisionFactory: ProvisionFactory = config.asInstanceOf[DistributedConfiguration].provisionFactory,
+    workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = config.asInstanceOf[DistributedConfiguration].workerConfigurations): DistributedComputeGraphBuilder = {
     new DistributedComputeGraphBuilder(
       DefaultDistributedConfiguration(
         userName = userName,
@@ -93,7 +95,8 @@ class DistributedComputeGraphBuilder(protected val config: DistributedConfigurat
         numberOfNodes = numberOfNodes,
         nodesAddress = nodesAddress,
         coordinatorAddress = coordinatorAddress,
-        provisionFactory = provisionFactory))
+        provisionFactory = provisionFactory,
+        workerConfigurations = workerConfigurations))
 
   }
 }

@@ -56,6 +56,10 @@ class ZombieManager(leaderIp: String) extends Manager with Actor {
 
   def createWorkers {
 
+    println("|||||||||||||||||||")
+    println("||||| REMOTES |||||")
+    println("|||||||||||||||||||")
+
     val nodeIpAddress = InetAddress.getLocalHost.getHostAddress
 
     // get only those workers that should be instantiated at this node 

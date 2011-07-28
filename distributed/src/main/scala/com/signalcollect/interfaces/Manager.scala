@@ -44,12 +44,14 @@ object Manager {
    * The configuration will allow a Zombie to instantiate remote workers
    */
   case class ConfigResponse(config: DistributedConfiguration) extends ManagerMessage
-  
+
   case class CheckAllReady
   case class CheckAllJoined
-  
+
   /**
    * It is a way to tell the master manager that all workers have been instantiated
    */
   case class ZombieIsReady(addr: String)
+
+  case class CoordinatorReference(coordinator: Any)
 }
