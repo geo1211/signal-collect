@@ -76,7 +76,7 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
       val next = it.next
 
       // the last port used
-      val cap: Int = Constants.WORKER_PORT_RANGE_START + next._2
+      val cap: Int = Constants.WORKER_PORT_RANGE_START + next._2 - 1
 
       // where the workers should be listening
       var ports = List[Int]()

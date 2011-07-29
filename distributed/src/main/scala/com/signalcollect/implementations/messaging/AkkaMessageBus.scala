@@ -64,7 +64,10 @@ class AkkaMessageBus[IdType](
 
   def sendToWorker(workerId: Int, m: Any) {
     messagesSent += 1
-    (workers(workerId).asInstanceOf[ActorRef]).!(m)
+    
+    val worker = workers(workerId).asInstanceOf[ActorRef] 
+    
+    worker ! m
   }
 
   def sendToWorkers(message: Any) {

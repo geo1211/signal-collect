@@ -48,4 +48,6 @@ case class DefaultRemoteWorkerReferenceConfiguration(
   workerFactory: WorkerFactory = worker.AkkaRemoteReference,
   messageBusFactory: MessageBusFactory = messageBus.AkkaBus,
   messageInboxLimits: Option[(Int, Int)] = None, //Some(50, 1000), 
-  storageFactory: StorageFactory = storage.InMemory) extends WorkerConfiguration
+  storageFactory: StorageFactory = storage.InMemory,
+  ipAddress: String = "",
+  port: Int = 0) extends RemoteWorkerConfiguration
