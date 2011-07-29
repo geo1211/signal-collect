@@ -20,10 +20,12 @@
 package com.signalcollect.implementations.worker
 
 import akka.actor.Actor
+import akka.actor.ActorRef
 import akka.actor.Actor._
 import akka.dispatch._
 import akka.actor.ReceiveTimeout
 import akka.remoteinterface._
+import akka.serialization.RemoteActorSerialization._
 
 import java.util.Date
 
@@ -39,6 +41,10 @@ class AkkaWorker(workerId: Int,
                  mapper: VertexToWorkerMapper)
   extends LocalWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)
   with Actor {
+
+  val workerConf = workerConfig
+
+  println(workerConf)
 
   /**
    * Starts the worker (puts it into a ready state for receiving messages)
@@ -69,7 +75,15 @@ class AkkaWorker(workerId: Int,
   /**
    * Timeout for akka actor idling (in milliseconds)
    */
-  self.receiveTimeout = Some((idleTimeoutNanoseconds / 1000000l))
+  //self.receiveTimeout = Some((idleTimeoutNanoseconds / 1000000l))
+  
+  override def preStart() = {
+    println("STARTING")
+  }
+
+  override def postStop() = {
+    println("STOPPING")
+  }
 
   /**
    * This is method gets executed when the akka actor receives a message.
@@ -88,17 +102,21 @@ class AkkaWorker(workerId: Int,
     /**
      * ReceiveTimeout message only gets sent after akka actor mailbox has been empty for "receiveTimeout" milliseconds
      */
-    case ReceiveTimeout =>
+    /*case ReceiveTimeout =>
       // idle handling
       if (isConverged || isPaused) { // if I have nothing to compute and the mailbox is empty, i'll be idle
         if (mailboxIsEmpty)
           setIdle(true)
-      }
+      }*/
 
     /**
      * Anything else
      */
     case msg =>
+
+      self.reply("ok")
+
+      println("msg: " + msg)
 
       // TODO: Integration specs passed without usage of the parameter
       messagesReceived += 1
@@ -163,5 +181,19 @@ class AkkaWorker(workerId: Int,
    * Just a check. Sending messages to Akka workers it should be done using the bang operator ( ! )
    */
   override def receive(message: Any) = sys.error("Receive should not be called from Akka Workers. This receive is not the same one from Akka.")
+
+  override def registerWorker(workerId: Int, worker: Any) {
+    debug("registerWorker(" + workerId + ")")
+
+    if (worker.isInstanceOf[Array[Byte]]) {
+
+      val actorRef = fromBinaryToRemoteActorRef(worker.asInstanceOf[Array[Byte]])
+
+      messageBus.registerWorker(workerId, actorRef)
+
+    } else
+      messageBus.registerWorker(workerId, worker)
+
+  }
 
 }
