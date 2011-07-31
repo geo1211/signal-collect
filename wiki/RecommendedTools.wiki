@@ -7,7 +7,7 @@ This is a short guide that describes how to get the tools that we recommend for 
 
 ==For Eclipse 3.7 INDIGO==
 ===Eclipse===
- * Install the Eclipse IDE for Java Developers 3.7 (_Indigo_) from "http://www.eclipse.org/downloads/".
+ * Install the Eclipse IDE for Java Developers 3.7 (_Indigo_) from http://www.eclipse.org/downloads
 Optional steps, potentially different depending on your platform and how much memory your PC has: 
  * Find the eclipse.ini file within the eclipse folder/package.
  * Within that file, adjust the -Xms vaue to 800m and the -Xmx value to 2048m
@@ -21,7 +21,7 @@ Install the Scala plugin for Eclipse:
 ===Maven-Scala Integration===
 Install the Maven-Scala integration plugin:
   * Within Eclipse go to _Help_, _Install New Software..._
-  * Add as a new location: "http://alchim31.free.fr/m2e-scala/update-site".
+  * Add as a new location: http://alchim31.free.fr/m2e-scala/update-site
   * Install "Maven Integration for Scala IDE".
 
 ==SVN==
