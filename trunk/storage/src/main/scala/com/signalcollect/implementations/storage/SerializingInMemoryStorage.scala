@@ -26,11 +26,11 @@ class SerializingInMemoryStorage(storage: Storage) extends VertexStore {
   protected var vertexMap = new HashMap[Any, Array[Byte]]()
   protected val serializer = storage.serializer
 
-  def get(id: Any): Vertex[_, _] = {
+  def get(id: Any): Vertex = {
     serializer.read(vertexMap.get(id))
   }
 
-  def put(vertex: Vertex[_, _]): Boolean = {
+  def put(vertex: Vertex): Boolean = {
     if (!vertexMap.containsKey(vertex.id)) {
       vertexMap.put(vertex.id, serializer.write(vertex))
       storage.toCollect.addVertex(vertex.id)
@@ -45,14 +45,14 @@ class SerializingInMemoryStorage(storage: Storage) extends VertexStore {
     storage.toSignal.remove(id)
   }
 
-  def updateStateOfVertex(vertex: Vertex[_, _]) = {
+  def updateStateOfVertex(vertex: Vertex) = {
     vertexMap.put(vertex.id, serializer.write(vertex))
   }
 
-  def foreach[U](f: (Vertex[_, _]) => U) {
+  def foreach[U](f: (Vertex) => U) {
     val it = vertexMap.values.iterator
     while (it.hasNext) {
-      val vertex: Vertex[_,_] = serializer.read(it.next)
+      val vertex: Vertex = serializer.read(it.next)
       f(vertex)
       updateStateOfVertex(vertex)
     }

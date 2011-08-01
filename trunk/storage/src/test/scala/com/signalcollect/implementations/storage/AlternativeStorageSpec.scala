@@ -82,7 +82,7 @@ class AlternativeStorageSpec extends SpecificationWithJUnit {
       }
 
       "reflect changes" in {
-        val v1_old: Vertex[_, _] = mongoStore.vertices.get(1)
+        val v1_old: Vertex = mongoStore.vertices.get(1)
         val v1_changed = new Page(1, 0.4)
         mongoStore.vertices.updateStateOfVertex(v1_changed)
         val v1_new = mongoStore.vertices.get(1)
@@ -125,7 +125,7 @@ class AlternativeStorageSpec extends SpecificationWithJUnit {
       }
 
       "reflect Changes" in {
-        val v1_old: Vertex[_, _] = orientStore.vertices.get(1)
+        val v1_old: Vertex = orientStore.vertices.get(1)
         var v1_changed = new Page(1, 0.9)
         orientStore.vertices.updateStateOfVertex(v1_changed)
         v1_changed = new Page(1, 0.8)

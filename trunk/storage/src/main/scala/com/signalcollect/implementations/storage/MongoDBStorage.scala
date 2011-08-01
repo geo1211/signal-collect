@@ -20,7 +20,6 @@ package com.signalcollect.implementations.storage
 
 import com.mongodb.casbah.Imports._
 import com.signalcollect.interfaces._
-import com.signalcollect.api.DefaultVertex
 import java.util.HashMap
 import org.apache.log4j.helpers.LogLog
 import com.signalcollect.implementations.serialization._
@@ -50,7 +49,7 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
    * @param vertex the vertex to store
    * @return insertion was successful i.e. the vertex was not already contained in the store
    */
-  def put(vertex: Vertex[_, _]): Boolean = {
+  def put(vertex: Vertex): Boolean = {
     val builder = MongoDBObject.newBuilder
     builder += "id" -> vertex.id.toString
     if (mongoStore.findOne(builder.result) != None) {
@@ -71,9 +70,9 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
    * @param id ID of the vertex to deserialize
    * @return the deserialized vertex
    */
-  def get(id: Any): Vertex[_, _] = {
+  def get(id: Any): Vertex = {
     mongoStore.findOne(MongoDBObject("id" -> id.toString)) match {
-      case Some(x) => val serialized = x.getAs[Array[Byte]]("obj"); read(serialized.get).asInstanceOf[Vertex[_, _]]
+      case Some(x) => val serialized = x.getAs[Array[Byte]]("obj"); read(serialized.get).asInstanceOf[Vertex]
       case _ => null
     }
   }
@@ -94,7 +93,7 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
    *
    * @param vertex the vertex that replaces the currently stored vertex with the same id
    */
-  def updateStateOfVertex(vertex: Vertex[_, _]) = {
+  def updateStateOfVertex(vertex: Vertex) = {
     val q = MongoDBObject("id" -> vertex.id.toString)
     val serialized = write(vertex)
     val updated = MongoDBObject("id" -> vertex.id.toString, "obj" -> serialized)
@@ -106,9 +105,9 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
    * 
    * @param f the function to apply to all vertices in the database
    */
-  def foreach[U](f: (Vertex[_, _]) => U) {
+  def foreach[U](f: (Vertex) => U) {
     mongoStore.foreach(dbobj => {
-      val vertex = read(dbobj.getAs[Array[Byte]]("obj").get).asInstanceOf[Vertex[_, _]]
+      val vertex = read(dbobj.getAs[Array[Byte]]("obj").get).asInstanceOf[Vertex]
       f(vertex)
       updateStateOfVertex(vertex)
     })

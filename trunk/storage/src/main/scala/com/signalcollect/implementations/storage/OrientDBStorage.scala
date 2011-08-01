@@ -70,7 +70,7 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
    * @param id ID of the vertex to deserialize
    * @return the deserialized vertex
    */
-  def get(id: Any): Vertex[_, _] = {
+  def get(id: Any): Vertex = {
     val serialized = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", id.toString.asInstanceOf[AnyRef])
     if (serialized.isEmpty) {
       null
@@ -85,7 +85,7 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
    * @param vertex the vertex to store
    * @return insertion was successful i.e. the vertex was not already contained in the database
    */
-  def put(vertex: Vertex[_, _]): Boolean = {
+  def put(vertex: Vertex): Boolean = {
     var alreadyStored = false
     if (size > 0) {
       val queryResults = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", vertex.id.toString.asInstanceOf[AnyRef])
@@ -118,7 +118,7 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
    *
    * @param vertex the vertex that replaces the currently stored vertex with the same id
    */
-  def updateStateOfVertex(vertex: Vertex[_, _]) = {
+  def updateStateOfVertex(vertex: Vertex) = {
     var wrappedVertex = db.queryBySql[OrientWrapper]("select from OrientWrapper where vertexID = ?", vertex.id.toString.asInstanceOf[AnyRef]).last
     wrappedVertex.serializedVertex = write(vertex)
     db.save(wrappedVertex)
@@ -129,10 +129,10 @@ class OrientDBStorage(storage: Storage, DBLocation: String) extends VertexStore 
    * 
    * @param f the function to apply to all vertices in the database
    */
-  def foreach[U](f: (Vertex[_, _]) => U) {
+  def foreach[U](f: (Vertex) => U) {
     val iterator = db.browseClass[OrientWrapper]("OrientWrapper")
     while (iterator.hasNext) {
-      val vertex: Vertex[_, _] = read(iterator.next.serializedVertex)
+      val vertex: Vertex = read(iterator.next.serializedVertex)
       f(vertex)
       updateStateOfVertex(vertex)
     }
