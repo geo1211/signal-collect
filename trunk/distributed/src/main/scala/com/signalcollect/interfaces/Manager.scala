@@ -21,11 +21,7 @@ package com.signalcollect.interfaces
 
 import com.signalcollect.configuration.DistributedConfiguration
 
-trait Manager {
-
-  def shutdown
-
-}
+trait Manager
 /**
  * Companion object declaring messages
  */

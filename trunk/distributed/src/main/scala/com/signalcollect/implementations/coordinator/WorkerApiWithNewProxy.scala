@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.collection.parallel.mutable.ParArray
 import scala.collection.JavaConversions._
 
+import akka.actor.Actor._
+
 class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogMessage]) extends WorkerApi(config, logger) {
 
   override def toString = "WorkerApiWithNewProxy"
@@ -47,20 +49,18 @@ class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogM
     workerProxies
   }
 
-  override def initialize {
-    if (!isInitialized) {
-      Thread.currentThread.setName("Coordinator")
-      messageBus.registerCoordinator(this)
-      workerProxyMessageBuses foreach (_.registerCoordinator(this))
-      for (workerId <- 0 until config.numberOfWorkers) {
-        messageBus.registerWorker(workerId, workers(workerId))
-        workerProxyMessageBuses foreach (_.registerWorker(workerId, workers(workerId)))
-      }
-      for (workerId <- 0 until config.numberOfWorkers) {
-        workerProxies foreach (_.registerWorker(workerId, workers(workerId)))
-      }
-      isInitialized = true
-    }
+  override def shutdown = {
+
+    println("shutdown muthafuckas")
+
+    parallelWorkerProxies foreach (x => x.shutdown)
+    
+    println("afterwards")
+
+    remote.shutdown()
+
+    System.exit(0)
+
   }
 
 }

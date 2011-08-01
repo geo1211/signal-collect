@@ -21,19 +21,19 @@ package com.signalcollect.configuration.provisioning
 
 import scala.collection.mutable.HashMap
 
+import com.signalcollect.configuration._
+
 /**
  * Provisioning for nodes
- * 
+ *
  * How many workers per node
  * TODO: vertices per worker
  * TODO: segments per worker
- * 
+ *
  */
 trait NodeProvisioning extends Serializable {
 
-  protected def workersPerNode: HashMap[String, Int]
-
-  def workerPorts: HashMap[String, List[Int]]
+  def workersPerNodeNames
 
   /**
    * TODO: doesnt really work if we are using hashes to locate vertices in the workers, however that could change

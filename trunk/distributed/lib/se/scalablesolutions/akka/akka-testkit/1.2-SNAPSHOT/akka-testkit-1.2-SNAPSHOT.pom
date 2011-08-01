@@ -46,24 +46,24 @@
             <url>http://repository.codehaus.org/</url>
         </repository>
         <repository>
-            <id>GuiceyFruitRepo</id>
-            <name>GuiceyFruit Repo</name>
-            <url>http://guiceyfruit.googlecode.com/svn/repo/releases/</url>
-        </repository>
-        <repository>
             <id>DatabinderRepo</id>
             <name>Databinder Repo</name>
             <url>http://databinder.net/repo/</url>
         </repository>
         <repository>
-            <id>AkkaRepository</id>
-            <name>Akka Repository</name>
-            <url>http://akka.io/repository/</url>
+            <id>GuiceyFruitRepo</id>
+            <name>GuiceyFruit Repo</name>
+            <url>http://guiceyfruit.googlecode.com/svn/repo/releases/</url>
         </repository>
         <repository>
             <id>GlassfishRepo</id>
             <name>Glassfish Repo</name>
             <url>http://download.java.net/maven/glassfish/</url>
+        </repository>
+        <repository>
+            <id>AkkaRepository</id>
+            <name>Akka Repository</name>
+            <url>http://akka.io/repository/</url>
         </repository>
     </repositories>
 </project>

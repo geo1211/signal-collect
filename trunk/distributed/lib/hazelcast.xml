@@ -14,7 +14,7 @@
                 <multicast-port>54327</multicast-port>
             </multicast>
             <tcp-ip enabled="true">
-            	<hostname>eolimeister</hostname>
+            	<hostname>franciscos-iMac.local</hostname>
             </tcp-ip>
         </join>
         <interfaces enabled="false">

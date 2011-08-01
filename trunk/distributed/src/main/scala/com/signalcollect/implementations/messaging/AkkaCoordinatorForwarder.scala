@@ -20,7 +20,8 @@
 package com.signalcollect.implementations.messaging
 
 import akka.actor.Actor
-import com.signalcollect.interfaces.MessageRecipient
+import com.signalcollect.interfaces._
+import akka.dispatch._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 
@@ -28,7 +29,24 @@ class AkkaCoordinatorForwarder extends Actor {
 
   var coordinator: Any = _
 
+  var shutdownCount = 8
+
+  self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
+
   def receive = {
+
+    /*case Shutdown =>
+      shutdownCount = shutdownCount - 1
+
+      println("coord shutdown")
+
+      if (shutdownCount == 0) {
+        println("shuting down coordinator")
+        self.exit()
+      }*/
+
+    case "Hello" =>
+      self.reply("ok")
 
     case CoordinatorReference(x) =>
       coordinator = x

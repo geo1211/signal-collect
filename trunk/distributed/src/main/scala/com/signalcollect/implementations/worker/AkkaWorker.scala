@@ -42,9 +42,11 @@ class AkkaWorker(workerId: Int,
   extends LocalWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)
   with Actor {
 
-  val workerConf = workerConfig
+  var zombieState = true
 
-  println(workerConf)
+/*  override def postStop {
+    messageBus.sendToCoordinator(Shutdown)
+  }*/
 
   /**
    * Starts the worker (puts it into a ready state for receiving messages)
@@ -75,15 +77,7 @@ class AkkaWorker(workerId: Int,
   /**
    * Timeout for akka actor idling (in milliseconds)
    */
-  //self.receiveTimeout = Some((idleTimeoutNanoseconds / 1000000l))
-  
-  override def preStart() = {
-    println("STARTING")
-  }
-
-  override def postStop() = {
-    println("STOPPING")
-  }
+  self.receiveTimeout = Some((idleTimeoutNanoseconds / 1000000l))
 
   /**
    * This is method gets executed when the akka actor receives a message.
@@ -102,21 +96,25 @@ class AkkaWorker(workerId: Int,
     /**
      * ReceiveTimeout message only gets sent after akka actor mailbox has been empty for "receiveTimeout" milliseconds
      */
-    /*case ReceiveTimeout =>
-      // idle handling
-      if (isConverged || isPaused) { // if I have nothing to compute and the mailbox is empty, i'll be idle
-        if (mailboxIsEmpty)
-          setIdle(true)
-      }*/
+    case ReceiveTimeout =>
+
+      if (!zombieState) {
+        // idle handling
+        if (isConverged || isPaused) { // if I have nothing to compute and the mailbox is empty, i'll be idle
+          if (mailboxIsEmpty)
+            setIdle(true)
+        }
+      }
+
+    case "Hello" =>
+      self.reply("ok")
 
     /**
      * Anything else
      */
     case msg =>
 
-      self.reply("ok")
-
-      println("msg: " + msg)
+      zombieState = false
 
       // TODO: Integration specs passed without usage of the parameter
       messagesReceived += 1
@@ -194,6 +192,25 @@ class AkkaWorker(workerId: Int,
     } else
       messageBus.registerWorker(workerId, worker)
 
+  }
+
+  override protected def process(message: Any) {
+
+    if (self.isShutdown)
+      return
+
+    counters.messagesReceived += 1
+    message match {
+      case s: Signal[_, _, _]     => processSignal(s)
+      case WorkerRequest(command) => command(this)
+      case other                  => warning("Could not handle message " + message)
+    }
+
+    messagesRead += 1
+    if (isOverstrained && (messagesReceived - messagesRead) <= messageInboxMinMax._1) {
+      isOverstrained = false
+      sendStatusToCoordinator
+    }
   }
 
 }

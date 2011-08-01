@@ -22,14 +22,18 @@ package com.signalcollect.implementations.manager
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.remoteinterface._
+import akka.dispatch._
 
 import java.util.Date
 
+import com.signalcollect.interfaces._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration.DistributedConfiguration
 
 class LeaderManager(config: DistributedConfiguration) extends Manager with Actor {
+  
+  self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
 
   var nodeCount = config.nodesAddress.size
 
@@ -43,11 +47,11 @@ class LeaderManager(config: DistributedConfiguration) extends Manager with Actor
 
   def receive = {
 
-    /**
-     * When a remote shutdown is requested (not required for the algorithm run, only for graceful shutdown)
-     * To trigger this message, issue a remote.shutdown() from the manager that created the actor (in the remote case)
-     */
-    case RemoteServerShutdown(server) =>
+    case Shutdown =>
+
+      // shutdown all zombie managers, not needed anymore
+      zombieRefs foreach { x => x ! Shutdown }
+
       println("Leader shutdown received at " + new Date)
       self.exit()
 
@@ -90,7 +94,5 @@ class LeaderManager(config: DistributedConfiguration) extends Manager with Actor
       self.reply(allJoined)
 
   }
-
-  def shutdown = self.stop
 
 }
