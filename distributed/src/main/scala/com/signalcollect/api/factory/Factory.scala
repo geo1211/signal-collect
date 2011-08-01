@@ -77,11 +77,8 @@ package factory {
 
         // TODO: test if coordinator is an actor class?
 
-        // info coming from config
-        Actor.remote.start(workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, workerConfig.asInstanceOf[RemoteWorkerConfiguration].port)
-
         // register worker
-        Actor.remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)))
+        remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)))
 
       }
 
@@ -106,7 +103,7 @@ package factory {
          */
 
         // get the hook for the remote actor as a actor ref
-        val worker = Actor.remote.actorFor(Constants.WORKER_SERVICE_NAME + "" + workerId, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, workerConfig.asInstanceOf[RemoteWorkerConfiguration].port)
+        val worker = remote.actorFor(workerConfig.asInstanceOf[RemoteWorkerConfiguration].serviceName, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT)
         
         worker
 

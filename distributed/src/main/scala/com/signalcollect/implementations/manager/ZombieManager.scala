@@ -21,29 +21,37 @@ package com.signalcollect.implementations.manager
 
 import akka.actor.Actor
 import akka.actor.Actor._
+import akka.dispatch._
 
 import com.signalcollect.api.factory._
 import com.signalcollect.implementations.messaging._
-import com.signalcollect.interfaces.Manager
+import com.signalcollect.interfaces._
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
 import com.signalcollect.util.Constants
 
+import java.util.Date
 import java.net.InetAddress
 
 class ZombieManager(leaderIp: String) extends Manager with Actor {
+
+  self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
 
   var config: DistributedConfiguration = _
 
   protected lazy val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
 
   // get leader hook
-  val leader = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, leaderIp, Constants.MANAGER_SERVICE_PORT)
+  val leader = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, leaderIp, Constants.REMOTE_SERVER_PORT)
 
   // ask for config
   leader ! ConfigRequest
 
   def receive = {
+
+    case Shutdown =>
+      println("Zombie shutdown received at " + new Date)
+      self.exit()
 
     // get configuration from leader
     case ConfigResponse(c) =>
@@ -51,8 +59,6 @@ class ZombieManager(leaderIp: String) extends Manager with Actor {
       createWorkers
 
   }
-
-  def shutdown = self.stop
 
   def createWorkers {
 

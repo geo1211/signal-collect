@@ -24,21 +24,14 @@ package com.signalcollect.util
  */
 object Constants {
 
-  def MANAGER_SERVICE_PORT = 2552
+  def REMOTE_SERVER_PORT = 2552
 
   def LEADER_MANAGER_SERVICE_NAME = "leader-service"
   def ZOMBIE_MANAGER_SERVICE_NAME = "zombie-service"
-
-  // used by only one machine
-  def COORDINATOR_SERVICE_PORT = 2553
   def COORDINATOR_SERVICE_NAME = "coordinator-service"
 
   def LOGGER_SERVICE_NAME = "logger-service"
-  def LOGGER_SERVICE_PORT = 2555
 
   def WORKER_SERVICE_NAME = "worker-service"
-
-  // start of range for workers to listen to
-  def WORKER_PORT_RANGE_START = 2556
 
 }

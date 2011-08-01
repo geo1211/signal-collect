@@ -33,64 +33,43 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
 
   override def toString = "EqualNodeProvisioning"
 
-  protected def workersPerNode: HashMap[String, Int] = {
+  def workersPerNodeNames {
 
     val nodesAddress = config.nodesAddress
     val numberOfNodes = config.numberOfNodes
 
-    val workersPerNode = new HashMap[String, Int]
-
     // equal division of workers among all nodes
     val div = config.numberOfWorkers.asInstanceOf[Double] / numberOfNodes.asInstanceOf[Double]
 
-    // for each node address
+    var workerCounter = 0
+
+    // for each node 
     for (i <- 0 to numberOfNodes - 1) {
-      // in case its and odd number of workers and nodes, the first node gets one more worker than the others
+
+      var numWorkersAtNode = 0
+
+      val ip = nodesAddress(i)
+
+      // in case its an odd number of workers and nodes, the first node gets one more worker than the others
       if (i == 0)
-        workersPerNode += nodesAddress(i) -> (math.ceil(div).asInstanceOf[Int])
+        numWorkersAtNode = math.ceil(div).asInstanceOf[Int]
       else
-        workersPerNode += nodesAddress(i) -> (math.ceil(div).asInstanceOf[Int])
-    }
+        numWorkersAtNode = math.floor(div).asInstanceOf[Int]
 
-    workersPerNode
+      var names = List[String]()
 
-  }
+      for (j <- workerCounter to numWorkersAtNode - 1) {
+        // create specific configuration for the worker
+        val remoteWorkerConfiguration = DefaultRemoteWorkerConfiguration(ipAddress = ip, serviceName = Constants.WORKER_SERVICE_NAME + "" + j)
 
-  /**
-   * Returns a map containing the ports where the workers will be listening, per ip address
-   */
-  def workerPorts: HashMap[String, List[Int]] = {
+        // add the worker configuration to the list
+        config.workerConfigurations.put(j, remoteWorkerConfiguration)
+      }
 
-    // e.g.: 192.168.1.1 -> List(2554,2555)
-    val workers = new HashMap[String, List[Int]]
-
-    val workersPerNodeMap = workersPerNode
-    
-    // iterator for map
-    val it = workersPerNodeMap.iterator
-
-    // for each node ip address
-    while (it.hasNext) {
-
-      // in the node ip there will be x workers
-      val next = it.next
-
-      // the last port used
-      val cap: Int = Constants.WORKER_PORT_RANGE_START + next._2 - 1
-
-      // where the workers should be listening
-      var ports = List[Int]()
-
-      // from highest port to lowest port (to keep the order of the list)
-      for (i <- cap to Constants.WORKER_PORT_RANGE_START by -1)
-        ports = i :: ports
-
-      // put address and ports in the map
-      workers.put(next._1, ports)
+      // increment id counter
+      workerCounter = workerCounter + numWorkersAtNode
 
     }
-
-    workers
 
   }
 

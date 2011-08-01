@@ -47,7 +47,9 @@ class AkkaMessageBusWithRemote[IdType](
     if (!message.isInstanceOf[LogMessage]) {
       messagesSent += 1
     }
-    coordinator ! message
+
+    if (!coordinator.isShutdown)
+      coordinator ! message
   }
 
   def sendToWorkerForVertexId(message: Any, recipientId: IdType) {

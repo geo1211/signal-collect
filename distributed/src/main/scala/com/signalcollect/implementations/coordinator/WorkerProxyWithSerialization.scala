@@ -80,11 +80,13 @@ class WorkerProxyWithSerialization(val workerId: Int, val messageBus: MessageBus
 
       var bool = false
 
-      if (arguments.length == 2) {
-        if (arguments(1).isInstanceOf[ActorRef]) {
-          bool = true
-          newArgs(0) = arguments(0)
-          newArgs(1) = toRemoteActorRefProtocol(arguments(1).asInstanceOf[ActorRef]).toByteArray
+      if (arguments != null) {
+        if (arguments.length == 2) {
+          if (arguments(1).isInstanceOf[ActorRef]) {
+            bool = true
+            newArgs(0) = arguments(0)
+            newArgs(1) = toRemoteActorRefProtocol(arguments(1).asInstanceOf[ActorRef]).toByteArray
+          }
         }
       }
 
@@ -94,23 +96,21 @@ class WorkerProxyWithSerialization(val workerId: Int, val messageBus: MessageBus
       val methodParameters = method.getParameterTypes()
 
       if (bool) {
-
-        val methodParameters = new Array[java.lang.Class[_]](2)
-
-        for (i <- 0 to newArgs.length - 1)
-          methodParameters(i) = newArgs(i).getClass()
-
         val command = { worker: Worker =>
-          val methodOnTheOtherSide = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, newArgs: _*)
-          val reply = WorkerReply(worker.workerId, methodOnTheOtherSide)
-          worker.messageBus.sendToCoordinator(reply)
+          var result = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, newArgs: _*)
+          if (result != null)
+            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, result))
+          else
+            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, 0))
         }
         relay(command)
       } else {
         val command = { worker: Worker =>
-          val methodOnTheOtherSide = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, arguments: _*)
-          val reply = WorkerReply(worker.workerId, methodOnTheOtherSide)
-          worker.messageBus.sendToCoordinator(reply)
+          var result = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, arguments: _*)
+          if (result != null)
+            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, result))
+          else
+            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, 0))
         }
         relay(command)
       }

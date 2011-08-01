@@ -27,7 +27,7 @@ import com.signalcollect.interfaces._
  */
 trait RemoteWorkerConfiguration extends WorkerConfiguration {
   def ipAddress: String
-  def port: Int
+  def serviceName: String
 }
 
 /**
@@ -39,7 +39,7 @@ case class DefaultRemoteWorkerConfiguration(
   messageInboxLimits: Option[(Int, Int)] = None, //Some(50, 1000), 
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
-  port: Int = 0) extends RemoteWorkerConfiguration
+  serviceName: String = "") extends RemoteWorkerConfiguration
 
 /**
  * Used by the COORDINATOR
@@ -50,4 +50,4 @@ case class DefaultRemoteWorkerReferenceConfiguration(
   messageInboxLimits: Option[(Int, Int)] = None, //Some(50, 1000), 
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
-  port: Int = 0) extends RemoteWorkerConfiguration
+  serviceName: String = "") extends RemoteWorkerConfiguration
