@@ -112,11 +112,11 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     // if local ip == ip with smallest long, then I am the leader
     if (localIp equals leaderIp) {
       println("I'm the leader")
-      LeaderType()
+      LeaderType
     } // else I am zombie, shutdown my leader manager
     else {
       println("ZOMBIE... Braaaaaiinnnsss")
-      ZombieType()
+      ZombieType
     }
 
   }
@@ -289,12 +289,12 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     nodeType match {
 
       /** ZOMBIE */
-      case ZombieType() =>
+      case ZombieType =>
 
         deployZombie // will not return a compute graph
 
       /** LEADER */
-      case LeaderType() =>
+      case LeaderType =>
 
         println("Provisioning start...")
 
