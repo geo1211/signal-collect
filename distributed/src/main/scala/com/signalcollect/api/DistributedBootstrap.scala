@@ -42,8 +42,8 @@ import scala.util.Random
 import scala.collection.JavaConversions._
 
 sealed trait NodeType
-case class ZombieType extends NodeType
-case class LeaderType extends NodeType
+case object ZombieType extends NodeType
+case object LeaderType extends NodeType
 
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
