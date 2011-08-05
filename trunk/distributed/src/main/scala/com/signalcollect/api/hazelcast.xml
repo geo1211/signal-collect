@@ -15,6 +15,7 @@
             </multicast>
             <tcp-ip enabled="true">
             	<hostname>franciscos-iMac.local</hostname>
+            	<hostname>Thierry-Bourquins-iMac.local</hostname>
             </tcp-ip>
         </join>
         <interfaces enabled="false">

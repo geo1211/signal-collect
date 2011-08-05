@@ -20,7 +20,6 @@
 
 package com.signalcollect
 
-import com.signalcollect._
 import com.signalcollect.api._
 import com.signalcollect.api.factory._
 import com.signalcollect.configuration._
@@ -39,14 +38,14 @@ import org.specs2.runner.JUnitRunner
  * http://code.google.com/p/specs/wiki/RunningSpecs
  */
 @RunWith(classOf[JUnitRunner])
-class AkkaIntegrationTest extends SpecificationWithJUnit {
+class DistributedIntegrationTest extends SpecificationWithJUnit {
 
   val computeGraphFactories: List[Int => ComputeGraph] = List(
-        (numberOfWorkers: Int) => AkkaLocalComputeGraphBuilder.withNumberOfWorkers(numberOfWorkers).withMessageBusFactory(messageBus.AkkaBus).withWorkerFactory(worker.AkkaLocal).build.get)
+    (numberOfWorkers: Int) => DefaultDistributedComputeGraphBuilder.withNumberOfNodes(1).withNumberOfWorkers(numberOfWorkers).build.get)
 
-  val executionModes = List(SynchronousExecutionMode)
+  val executionModes = List(/*OptimizedAsynchronousExecutionMode,*/ SynchronousExecutionMode)
 
-  val testWorkerCounts = List(1, 2, 4, 8 /*, 16, 32, 64, 128*/ )
+  val testWorkerCounts = List(1 /*, 2, 4, 8 , 16, 32, 64, 128*/ )
 
   def test(graphProviders: List[Int => ComputeGraph] = computeGraphFactories, verify: Vertex[_, _] => Boolean, buildGraph: ComputeGraph => Unit = (cg: ComputeGraph) => (), numberOfWorkers: Traversable[Int] = testWorkerCounts, signalThreshold: Double = 0, collectThreshold: Double = 0): Boolean = {
     var correct = true
@@ -107,7 +106,7 @@ class AkkaIntegrationTest extends SpecificationWithJUnit {
     cg
   }
 
-  "PageRank algorithm" should {
+/*  "PageRank algorithm" should {
     "deliver correct results on a 5-cycle graph" in {
       val fiveCycleEdges = List((0, 1), (1, 2), (2, 3), (3, 4), (4, 0))
       def pageRankFiveCycleVerifier(v: Vertex[_, _]): Boolean = {
@@ -149,7 +148,7 @@ class AkkaIntegrationTest extends SpecificationWithJUnit {
       }
       test(verify = pageRankTwoOnTwoGridVerifier, buildGraph = buildPageRankGraph(_, symmetricTwoOnTwoGridEdges)) must_== true
     }
-  }
+  }*/
 
   def vertexColoringVerifier(v: Vertex[_, _]): Boolean = {
     v match {
@@ -167,7 +166,7 @@ class AkkaIntegrationTest extends SpecificationWithJUnit {
   }
 
   "VertexColoring algorithm" should {
-    "deliver correct results on a symmetric 4-cycle" in {
+/*    "deliver correct results on a symmetric 4-cycle" in {
       val symmetricFourCycleEdges = List((0, 1), (1, 0), (1, 2), (2, 1), (2, 3), (3, 2), (3, 0), (0, 3))
       test(verify = vertexColoringVerifier, buildGraph = buildVertexColoringGraph(2, _, symmetricFourCycleEdges)) must_== true
     }
@@ -175,7 +174,7 @@ class AkkaIntegrationTest extends SpecificationWithJUnit {
     "deliver correct results on a symmetric 5-star" in {
       val symmetricFiveStarEdges = List((0, 4), (4, 0), (1, 4), (4, 1), (2, 4), (4, 2), (3, 4), (4, 3))
       test(verify = vertexColoringVerifier, buildGraph = buildVertexColoringGraph(2, _, symmetricFiveStarEdges)) must_== true
-    }
+    }*/
     "deliver correct results on a 2*2 symmetric grid" in {
       val symmetricTwoOnTwoGridEdges = new Grid(2, 2)
       test(verify = vertexColoringVerifier, buildGraph = buildVertexColoringGraph(2, _, symmetricTwoOnTwoGridEdges)) must_== true

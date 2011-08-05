@@ -80,22 +80,27 @@ class WorkerProxyWithSerialization(val workerId: Int, val messageBus: MessageBus
 
       var bool = false
 
-      if (arguments != null) {
-        if (arguments.length == 2) {
-          if (arguments(1).isInstanceOf[ActorRef]) {
-            bool = true
+      val methodName = method.getName
+      
+      //println(methodName)
+
+/*      if (methodName equals ("registerWorker")) {
+        if (arguments != null) {
+          if (arguments.length == 2) {
+            if (arguments(1).isInstanceOf[ActorRef]) {
+              bool = true
             newArgs(0) = arguments(0)
-            newArgs(1) = toRemoteActorRefProtocol(arguments(1).asInstanceOf[ActorRef]).toByteArray
+              arguments(1) = toRemoteActorRefProtocol(arguments(1).asInstanceOf[ActorRef]).toByteArray
+            }
           }
         }
-      }
+      }*/
 
       debug("Worker" + workerId + "." + method.getName)
 
-      val methodName = method.getName
       val methodParameters = method.getParameterTypes()
 
-      if (bool) {
+      /*if (bool) {
         val command = { worker: Worker =>
           var result = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, newArgs: _*)
           if (result != null)
@@ -104,16 +109,16 @@ class WorkerProxyWithSerialization(val workerId: Int, val messageBus: MessageBus
             worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, 0))
         }
         relay(command)
-      } else {
-        val command = { worker: Worker =>
-          var result = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, arguments: _*)
-          if (result != null)
-            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, result))
-          else
-            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, 0))
-        }
-        relay(command)
+      } else {*/
+      val command = { worker: Worker =>
+        var result = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, arguments: _*)
+        //if (result != null)
+        worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, result))
+        //else
+        //worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, 0))
       }
+      relay(command)
+      //}
 
       /*
        * Blocking operation, until receive of worker reply by coordinator

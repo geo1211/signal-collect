@@ -109,6 +109,12 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.signalcollect.examples.DistributedHamiltonian</mainClass>
+							<packageName>com.signalcollect.examples</packageName>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
@@ -170,11 +176,11 @@
 	<properties>
 		<project.build.sourceEncoding>
 			UTF-8
-        </project.build.sourceEncoding>
+		</project.build.sourceEncoding>
 
 		<project.reporting.outputEncoding>
 			UTF-8
-        </project.reporting.outputEncoding>
+		</project.reporting.outputEncoding>
 		<scala.version>2.9.0-1</scala.version>
 	</properties>
 </project>

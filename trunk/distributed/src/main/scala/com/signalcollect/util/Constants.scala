@@ -34,4 +34,7 @@ object Constants {
 
   def WORKER_SERVICE_NAME = "worker-service"
 
+  // timeout for getting a msg back
+  def REPLY_TIMEOUT = 500l
+
 }

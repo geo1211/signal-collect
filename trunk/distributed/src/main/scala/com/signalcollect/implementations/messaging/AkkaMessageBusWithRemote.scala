@@ -24,6 +24,8 @@ import com.signalcollect.interfaces._
 import java.util.HashMap
 import akka.actor.ActorRef
 import akka.actor.Actor
+import akka.remoteinterface._
+import akka.serialization.RemoteActorSerialization._
 
 class AkkaMessageBusWithRemote[IdType](
   val numberOfWorkers: Int,
@@ -36,7 +38,16 @@ class AkkaMessageBusWithRemote[IdType](
   var messagesSent = 0l
 
   def registerWorker(workerId: Int, w: Any) {
-    workers(workerId) = w
+/*
+    if (w.isInstanceOf[Array[Byte]]) {
+
+      val actorRef = fromBinaryToRemoteActorRef(w.asInstanceOf[Array[Byte]])
+
+      workers(workerId) = actorRef
+
+    } else*/
+      workers(workerId) = w
+
   }
 
   def registerCoordinator(c: Any) {
@@ -48,8 +59,8 @@ class AkkaMessageBusWithRemote[IdType](
       messagesSent += 1
     }
 
-    if (!coordinator.isShutdown)
-      coordinator ! message
+    //if (!coordinator.isShutdown)
+    coordinator ! message
   }
 
   def sendToWorkerForVertexId(message: Any, recipientId: IdType) {

@@ -35,18 +35,14 @@ import com.signalcollect.configuration._
 import com.signalcollect.implementations.coordinator.WorkerApi
 
 class AkkaWorker(workerId: Int,
-                 workerConfig: WorkerConfiguration,
-                 numberOfWorkers: Int,
-                 coordinator: Any,
-                 mapper: VertexToWorkerMapper)
+  workerConfig: WorkerConfiguration,
+  numberOfWorkers: Int,
+  coordinator: Any,
+  mapper: VertexToWorkerMapper)
   extends LocalWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)
   with Actor {
 
   var zombieState = true
-
-/*  override def postStop {
-    messageBus.sendToCoordinator(Shutdown)
-  }*/
 
   /**
    * Starts the worker (puts it into a ready state for receiving messages)
@@ -65,7 +61,9 @@ class AkkaWorker(workerId: Int,
    */
   override def shutdown = {
     debug("WorkerId" + workerId + "=> shutdown received at " + new Date)
-    self.exit()
+    self.stop
+    remote.shutdown
+
   }
 
   /**
@@ -77,7 +75,7 @@ class AkkaWorker(workerId: Int,
   /**
    * Timeout for akka actor idling (in milliseconds)
    */
-  self.receiveTimeout = Some((idleTimeoutNanoseconds / 1000000l))
+  self.receiveTimeout = Some(50l)
 
   /**
    * This is method gets executed when the akka actor receives a message.
@@ -188,29 +186,13 @@ class AkkaWorker(workerId: Int,
       val actorRef = fromBinaryToRemoteActorRef(worker.asInstanceOf[Array[Byte]])
 
       messageBus.registerWorker(workerId, actorRef)
+    
 
     } else
       messageBus.registerWorker(workerId, worker)
 
   }
 
-  override protected def process(message: Any) {
 
-    if (self.isShutdown)
-      return
-
-    counters.messagesReceived += 1
-    message match {
-      case s: Signal[_, _, _]     => processSignal(s)
-      case WorkerRequest(command) => command(this)
-      case other                  => warning("Could not handle message " + message)
-    }
-
-    messagesRead += 1
-    if (isOverstrained && (messagesReceived - messagesRead) <= messageInboxMinMax._1) {
-      isOverstrained = false
-      sendStatusToCoordinator
-    }
-  }
 
 }
