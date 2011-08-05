@@ -26,72 +26,65 @@ import akka.dispatch._
 
 import java.util.Date
 
-import com.signalcollect.interfaces._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration.DistributedConfiguration
 
-class LeaderManager(config: DistributedConfiguration) extends Manager with Actor {
-  
-  self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
+class LeaderManager(numberOfNodes: Int) extends Manager with Actor {
 
-  var nodeCount = config.nodesAddress.size
+  self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
 
   var zombieRefs: List[ActorRef] = List()
 
-  var nodesJoined: List[String] = List()
-  var nodesReady: List[String] = List()
+  var nodesReady: Int = 0
+  var nodesAlive: Int = 0
 
   var allReady = false
-  var allJoined = false
+  var allAlive = false
 
   def receive = {
 
-    case Shutdown =>
+    case "Hello" =>
+      self.reply("ok")
 
+    case Config(c) =>
+      zombieRefs foreach { x => x ! Config(c) }
+
+    case Shutdown =>
       // shutdown all zombie managers, not needed anymore
       zombieRefs foreach { x => x ! Shutdown }
-
-      println("Leader shutdown received at " + new Date)
-      self.exit()
+      self.stop
 
     // a zombie is ready (workers are instantiated)
     case ZombieIsReady(addr) =>
-      // debug FIXME
-      if (allReady)
-        sys.error("oops, this shouldn't happen")
+
+      println("zombie is ready = " + addr)
 
       // add node ready
-      nodesReady = addr :: nodesReady
-
-      val ref = self.sender.get
-      zombieRefs = ref :: zombieRefs
+      nodesReady = nodesReady + 1
 
     case CheckAllReady =>
-      if (nodesReady.size == nodeCount - 1)
+      if (nodesReady == numberOfNodes - 1)
         allReady = true
 
       self.reply(allReady)
 
     // a zombie requested the configuration
-    case ConfigRequest(addr) =>
+    case ZombieIsAlive(addr) =>
 
-      // debug FIXME
-      if (allJoined)
-        sys.error("oops, this shouldn't happen")
+      nodesAlive = nodesAlive + 1
+
+      println("zombie " + addr + " is alive...")
 
       // add node joined
-      nodesJoined = addr :: nodesJoined
+      val ref = self.sender.get
+      zombieRefs = ref :: zombieRefs
 
-      // book keeping
-      if (nodesJoined.size == nodeCount - 1)
-        allJoined = true
+    case CheckAllAlive =>
+      if (nodesAlive == numberOfNodes - 1)
+        allAlive = true
 
-      // send back configuration
-      self.reply(ConfigResponse(config))
-
-    case CheckAllJoined =>
-      self.reply(allJoined)
+      self.reply(allAlive)
 
   }
 

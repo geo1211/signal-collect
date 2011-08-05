@@ -33,6 +33,8 @@ import scala.collection.parallel.mutable.ParArray
 import scala.collection.JavaConversions._
 
 import akka.actor.Actor._
+import akka.actor.ActorRef
+import akka.serialization.RemoteActorSerialization._
 
 class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogMessage]) extends WorkerApi(config, logger) {
 
@@ -49,17 +51,63 @@ class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogM
     workerProxies
   }
 
+  var coordinator: ActorRef = _
+
+  override protected def createWorkerProxyMessageBuses: Array[MessageBus[Any]] = {
+    val workerProxyMessageBuses = new Array[MessageBus[Any]](config.numberOfWorkers)
+    for (workerId <- 0 until config.numberOfWorkers) {
+      val proxyMessageBus = config.workerConfiguration.messageBusFactory.createInstance(config.numberOfWorkers, mapper)
+      proxyMessageBus.registerCoordinator(coordinator)
+      workerProxyMessageBuses(workerId) = proxyMessageBus
+    }
+    workerProxyMessageBuses
+  }
+
+  /*  def initialize(coord: Any) {
+    
+    coordinator = coord.asInstanceOf[ActorRef]
+    
+    if (!isInitialized) {
+      Thread.currentThread.setName("Coordinator")
+      messageBus.registerCoordinator(coordinator)
+      workerProxyMessageBuses foreach (_.registerCoordinator(coordinator))
+      for (workerId <- 0 until config.numberOfWorkers) {
+        messageBus.registerWorker(workerId, workers(workerId))
+        workerProxyMessageBuses foreach (_.registerWorker(workerId, workers(workerId)))
+      }
+      for (workerId <- 0 until config.numberOfWorkers) {
+        workerProxies foreach (_.registerWorker(workerId, workers(workerId)))
+      }
+      isInitialized = true
+    }
+  }*/
+
+  def initialize(coord: Any) {
+
+    coordinator = coord.asInstanceOf[ActorRef]
+
+    if (!isInitialized) {
+      Thread.currentThread.setName("Coordinator")
+      messageBus.registerCoordinator(coordinator)
+      workerProxyMessageBuses foreach (_.registerCoordinator(coordinator))
+      for (workerId <- 0 until config.numberOfWorkers) {
+        messageBus.registerWorker(workerId, workers(workerId))
+        workerProxyMessageBuses foreach (_.registerWorker(workerId, workers(workerId)))
+      }
+      for (workerId <- 0 until config.numberOfWorkers) {
+        workerProxies foreach (_.registerWorker(workerId, toRemoteActorRefProtocol(workers(workerId).asInstanceOf[ActorRef]).toByteArray))
+      }
+      isInitialized = true
+    }
+  }
+
   override def shutdown = {
 
-    println("shutdown muthafuckas")
-
     parallelWorkerProxies foreach (x => x.shutdown)
-    
-    println("afterwards")
 
-    remote.shutdown()
+    registry.shutdownAll
 
-    System.exit(0)
+    remote.shutdown
 
   }
 

@@ -21,40 +21,51 @@ package com.signalcollect.implementations.manager
 
 import akka.actor.Actor
 import akka.actor.Actor._
+import akka.actor.ActorRef
 import akka.dispatch._
 
 import com.signalcollect.api.factory._
-import com.signalcollect.implementations.messaging._
-import com.signalcollect.interfaces._
+import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
-import com.signalcollect.util.Constants
+import com.signalcollect.util._
+import com.signalcollect.util.Constants._
+import com.signalcollect.implementations.messaging.DefaultVertexToWorkerMapper
 
 import java.util.Date
 import java.net.InetAddress
 
-class ZombieManager(leaderIp: String) extends Manager with Actor {
+class ZombieManager(leaderIp: String) extends Manager with Actor with RemoteSendUtils {
 
   self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
 
+  val localIp = InetAddress.getLocalHost.getHostAddress
+
   var config: DistributedConfiguration = _
 
-  protected lazy val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
+  var leader: ActorRef = _
 
-  // get leader hook
-  val leader = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, leaderIp, Constants.REMOTE_SERVER_PORT)
+  override def preStart {
 
-  // ask for config
-  leader ! ConfigRequest
+    val timeout = 500l
+
+    // get leader hook
+    leader = remote.actorFor(LEADER_MANAGER_SERVICE_NAME, leaderIp, REMOTE_SERVER_PORT)
+
+    checkAlive(leader)
+  }
 
   def receive = {
 
+    case SendAlive =>
+      leader ! ZombieIsAlive(localIp)
+
     case Shutdown =>
-      println("Zombie shutdown received at " + new Date)
-      self.exit()
+      self.stop
 
     // get configuration from leader
-    case ConfigResponse(c) =>
+    case Config(c) =>
+      println("got config")
       config = c
       createWorkers
 
@@ -66,10 +77,17 @@ class ZombieManager(leaderIp: String) extends Manager with Actor {
     println("||||| REMOTES |||||")
     println("|||||||||||||||||||")
 
-    val nodeIpAddress = InetAddress.getLocalHost.getHostAddress
+    val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
 
     // get only those workers that should be instantiated at this node 
-    val workers = config.workerConfigurations.filter(x => x._2.ipAddress.equals(nodeIpAddress))
+    val workers = config.workerConfigurations.filter(x => x._2.ipAddress.equals(localIp))
+    
+    println("loop will start")
+
+    workers foreach {
+      x =>
+        println("ID = " + x._1 + "\nconfig: = " + x._2.ipAddress + " name = " + x._2.serviceName)
+    }
 
     // start the workers
     for (idConfig <- workers) {
@@ -78,19 +96,29 @@ class ZombieManager(leaderIp: String) extends Manager with Actor {
 
       val workerConfig = idConfig._2
 
-      val workerFactory = workerConfig.workerFactory /*worker.AkkaRemoteWorker*/
+      //println(workerId)
 
-      /*// debug
-      if (!workerConfig.workerFactory.equals(worker.AkkaRemoteWorker))
+      val workerFactory = workerConfig.workerFactory //worker.AkkaRemoteWorker
+
+      // debug
+      /*if (!workerConfig.workerFactory.equals(worker.AkkaRemoteWorker))
         sys.error("ooops, remote worker factory should be used. check bootstrap/configuration setup")*/
 
       // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
-      val worker = workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, leader, mapper)
+      workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, leader, mapper)
+
+      val worker = remote.actorFor(workerConfig.asInstanceOf[RemoteWorkerConfiguration].serviceName, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT)
+
+      checkAlive(worker)
+
+      println("check success ID= " + workerId)
 
     } // end for each worker
 
+    println("Zombie finished workers")
+
     // tell the leader you are alive
-    leader ! ZombieIsReady(nodeIpAddress)
+    leader ! ZombieIsReady(localIp)
 
   }
 }

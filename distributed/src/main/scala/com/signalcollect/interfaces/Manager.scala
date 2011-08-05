@@ -31,23 +31,23 @@ object Manager {
    */
   sealed trait ManagerMessage
   /**
-   * A zombie-instantiated worker (remote worker) message requesting for configuration parameters
-   * It is also a way to rendezvous with the master manager
-   */
-  case class ConfigRequest(addr: String) extends ManagerMessage
-  /**
-   * The response to the configuration request from the master manager
    * The configuration will allow a Zombie to instantiate remote workers
    */
-  case class ConfigResponse(config: DistributedConfiguration) extends ManagerMessage
+  case class Config(config: DistributedConfiguration) extends ManagerMessage
 
-  case class CheckAllReady
-  case class CheckAllJoined
+  case class CheckAllReady extends ManagerMessage
+  case class CheckAllAlive extends ManagerMessage
 
   /**
    * It is a way to tell the master manager that all workers have been instantiated
    */
-  case class ZombieIsReady(addr: String)
+  case class ZombieIsReady(addr: String) extends ManagerMessage
+  
+  case class ZombieIsAlive(addr: String) extends ManagerMessage
+  
+  case class SendAlive extends ManagerMessage
 
-  case class CoordinatorReference(coordinator: Any)
+  case class CoordinatorReference(coordinator: Any) extends ManagerMessage
+  
+  case class Shutdown extends ManagerMessage
 }
