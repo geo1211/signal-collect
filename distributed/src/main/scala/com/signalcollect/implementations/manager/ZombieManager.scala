@@ -82,6 +82,8 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with RemoteSend
     // get only those workers that should be instantiated at this node 
     val workers = config.workerConfigurations.filter(x => x._2.ipAddress.equals(localIp))
     
+    val coordinator = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, config.coordinatorAddress, Constants.REMOTE_SERVER_PORT)
+    
     println("loop will start")
 
     workers foreach {
@@ -105,7 +107,7 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with RemoteSend
         sys.error("ooops, remote worker factory should be used. check bootstrap/configuration setup")*/
 
       // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
-      workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, leader, mapper)
+      workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, coordinator, mapper)
 
       val worker = remote.actorFor(workerConfig.asInstanceOf[RemoteWorkerConfiguration].serviceName, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT)
 

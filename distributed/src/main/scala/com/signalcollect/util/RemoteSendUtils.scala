@@ -17,7 +17,7 @@ trait RemoteSendUtils {
 
     result match {
       case Some(reply) =>
-      // debug(reply)
+        //println(reply)
       case None =>
         println("timeout at check")
         sys.error("No reply within " + timeout + " ms")

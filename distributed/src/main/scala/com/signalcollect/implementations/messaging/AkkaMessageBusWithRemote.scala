@@ -22,15 +22,12 @@ package com.signalcollect.implementations.messaging
 import com.signalcollect._
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration._
-import com.signalcollect.implementations.serialization._
 import com.signalcollect.util._
 
 import java.util.HashMap
 import akka.actor.ActorRef
 import akka.actor.Actor
 import akka.actor.Actor._
-
-import java.io.{ ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream }
 
 class AkkaMessageBusWithRemote[IdType](
   val numberOfWorkers: Int,
@@ -52,7 +49,12 @@ class AkkaMessageBusWithRemote[IdType](
   }
 
   def registerCoordinator(c: Any) {
-    coordinator = c.asInstanceOf[ActorRef] // workerApi or forwarder
+
+    if (c.isInstanceOf[RemoteWorkerInfo])
+      coordinator = remote.actorFor(c.asInstanceOf[RemoteWorkerInfo].serviceName, c.asInstanceOf[RemoteWorkerInfo].ipAddress, Constants.REMOTE_SERVER_PORT)
+    else
+      coordinator = c.asInstanceOf[ActorRef] // workerApi or forwarder
+
   }
 
   def sendToCoordinator(message: Any) {
@@ -60,24 +62,29 @@ class AkkaMessageBusWithRemote[IdType](
       messagesSent += 1
     }
 
-    coordinator ! message
+    if (coordinator.isRunning)
+      coordinator ! message
   }
 
   def sendToWorkerForVertexId(message: Any, recipientId: IdType) {
     val worker = workers(mapper.getWorkerIdForVertexId(recipientId)).asInstanceOf[ActorRef]
     messagesSent += 1
-    worker ! message
+    if (worker.isRunning)
+      worker ! message
   }
 
   def sendToWorkerForVertexIdHash(message: Any, recipientIdHash: Int) {
     val worker = workers(mapper.getWorkerIdForVertexIdHash(recipientIdHash)).asInstanceOf[ActorRef]
     messagesSent += 1
-    worker ! message
+    if (worker.isRunning)
+      worker ! message
   }
 
   def sendToWorker(workerId: Int, m: Any) {
     messagesSent += 1
-    (workers(workerId).asInstanceOf[ActorRef]).!(m)
+    val worker = workers(workerId).asInstanceOf[ActorRef]
+    if (worker.isRunning)
+      worker ! m
   }
 
   def sendToWorkers(message: Any) {
@@ -85,7 +92,8 @@ class AkkaMessageBusWithRemote[IdType](
     val i = workers.iterator
     while (i.hasNext) {
       val worker = (i.next).asInstanceOf[ActorRef]
-      worker ! message
+      if (worker.isRunning)
+        worker ! message
     }
   }
 }

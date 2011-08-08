@@ -12,13 +12,16 @@
 			<url>http://scala-tools.org/repo-releases/</url>
 		</repository>
 
-		<!-- FOR AKKA LOCAL LIB -->
+		<!-- FOR AKKA LOCAL LIB <repository> <id>project</id> <name>Project Maven 
+			Repository</name> <layout>default</layout> <url>file://${basedir}/lib</url> 
+			</repository> -->
+
 		<repository>
-			<id>project</id>
-			<name>Project Maven Repository</name>
-			<layout>default</layout>
-			<url>file://${basedir}/lib</url>
+			<id>akka.repository</id>
+			<name>Akka Maven Repository</name>
+			<url>http://akka.io/repository</url>
 		</repository>
+
 	</repositories>
 
 	<dependencies>
@@ -45,16 +48,14 @@
 		<dependency>
 			<groupId>se.scalablesolutions.akka</groupId>
 			<artifactId>akka-actor</artifactId>
-			<version>1.2-SNAPSHOT</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<version>1.2-RC1</version>
+			<!--<type>jar</type> <scope>compile</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>se.scalablesolutions.akka</groupId>
 			<artifactId>akka-remote</artifactId>
-			<version>1.2-SNAPSHOT</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<version>1.2-RC1</version>
+			<!--<type>jar</type> <scope>compile</scope> -->
 		</dependency>
 		<!-- AKKA -->
 
@@ -110,7 +111,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.signalcollect.examples.DistributedHamiltonian</mainClass>
+							<mainClass>com.signalcollect.examples.DistributedPageRank</mainClass>
 							<packageName>com.signalcollect.examples</packageName>
 						</manifest>
 					</archive>
@@ -136,7 +137,7 @@
 					<args>
 						<arg>-optimise</arg>
 						<arg>-Xelide-below</arg>
-						<arg>900</arg>
+						<arg>0</arg>
 					</args>
 				</configuration>
 				<executions>

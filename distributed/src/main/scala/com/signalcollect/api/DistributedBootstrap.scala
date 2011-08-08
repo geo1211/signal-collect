@@ -19,7 +19,6 @@
 
 package com.signalcollect.api
 
-
 import com.signalcollect.api.factory._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
@@ -96,7 +95,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     is.close
 
     // hazelcast config
-    val hcConfigXml = new com.hazelcast.config.FileSystemXmlConfig(f)
+    val hcConfigXml = new com.hazelcast.config.FileSystemXmlConfig(f) //-Dhazelcast.logging.type=none
 
     // hazelcast cluster
     val cluster = Hazelcast.init(hcConfigXml).getCluster
@@ -104,11 +103,13 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     val distributedMap: com.hazelcast.core.IMap[String, Long] = Hazelcast.getMap("members")
 
     // map put ip + random generated long
-    distributedMap.put(localIp, Random.nextLong.abs)
+    //distributedMap.put(localIp, Random.nextLong.abs)
+    distributedMap.put(localIp, -1l)
+    //distributedMap.put(localIp, Long.MaxValue)
 
     println("... Waiting Hazelcast all joined ...") // TODO: ADD TIMEOUT
     // wait until all nodes have joined
-    while (config.numberOfNodes != distributedMap.keySet().size()) {
+    while (config.numberOfNodes != distributedMap.keySet().size) {
       Thread.sleep(500)
     }
 
@@ -118,9 +119,6 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     var leaderIp = ""
 
     distributedMap.foreach(x => if (x._2 == leaderId) leaderIp = x._1)
-
-    println("Leader IP = " + leaderIp)
-    println("LOCAL IP = " + localIp)
 
     // put this ip on the coordinator address in config
     config.coordinatorAddress = leaderIp
@@ -147,8 +145,6 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    */
   def deployZombie {
 
-    println("Deploying zombie")
-
     // start zombie manager
     remote.register(Constants.ZOMBIE_MANAGER_SERVICE_NAME, actorOf(new ZombieManager(config.coordinatorAddress)))
 
@@ -163,9 +159,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    * Also blocks until all workers have finished being instantiated
    */
   def deployLeader {
-
-    //println("Deploying leader")
-
+    
     leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
     checkAlive(leaderManager)
@@ -187,7 +181,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
   protected def createLocalWorkers {
     println("<<<<<< Local Workers >>>>>>")
 
-    localCoordinatorForwarder = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
+    localCoordinatorForwarder = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT).start
 
     val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
 
@@ -209,8 +203,6 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
       val worker = remote.actorFor(workerConfig.asInstanceOf[RemoteWorkerConfiguration].serviceName, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT)
 
       checkAlive(worker)
-
-      println("check success ID= " + workerId)
 
     } // end for each worker
 
@@ -241,15 +233,11 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
           // get remote hook
           val worker = workerApi.createWorker(workerId, workerConfig).asInstanceOf[ActorRef]
 
-          checkAliveWithRetry(worker, 5)
-
-          println("check success ID = " + workerId)
+          checkAlive(worker)
 
         case _ => throw new Exception("Only Akka remote references supported by this DistributedAkkaBootstrap")
       }
     }
-
-    println("create workers finished")
 
   }
 
@@ -291,55 +279,18 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         // create provisioning
         val provisioning = config.provisionFactory.createInstance(config).workersPerNodeNames
 
-        config.workerConfigurations foreach {
-          x =>
-            println("ID = " + x._1 + "\nconfig: = " + x._2.ipAddress + " name = " + x._2.serviceName)
-        }
-
         // deploy network services and remote infrastructure
         deployLeader
 
-        println("LEADER WAITING!!!!!")
+        println("Wait ALL ALIVE")
+        waitZombie(CheckAllAlive)
 
-        var allAlive = false
-
-        // blocking operation that asks the manager if everyone is ready, wait until everyone is
-        println("... Waiting untill all zombies are ALIVE ...") // TODO: ADD TIMEOUT
-        while (!allAlive) {
-
-          val result = leaderManager !! CheckAllAlive
-
-          result match {
-            case Some(reply) => allAlive = reply.asInstanceOf[Boolean] // handle reply
-            case None        => sys.error("timeout waiting for all ready")
-          }
-
-          Thread.sleep(100)
-
-        }
-
-        println("Sending Config")
-
+        // send configuration parameters to leader after it has been properly set by provisioning
         leaderManager ! Config(config)
 
-        println("LEADER WAITING!!!!!")
+        println("Wait ALL READY")
 
-        var allReady = false
-
-        // blocking operation that asks the manager if everyone is ready, wait until everyone is
-        println("... Waiting untill all zombies are READY ...") // TODO: ADD TIMEOUT
-        while (!allReady) {
-
-          val result = leaderManager !! CheckAllReady
-
-          result match {
-            case Some(reply) => allReady = reply.asInstanceOf[Boolean] // handle reply
-            case None        => sys.error("timeout waiting for all ready")
-          }
-
-          Thread.sleep(100)
-
-        }
+        waitZombie(CheckAllReady)
 
         // after everyone has been setup we can shutdown the leader. this triggers zombie managers shutdown
         leaderManager ! Shutdown
@@ -354,16 +305,39 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
         localCoordinatorForwarder ! CoordinatorReference(workerApi)
 
-        workerApi.initialize(localCoordinatorForwarder)
+        workerApi.initialize
 
         val coordinator = new Coordinator(workerApi, config)
 
         computeGraph = createComputeGraph(workerApi, coordinator)
 
         optionalCg = Some(computeGraph)
+
+        println("returning compute graph")
     }
 
     optionalCg
+
+  }
+
+  def waitZombie(checkType: Any) {
+
+    var isCompleted = false
+
+    // waits for zombie availability
+    // TODO: ADD TIMEOUT
+    while (!isCompleted) {
+
+      val result = leaderManager !! checkType
+
+      result match {
+        case Some(reply) => isCompleted = reply.asInstanceOf[Boolean] // handle reply
+        case None => sys.error("timeout waiting for reply")
+      }
+
+      Thread.sleep(100)
+
+    }
 
   }
 

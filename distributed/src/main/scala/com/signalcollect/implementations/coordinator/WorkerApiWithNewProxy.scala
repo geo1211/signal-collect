@@ -23,6 +23,7 @@ import com.signalcollect.interfaces._
 import com.signalcollect.configuration._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.api.factory._
+import com.signalcollect.util._
 
 import akka.actor.Actor._
 import akka.actor.ActorRef
@@ -30,8 +31,6 @@ import akka.actor.ActorRef
 class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogMessage]) extends WorkerApi(config, logger) {
 
   override def toString = "WorkerApiWithNewProxy"
-
-  override protected lazy val workerProxies: Array[Worker] = createWorkerProxies
 
   override protected def createWorkerProxies: Array[Worker] = {
     val workerProxies = new Array[Worker](config.numberOfWorkers)
@@ -42,30 +41,28 @@ class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogM
     workerProxies
   }
 
-  var coordinator: ActorRef = _
-
   override protected def createWorkerProxyMessageBuses: Array[MessageBus[Any]] = {
     val workerProxyMessageBuses = new Array[MessageBus[Any]](config.numberOfWorkers)
     for (workerId <- 0 until config.numberOfWorkers) {
       val proxyMessageBus = config.workerConfiguration.messageBusFactory.createInstance(config.numberOfWorkers, mapper)
-      proxyMessageBus.registerCoordinator(coordinator)
+      proxyMessageBus.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].coordinatorAddress, serviceName = Constants.COORDINATOR_SERVICE_NAME))
       workerProxyMessageBuses(workerId) = proxyMessageBus
     }
     workerProxyMessageBuses
   }
 
-  def initialize(coord: Any) {
-
-    coordinator = coord.asInstanceOf[ActorRef]
+  override def initialize {
 
     if (!isInitialized) {
       Thread.currentThread.setName("Coordinator")
-      messageBus.registerCoordinator(coordinator)
-      workerProxyMessageBuses foreach (_.registerCoordinator(coordinator))
+      messageBus.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].coordinatorAddress, serviceName = Constants.COORDINATOR_SERVICE_NAME))
+      workerProxyMessageBuses foreach (_.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].coordinatorAddress, serviceName = Constants.COORDINATOR_SERVICE_NAME)))
       for (workerId <- 0 until config.numberOfWorkers) {
-        messageBus.registerWorker(workerId, workers(workerId))
-        workerProxyMessageBuses foreach (_.registerWorker(workerId, workers(workerId)))
+        val workerConfig = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).get
+        messageBus.registerWorker(workerId, RemoteWorkerInfo(ipAddress = workerConfig.ipAddress, serviceName = workerConfig.serviceName))
+        workerProxyMessageBuses foreach (_.registerWorker(workerId, RemoteWorkerInfo(ipAddress = workerConfig.ipAddress, serviceName = workerConfig.serviceName)))
       }
+
       for (workerId <- 0 until config.numberOfWorkers) {
         val workerConfig = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).get
         workerProxies foreach (_.registerWorker(workerId, RemoteWorkerInfo(ipAddress = workerConfig.ipAddress, serviceName = workerConfig.serviceName)))
