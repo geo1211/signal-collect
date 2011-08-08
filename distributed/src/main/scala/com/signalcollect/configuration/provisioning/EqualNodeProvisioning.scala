@@ -55,10 +55,8 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
         numWorkersAtNode = math.ceil(div).asInstanceOf[Int]
       else
         numWorkersAtNode = math.floor(div).asInstanceOf[Int]
-      
-      println("num workers at node = " + numWorkersAtNode)
-        
-        numWorkersAtNode = numWorkersAtNode + workerCounter
+
+      numWorkersAtNode = numWorkersAtNode + workerCounter
 
       var names = List[String]()
 

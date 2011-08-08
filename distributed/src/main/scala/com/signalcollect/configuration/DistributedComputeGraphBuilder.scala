@@ -62,7 +62,7 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
 
   def withNodesAddress(newNodesAddress: List[String]) = newRemoteBuilder(nodesAddress = newNodesAddress)
 
-  def withCoordinatorAddress(newCoordinatorAddress: String) = newRemoteBuilder(coordinatorAddress = newCoordinatorAddress)
+  def withLeaderAddress(newLeaderAddress: String) = newRemoteBuilder(leaderAddress = newLeaderAddress)
 
   def withNodeProvisioningFactory(newProvisionFactory: ProvisionFactory) = newRemoteBuilder(provisionFactory = newProvisionFactory)
 
@@ -79,7 +79,7 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
     executionConfiguration: ExecutionConfiguration = config.executionConfiguration,
     numberOfNodes: Int = config.asInstanceOf[DistributedConfiguration].numberOfNodes,
     nodesAddress: List[String] = config.asInstanceOf[DistributedConfiguration].nodesAddress,
-    coordinatorAddress: String = config.asInstanceOf[DistributedConfiguration].coordinatorAddress,
+    leaderAddress: String = config.asInstanceOf[DistributedConfiguration].leaderAddress,
     provisionFactory: ProvisionFactory = config.asInstanceOf[DistributedConfiguration].provisionFactory,
     workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = config.asInstanceOf[DistributedConfiguration].workerConfigurations): DistributedComputeGraphBuilder = {
     new DistributedComputeGraphBuilder(
@@ -94,7 +94,7 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
           storageFactory = storageFactory),
         numberOfNodes = numberOfNodes,
         nodesAddress = nodesAddress,
-        coordinatorAddress = coordinatorAddress,
+        leaderAddress = leaderAddress,
         provisionFactory = provisionFactory,
         workerConfigurations = workerConfigurations))
 

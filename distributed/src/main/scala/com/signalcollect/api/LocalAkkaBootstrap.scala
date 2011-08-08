@@ -46,13 +46,4 @@ class LocalAkkaBootstrap(val config: Configuration) extends Bootstrap {
     }
 
   }
-
-  protected def createComputeGraph(workerApi: WorkerApi, coordinator: Coordinator): DefaultComputeGraph = {
-    new DefaultComputeGraph(config, workerApi, coordinator)
-  }
-
-  def shutdown {
-    println("shutdown")
-  }
-
 }
