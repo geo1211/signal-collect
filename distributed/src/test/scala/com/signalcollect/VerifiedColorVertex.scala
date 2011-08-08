@@ -13,5 +13,5 @@ import com.signalcollect.implementations.logging.DefaultLogger
 
 class VerifiedColoredVertex(id: Int, numColors: Int) extends ColoredVertex(id, numColors, 0, false) {
   // only necessary to allow access to vertex internals
-  def publicMostRecentSignals: Iterable[Int] = mostRecentSignals
+  def publicMostRecentSignals: Iterable[Int] = mostRecentSignalMap.values.asInstanceOf[Iterable[Int]]
 }

@@ -34,10 +34,9 @@
 
 		<!-- SC CORE -->
 		<dependency>
-			<groupId>signal-collect</groupId>
+			<groupId>com.signalcollect</groupId>
 			<artifactId>core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<!-- SC CORE -->

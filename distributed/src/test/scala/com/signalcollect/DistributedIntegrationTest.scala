@@ -20,12 +20,12 @@
 
 package com.signalcollect
 
+import com.signalcollect._
 import com.signalcollect.api._
 import com.signalcollect.api.factory._
 import com.signalcollect.configuration._
 import com.signalcollect.interfaces._
 import com.signalcollect.graphproviders._
-import com.signalcollect.graphproviders.Grid
 import com.signalcollect.examples._
 import com.signalcollect.implementations.logging.DefaultLogger
 
@@ -43,11 +43,11 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
   val computeGraphFactories: List[Int => ComputeGraph] = List(
     (numberOfWorkers: Int) => DefaultDistributedComputeGraphBuilder.withNumberOfNodes(1).withNumberOfWorkers(numberOfWorkers).build.get)
 
-  val executionModes = List(/*OptimizedAsynchronousExecutionMode,*/ SynchronousExecutionMode)
+  val executionModes = List(OptimizedAsynchronousExecutionMode, SynchronousExecutionMode)
 
-  val testWorkerCounts = List(1 /*, 2, 4, 8 , 16, 32, 64, 128*/ )
+  val testWorkerCounts = List(1, 2, 4, 8 /*, 16, 32, 64, 128*/ )
 
-  def test(graphProviders: List[Int => ComputeGraph] = computeGraphFactories, verify: Vertex[_, _] => Boolean, buildGraph: ComputeGraph => Unit = (cg: ComputeGraph) => (), numberOfWorkers: Traversable[Int] = testWorkerCounts, signalThreshold: Double = 0, collectThreshold: Double = 0): Boolean = {
+  def test(graphProviders: List[Int => ComputeGraph] = computeGraphFactories, verify: Vertex => Boolean, buildGraph: ComputeGraph => Unit = (cg: ComputeGraph) => (), numberOfWorkers: Traversable[Int] = testWorkerCounts, signalThreshold: Double = 0, collectThreshold: Double = 0): Boolean = {
     var correct = true
     var computationStatistics = Map[String, List[ExecutionInformation]]()
 
@@ -83,7 +83,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
       case (sourceId, targetId) =>
         cg.addVertex(new VerifiedColoredVertex(sourceId, numColors))
         cg.addVertex(new VerifiedColoredVertex(targetId, numColors))
-        cg.addEdge(new DefaultEdge(sourceId, targetId))
+        cg.addEdge(new StateForwarderEdge(sourceId, targetId))
     }
     cg
   }
@@ -106,10 +106,10 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
     cg
   }
 
-/*  "PageRank algorithm" should {
+  "PageRank algorithm" should {
     "deliver correct results on a 5-cycle graph" in {
       val fiveCycleEdges = List((0, 1), (1, 2), (2, 3), (3, 4), (4, 0))
-      def pageRankFiveCycleVerifier(v: Vertex[_, _]): Boolean = {
+      def pageRankFiveCycleVerifier(v: Vertex): Boolean = {
         val state = v.state.asInstanceOf[Double]
         val expectedState = 1.0
         val correct = (state - expectedState).abs < 0.00001
@@ -123,7 +123,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
 
     "deliver correct results on a 5-star graph" in {
       val fiveStarEdges = List((0, 4), (1, 4), (2, 4), (3, 4))
-      def pageRankFiveStarVerifier(v: Vertex[_, _]): Boolean = {
+      def pageRankFiveStarVerifier(v: Vertex): Boolean = {
         val state = v.state.asInstanceOf[Double]
         val expectedState = if (v.id == 4.0) 0.66 else 0.15
         val correct = (state - expectedState).abs < 0.00001
@@ -137,7 +137,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
 
     "deliver correct results on a 2*2 symmetric grid" in {
       val symmetricTwoOnTwoGridEdges = new Grid(2, 2)
-      def pageRankTwoOnTwoGridVerifier(v: Vertex[_, _]): Boolean = {
+      def pageRankTwoOnTwoGridVerifier(v: Vertex): Boolean = {
         val state = v.state.asInstanceOf[Double]
         val expectedState = 1.0
         val correct = (state - expectedState).abs < 0.00001
@@ -148,9 +148,9 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
       }
       test(verify = pageRankTwoOnTwoGridVerifier, buildGraph = buildPageRankGraph(_, symmetricTwoOnTwoGridEdges)) must_== true
     }
-  }*/
+  }
 
-  def vertexColoringVerifier(v: Vertex[_, _]): Boolean = {
+  def vertexColoringVerifier(v: Vertex): Boolean = {
     v match {
       case v: VerifiedColoredVertex =>
         val verified = !v.publicMostRecentSignals.iterator.contains(v.state)
@@ -166,7 +166,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
   }
 
   "VertexColoring algorithm" should {
-/*    "deliver correct results on a symmetric 4-cycle" in {
+    "deliver correct results on a symmetric 4-cycle" in {
       val symmetricFourCycleEdges = List((0, 1), (1, 0), (1, 2), (2, 1), (2, 3), (3, 2), (3, 0), (0, 3))
       test(verify = vertexColoringVerifier, buildGraph = buildVertexColoringGraph(2, _, symmetricFourCycleEdges)) must_== true
     }
@@ -174,7 +174,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
     "deliver correct results on a symmetric 5-star" in {
       val symmetricFiveStarEdges = List((0, 4), (4, 0), (1, 4), (4, 1), (2, 4), (4, 2), (3, 4), (4, 3))
       test(verify = vertexColoringVerifier, buildGraph = buildVertexColoringGraph(2, _, symmetricFiveStarEdges)) must_== true
-    }*/
+    }
     "deliver correct results on a 2*2 symmetric grid" in {
       val symmetricTwoOnTwoGridEdges = new Grid(2, 2)
       test(verify = vertexColoringVerifier, buildGraph = buildVertexColoringGraph(2, _, symmetricTwoOnTwoGridEdges)) must_== true
@@ -184,7 +184,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
   "SSSP algorithm" should {
     "deliver correct results on a symmetric 4-cycle" in {
       val symmetricFourCycleEdges = List((0, 1), (1, 2), (2, 3), (3, 0))
-      def ssspSymmetricsFourCycleVerifier(v: Vertex[_, _]): Boolean = {
+      def ssspSymmetricsFourCycleVerifier(v: Vertex): Boolean = {
         val state = v.state.asInstanceOf[Option[Int]].get
         val expectedState = v.id
         val correct = state == expectedState
@@ -198,7 +198,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
 
     "deliver correct results on a symmetric 5-star" in {
       val symmetricFiveStarEdges = List((0, 4), (4, 0), (1, 4), (4, 1), (2, 4), (4, 2), (3, 4), (4, 3))
-      def ssspSymmetricFiveStarVerifier(v: Vertex[_, _]): Boolean = {
+      def ssspSymmetricFiveStarVerifier(v: Vertex): Boolean = {
         val state = v.state.asInstanceOf[Option[Int]].get
         val expectedState = if (v.id == 4) 0 else 1
         val correct = state == expectedState

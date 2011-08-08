@@ -33,7 +33,7 @@ object DefaultDistributedComputeGraphBuilder extends DistributedComputeGraphBuil
  */
 class DistributedComputeGraphBuilder(protected val config: DefaultDistributedConfiguration = new DefaultDistributedConfiguration) extends Serializable {
 
-  def build: Option[ComputeGraph] = new DistributedBootstrap(config).boot
+  def build: Option[ComputeGraph] = new DistributedBootstrap(config).bootOption
 
   /**
    * Common configuration
