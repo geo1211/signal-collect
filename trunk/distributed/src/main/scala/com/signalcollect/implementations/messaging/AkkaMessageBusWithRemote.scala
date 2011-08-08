@@ -21,11 +21,16 @@ package com.signalcollect.implementations.messaging
 
 import com.signalcollect._
 import com.signalcollect.interfaces._
+import com.signalcollect.configuration._
+import com.signalcollect.implementations.serialization._
+import com.signalcollect.util._
+
 import java.util.HashMap
 import akka.actor.ActorRef
 import akka.actor.Actor
-import akka.remoteinterface._
-import akka.serialization.RemoteActorSerialization._
+import akka.actor.Actor._
+
+import java.io.{ ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream }
 
 class AkkaMessageBusWithRemote[IdType](
   val numberOfWorkers: Int,
@@ -38,14 +43,10 @@ class AkkaMessageBusWithRemote[IdType](
   var messagesSent = 0l
 
   def registerWorker(workerId: Int, w: Any) {
-/*
-    if (w.isInstanceOf[Array[Byte]]) {
 
-      val actorRef = fromBinaryToRemoteActorRef(w.asInstanceOf[Array[Byte]])
-
-      workers(workerId) = actorRef
-
-    } else*/
+    if (w.isInstanceOf[RemoteWorkerInfo])
+      workers(workerId) = remote.actorFor(w.asInstanceOf[RemoteWorkerInfo].serviceName, w.asInstanceOf[RemoteWorkerInfo].ipAddress, Constants.REMOTE_SERVER_PORT)
+    else
       workers(workerId) = w
 
   }
@@ -59,7 +60,6 @@ class AkkaMessageBusWithRemote[IdType](
       messagesSent += 1
     }
 
-    //if (!coordinator.isShutdown)
     coordinator ! message
   }
 

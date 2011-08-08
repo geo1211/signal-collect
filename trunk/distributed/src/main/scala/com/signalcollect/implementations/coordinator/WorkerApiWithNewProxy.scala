@@ -22,19 +22,10 @@ package com.signalcollect.implementations.coordinator
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration._
 import com.signalcollect.implementations.messaging._
-import com.signalcollect.implementations.graph.DefaultGraphApi
 import com.signalcollect.api.factory._
-
-import java.lang.reflect.Method
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicLong
-
-import scala.collection.parallel.mutable.ParArray
-import scala.collection.JavaConversions._
 
 import akka.actor.Actor._
 import akka.actor.ActorRef
-import akka.serialization.RemoteActorSerialization._
 
 class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogMessage]) extends WorkerApi(config, logger) {
 
@@ -63,25 +54,6 @@ class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogM
     workerProxyMessageBuses
   }
 
-  /*  def initialize(coord: Any) {
-    
-    coordinator = coord.asInstanceOf[ActorRef]
-    
-    if (!isInitialized) {
-      Thread.currentThread.setName("Coordinator")
-      messageBus.registerCoordinator(coordinator)
-      workerProxyMessageBuses foreach (_.registerCoordinator(coordinator))
-      for (workerId <- 0 until config.numberOfWorkers) {
-        messageBus.registerWorker(workerId, workers(workerId))
-        workerProxyMessageBuses foreach (_.registerWorker(workerId, workers(workerId)))
-      }
-      for (workerId <- 0 until config.numberOfWorkers) {
-        workerProxies foreach (_.registerWorker(workerId, workers(workerId)))
-      }
-      isInitialized = true
-    }
-  }*/
-
   def initialize(coord: Any) {
 
     coordinator = coord.asInstanceOf[ActorRef]
@@ -95,7 +67,8 @@ class WorkerApiWithNewProxy(config: Configuration, logger: MessageRecipient[LogM
         workerProxyMessageBuses foreach (_.registerWorker(workerId, workers(workerId)))
       }
       for (workerId <- 0 until config.numberOfWorkers) {
-        workerProxies foreach (_.registerWorker(workerId, toRemoteActorRefProtocol(workers(workerId).asInstanceOf[ActorRef]).toByteArray))
+        val workerConfig = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).get
+        workerProxies foreach (_.registerWorker(workerId, RemoteWorkerInfo(ipAddress = workerConfig.ipAddress, serviceName = workerConfig.serviceName)))
       }
       isInitialized = true
     }

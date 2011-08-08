@@ -53,6 +53,7 @@ case class DefaultDistributedConfiguration(
   customLogger: Option[MessageRecipient[LogMessage]] = None,
   executionConfiguration: ExecutionConfiguration = DefaultExecutionConfiguration,
   workerConfiguration: WorkerConfiguration = DefaultRemoteWorkerReferenceConfiguration(),
+  maxInboxSize: Option[Long] = None, //Some(Runtime.getRuntime.availableProcessors*5000),
   numberOfNodes: Int = 1,
   var nodesAddress: List[String] = List("localhost"),
   var coordinatorAddress: String = "localhost",

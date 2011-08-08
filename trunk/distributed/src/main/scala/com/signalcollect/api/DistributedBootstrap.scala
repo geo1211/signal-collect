@@ -19,7 +19,7 @@
 
 package com.signalcollect.api
 
-import java.net.URI
+
 import com.signalcollect.api.factory._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
@@ -33,14 +33,16 @@ import com.signalcollect.implementations.coordinator._
 import com.signalcollect.implementations.logging._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.util._
+
 import akka.actor.{ ActorRegistry, Actor }
 import akka.actor.Actor._
 import akka.actor.ActorRef
-import akka.remoteinterface._
+
 import com.hazelcast.core._
+
 import scala.util.Random
 import scala.collection.JavaConversions._
-import java.net.URL
+
 import java.io.FileOutputStream
 
 sealed trait NodeType
@@ -76,7 +78,15 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     println("<<<<<< Hazelcast >>>>>>")
 
     val is = this.getClass().getResourceAsStream("hazelcast.xml")
-    val f = new java.io.File("/tmp/hazelcast.xml")
+
+    var folder = ""
+
+    if (System.getProperty("os.name").startsWith("Windows"))
+      folder = "c:/temp/"
+    else
+      folder = "/tmp/"
+
+    val f = new java.io.File(folder + "hazelcast.xml")
     val out = new FileOutputStream(f)
     val buf = Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
     val len = buf.length
@@ -118,7 +128,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     // put the other ips on the nodesAddress in config
     config.nodesAddress = distributedMap.keySet().toList
 
-    Hazelcast.shutdownAll()
+    Hazelcast.shutdownAll
 
     // if local ip == ip with smallest long, then I am the leader
     if (localIp equals leaderIp) {
@@ -191,11 +201,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
       val workerConfig = idConfig._2
 
-      val workerFactory = workerConfig.workerFactory /*worker.AkkaRemoteWorker*/
-
-      /*// debug
-      if (!workerConfig.workerFactory.equals(worker.AkkaRemoteWorker))
-        sys.error("ooops, remote worker factory should be used. check bootstrap/configuration setup")*/
+      val workerFactory = workerConfig.workerFactory
 
       // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
       workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, localCoordinatorForwarder, mapper)
@@ -242,7 +248,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         case _ => throw new Exception("Only Akka remote references supported by this DistributedAkkaBootstrap")
       }
     }
-    
+
     println("create workers finished")
 
   }
@@ -263,7 +269,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    *
    * @return optional compute graph. The compute graph is only used by the leader
    */
-  override def boot: Option[ComputeGraph] = {
+  def bootOption: Option[ComputeGraph] = {
 
     // from leader election phase, get node type
     val nodeType = start
@@ -277,14 +283,10 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
       /** ZOMBIE */
       case ZombieType =>
 
-        //leaderManager ! Shutdown
-
         deployZombie // will not return a compute graph
 
       /** LEADER */
       case LeaderType =>
-
-        //println("Provisioning start...")
 
         // create provisioning
         val provisioning = config.provisionFactory.createInstance(config).workersPerNodeNames
@@ -309,7 +311,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
           result match {
             case Some(reply) => allAlive = reply.asInstanceOf[Boolean] // handle reply
-            case None => sys.error("timeout waiting for all ready")
+            case None        => sys.error("timeout waiting for all ready")
           }
 
           Thread.sleep(100)
@@ -332,7 +334,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
           result match {
             case Some(reply) => allReady = reply.asInstanceOf[Boolean] // handle reply
-            case None => sys.error("timeout waiting for all ready")
+            case None        => sys.error("timeout waiting for all ready")
           }
 
           Thread.sleep(100)

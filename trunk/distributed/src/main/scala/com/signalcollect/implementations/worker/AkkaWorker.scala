@@ -33,12 +33,13 @@ import com.signalcollect.implementations._
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration._
 import com.signalcollect.implementations.coordinator.WorkerApi
+import com.signalcollect.util._
 
 class AkkaWorker(workerId: Int,
-  workerConfig: WorkerConfiguration,
-  numberOfWorkers: Int,
-  coordinator: Any,
-  mapper: VertexToWorkerMapper)
+                 workerConfig: WorkerConfiguration,
+                 numberOfWorkers: Int,
+                 coordinator: Any,
+                 mapper: VertexToWorkerMapper)
   extends LocalWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)
   with Actor {
 
@@ -113,16 +114,6 @@ class AkkaWorker(workerId: Int,
     case msg =>
 
       zombieState = false
-
-      // TODO: Integration specs passed without usage of the parameter
-      messagesReceived += 1
-      if (!isOverstrained && (messagesReceived - messagesRead) >= messageInboxMinMax._2) {
-        isPaused = false
-        isOverstrained = true
-        isIdle = false
-        sendStatusToCoordinator
-      }
-
       setIdle(false)
       process(msg) // process the message
       handlePauseAndContinue
@@ -144,7 +135,7 @@ class AkkaWorker(workerId: Int,
 
         // if nothing was left to be processed from last processing
         if (processedAllLastTime) {
-          vertexStore.toSignal.foreach(executeSignalOperationOfVertex(_), true)
+          //vertexStore.toSignal.foreach(executeSignalOperationOfVertex(_), true)
           processedAllLastTime = vertexStore.toCollect.foreach(
             (vertexId, uncollectedSignals) => {
 
@@ -164,8 +155,6 @@ class AkkaWorker(workerId: Int,
       } // end while
     } // !isPaused
 
-    //if (processedAll && mailboxIsEmpty) setIdle(true)
-
   }
 
   /**
@@ -178,21 +167,16 @@ class AkkaWorker(workerId: Int,
    */
   override def receive(message: Any) = sys.error("Receive should not be called from Akka Workers. This receive is not the same one from Akka.")
 
-  override def registerWorker(workerId: Int, worker: Any) {
+  override def registerWorker(workerId: Int, w: Any) {
     debug("registerWorker(" + workerId + ")")
 
-    if (worker.isInstanceOf[Array[Byte]]) {
-
-      val actorRef = fromBinaryToRemoteActorRef(worker.asInstanceOf[Array[Byte]])
-
-      messageBus.registerWorker(workerId, actorRef)
-    
-
-    } else
+    if (w.isInstanceOf[RemoteWorkerConfiguration]) {
+      val worker = remote.actorFor(w.asInstanceOf[RemoteWorkerConfiguration].serviceName, w.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT)
       messageBus.registerWorker(workerId, worker)
 
+    } else
+      messageBus.registerWorker(workerId, w)
+
   }
-
-
 
 }

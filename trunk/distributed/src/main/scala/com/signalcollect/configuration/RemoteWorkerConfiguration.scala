@@ -30,13 +30,15 @@ trait RemoteWorkerConfiguration extends WorkerConfiguration {
   def serviceName: String
 }
 
+case class RemoteWorkerInfo(ipAddress: String, serviceName: String)
+
 /**
  * Used by ZOMBIES
  */
 case class DefaultRemoteWorkerConfiguration(
   workerFactory: WorkerFactory = worker.AkkaRemoteWorker,
   messageBusFactory: MessageBusFactory = messageBus.AkkaBusRemote,
-  messageInboxLimits: Option[(Int, Int)] = None, //Some(50, 1000), 
+  statusUpdateIntervallInMillis: Option[Long] = None /*Some(500l)*/, 
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
   serviceName: String = "") extends RemoteWorkerConfiguration
@@ -47,7 +49,7 @@ case class DefaultRemoteWorkerConfiguration(
 case class DefaultRemoteWorkerReferenceConfiguration(
   workerFactory: WorkerFactory = worker.AkkaRemoteReference,
   messageBusFactory: MessageBusFactory = messageBus.AkkaBusRemote,
-  messageInboxLimits: Option[(Int, Int)] = None, //Some(50, 1000), 
+  statusUpdateIntervallInMillis: Option[Long] = None /*Some(500l)*/,
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
   serviceName: String = "") extends RemoteWorkerConfiguration
