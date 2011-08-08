@@ -171,7 +171,8 @@ class AkkaWorker(workerId: Int,
     debug("registerWorker(" + workerId + ")")
 
     if (w.isInstanceOf[RemoteWorkerConfiguration]) {
-      val worker = remote.actorFor(w.asInstanceOf[RemoteWorkerConfiguration].serviceName, w.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT)
+      val worker = remote.actorFor(w.asInstanceOf[RemoteWorkerConfiguration].serviceName, w.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT).start
+      println("register worker @ worker " + workerId + " - " + w.asInstanceOf[RemoteWorkerInfo].serviceName + "@" + w.asInstanceOf[RemoteWorkerInfo].ipAddress)
       messageBus.registerWorker(workerId, worker)
 
     } else

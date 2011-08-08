@@ -75,50 +75,16 @@ class WorkerProxyWithSerialization(val workerId: Int, val messageBus: MessageBus
         monitor.notify
       }
     } else {
-
-      var newArgs: Array[Object] = new Array[Object](2)
-
-      var bool = false
-
-      val methodName = method.getName
-      
-      //println(methodName)
-
-/*      if (methodName equals ("registerWorker")) {
-        if (arguments != null) {
-          if (arguments.length == 2) {
-            if (arguments(1).isInstanceOf[ActorRef]) {
-              bool = true
-            newArgs(0) = arguments(0)
-              arguments(1) = toRemoteActorRefProtocol(arguments(1).asInstanceOf[ActorRef]).toByteArray
-            }
-          }
-        }
-      }*/
-
       debug("Worker" + workerId + "." + method.getName)
 
       val methodParameters = method.getParameterTypes()
+      val methodName = method.getName
 
-      /*if (bool) {
-        val command = { worker: Worker =>
-          var result = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, newArgs: _*)
-          if (result != null)
-            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, result))
-          else
-            worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, 0))
-        }
-        relay(command)
-      } else {*/
       val command = { worker: Worker =>
         var result = worker.getClass.getMethod(methodName, methodParameters: _*).invoke(worker, arguments: _*)
-        //if (result != null)
         worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, result))
-        //else
-        //worker.messageBus.sendToCoordinator(WorkerReply(worker.workerId, 0))
       }
       relay(command)
-      //}
 
       /*
        * Blocking operation, until receive of worker reply by coordinator
