@@ -50,4 +50,6 @@ object Manager {
   case class CoordinatorReference(coordinator: Any) extends ManagerMessage
   
   case class Shutdown extends ManagerMessage
+  
+  case class Start(numMachines: Int)
 }

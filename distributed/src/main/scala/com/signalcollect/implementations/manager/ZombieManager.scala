@@ -33,11 +33,9 @@ import com.signalcollect.util.Constants._
 
 import java.net.InetAddress
 
-class ZombieManager(leaderIp: String) extends Manager with Actor with RemoteSendUtils with BootstrapHelper {
+class ZombieManager(leaderIp: String) extends Manager with Actor with BootstrapHelper {
 
   self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
-
-  val localIp = InetAddress.getLocalHost.getHostAddress
 
   var config: DistributedConfiguration = _
 
@@ -50,7 +48,7 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with RemoteSend
     // get leader hook
     leader = remote.actorFor(LEADER_MANAGER_SERVICE_NAME, leaderIp, REMOTE_SERVER_PORT)
 
-    checkAlive(leader)
+    checkAliveWithRetry(leader, 5)
   }
 
   def receive = {

@@ -31,13 +31,22 @@ class AkkaCoordinatorForwarder(numWorkers: Int) extends Actor {
 
   self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
 
+  /*override def postStop {
+    println("STHUDOWN forwarerder")
+  }*/
+
+  var counter = 0
+
   def receive = {
 
-    case "Hello" =>
-      self.reply("ok")
+    case "Shutdown" =>
+      counter = counter + 1
+      if (counter == numWorkers)
+        self.stop
 
-    case CoordinatorReference(x) =>
-      coordinator = x
+    case "Hello" => self.reply("ok")
+
+    case CoordinatorReference(x) => coordinator = x
 
     case x => coordinator.asInstanceOf[MessageRecipient[Any]].receive(x)
 

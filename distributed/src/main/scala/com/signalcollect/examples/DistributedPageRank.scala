@@ -23,13 +23,19 @@ import com.signalcollect.api._
 import com.signalcollect.configuration._
 import com.signalcollect.interfaces._
 
-object DistributedPageRank {
+import akka.actor.Actor._
 
-  val optionalCg = new DistributedComputeGraphBuilder().withNumberOfNodes(1).withNumberOfWorkers(4).build
+object DistributedPageRank {
 
   var cg: ComputeGraph = _
 
   def main(args: Array[String]) {
+
+    val blindZombie = remote.actorFor("blind-zombie", "130.60.157.194", 2552)
+
+    blindZombie ! "Start"
+
+    val optionalCg = new DistributedComputeGraphBuilder().withNumberOfMachines(2).withNumberOfWorkers(2).withExecutionConfiguration(ExecutionConfiguration(executionMode = SynchronousExecutionMode)).build
 
     if (optionalCg.isDefined) {
       cg = optionalCg.get

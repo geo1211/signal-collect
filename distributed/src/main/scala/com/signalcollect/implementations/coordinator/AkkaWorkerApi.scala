@@ -24,9 +24,9 @@ import com.signalcollect.configuration._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.api.factory._
 import com.signalcollect.util._
-
 import akka.actor.Actor._
 import akka.actor.ActorRef
+import akka.actor.PoisonPill
 
 class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage]) extends WorkerApi(config, logger) {
 
@@ -65,7 +65,7 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
 
       for (workerId <- 0 until config.numberOfWorkers) {
         val workerConfig = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).get
-        workerProxies foreach (_.registerWorker(workerId, RemoteWorkerInfo(ipAddress = workerConfig.ipAddress, serviceName = workerConfig.serviceName)))
+        parallelWorkerProxies foreach (_.registerWorker(workerId, RemoteWorkerInfo(ipAddress = workerConfig.ipAddress, serviceName = workerConfig.serviceName)))
       }
       isInitialized = true
     }
@@ -73,11 +73,34 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
 
   override def shutdown = {
 
-    parallelWorkerProxies foreach (x => x.shutdown)
+    val coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, config.asInstanceOf[DistributedConfiguration].leaderAddress, Constants.REMOTE_SERVER_PORT)
+
+    var i = 0
+
+    workers foreach {
+      x =>
+        x.asInstanceOf[ActorRef] ! PoisonPill
+        //println(i)
+        i = i + 1
+    }
+
+    println("i " + i + " # " + config.numberOfWorkers)
+
+    if (i != config.numberOfWorkers)
+      sys.error("not all workers ended")
+
+    while (!coordinatorForwarder.isShutdown) {
+      Thread.sleep(100)
+    }
 
     registry.shutdownAll
 
     remote.shutdown
+    //println("shutdown complete")
+
+    remote.shutdownServerModule
+
+    System.gc()
 
   }
 
