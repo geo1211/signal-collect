@@ -57,8 +57,6 @@ class MongoDBStorage(storage: Storage) extends VertexStore with DefaultSerialize
     } else {
       builder += "obj" -> write(vertex)
       mongoStore += builder.result
-      storage.toCollect.addVertex(vertex.id)
-      storage.toSignal.add(vertex.id)
       true
     }
 

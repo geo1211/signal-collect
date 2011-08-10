@@ -33,8 +33,6 @@ class SerializingInMemoryStorage(storage: Storage) extends VertexStore {
   def put(vertex: Vertex): Boolean = {
     if (!vertexMap.containsKey(vertex.id)) {
       vertexMap.put(vertex.id, serializer.write(vertex))
-      storage.toCollect.addVertex(vertex.id)
-      storage.toSignal.add(vertex.id)
       true
     } else
       false
