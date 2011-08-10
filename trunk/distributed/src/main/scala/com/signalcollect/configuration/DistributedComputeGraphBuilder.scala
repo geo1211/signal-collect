@@ -58,9 +58,9 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
    */
   def withUserName(newUserName: String) = newRemoteBuilder(userName = newUserName)
 
-  def withNumberOfNodes(newNumberOfNodes: Int) = newRemoteBuilder(numberOfNodes = newNumberOfNodes)
+  def withNumberOfMachines(newNumberOfMachines: Int) = newRemoteBuilder(numberOfMachines = newNumberOfMachines)
 
-  def withNodesAddress(newNodesAddress: List[String]) = newRemoteBuilder(nodesAddress = newNodesAddress)
+  def withMachinesAddress(newMachinesAddress: List[String]) = newRemoteBuilder(machinesAddress = newMachinesAddress)
 
   def withLeaderAddress(newLeaderAddress: String) = newRemoteBuilder(leaderAddress = newLeaderAddress)
 
@@ -77,8 +77,8 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
     messageBusFactory: MessageBusFactory = config.workerConfiguration.messageBusFactory,
     storageFactory: StorageFactory = config.workerConfiguration.storageFactory,
     executionConfiguration: ExecutionConfiguration = config.executionConfiguration,
-    numberOfNodes: Int = config.asInstanceOf[DistributedConfiguration].numberOfNodes,
-    nodesAddress: List[String] = config.asInstanceOf[DistributedConfiguration].nodesAddress,
+    numberOfMachines: Int = config.asInstanceOf[DistributedConfiguration].numberOfMachines,
+    machinesAddress: List[String] = config.asInstanceOf[DistributedConfiguration].machinesAddress,
     leaderAddress: String = config.asInstanceOf[DistributedConfiguration].leaderAddress,
     provisionFactory: ProvisionFactory = config.asInstanceOf[DistributedConfiguration].provisionFactory,
     workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = config.asInstanceOf[DistributedConfiguration].workerConfigurations): DistributedComputeGraphBuilder = {
@@ -92,8 +92,8 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
           workerFactory = workerFactory,
           messageBusFactory = messageBusFactory,
           storageFactory = storageFactory),
-        numberOfNodes = numberOfNodes,
-        nodesAddress = nodesAddress,
+        numberOfMachines = numberOfMachines,
+        machinesAddress = machinesAddress,
         leaderAddress = leaderAddress,
         provisionFactory = provisionFactory,
         workerConfigurations = workerConfigurations))

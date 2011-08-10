@@ -19,7 +19,9 @@
 
 package com.signalcollect.configuration.provisioning
 
+import util.control.Breaks._
 import scala.collection.mutable.HashMap
+
 import com.signalcollect.util.Constants
 import com.signalcollect.configuration._
 
@@ -35,42 +37,50 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
 
   def workersPerNodeNames {
 
-    val nodesAddress = config.nodesAddress
-    val numberOfNodes = config.numberOfNodes
+    val nodesAddress = config.machinesAddress
+    val numberOfMachines = config.numberOfMachines
 
     // equal division of workers among all nodes
-    val div = config.numberOfWorkers.asInstanceOf[Double] / numberOfNodes.asInstanceOf[Double]
+    val div = config.numberOfWorkers.asInstanceOf[Double] / numberOfMachines.asInstanceOf[Double]
 
     var workerCounter = 0
 
-    // for each node 
-    for (i <- 0 to numberOfNodes - 1) {
+    breakable {
+      // for each node 
+      for (i <- 0 to numberOfMachines - 1) {
 
-      var numWorkersAtNode = 0
+        var numWorkersAtMachine = 0
 
-      val ip = nodesAddress(i)
+        val ip = nodesAddress(i)
 
-      // in case its an odd number of workers and nodes, the first node gets one more worker than the others
-      if (i == 0)
-        numWorkersAtNode = math.ceil(div).asInstanceOf[Int]
-      else
-        numWorkersAtNode = math.floor(div).asInstanceOf[Int]
+        // in case its an odd number of workers and nodes, the first node gets one more worker than the others
+        if (i == 0)
+          numWorkersAtMachine = math.ceil(div).asInstanceOf[Int]
+        else
+          numWorkersAtMachine = math.floor(div).asInstanceOf[Int]
+        /*
+      println("workers at machine = " + numWorkersAtMachine)
+      println("total workers = " + config.numberOfWorkers)*/
 
-      numWorkersAtNode = numWorkersAtNode + workerCounter
+        numWorkersAtMachine = numWorkersAtMachine + workerCounter
 
-      var names = List[String]()
+        var names = List[String]()
 
-      for (j <- workerCounter to numWorkersAtNode - 1) {
-        // create specific configuration for the worker
-        val remoteWorkerConfiguration = DefaultRemoteWorkerConfiguration(ipAddress = ip, serviceName = Constants.WORKER_SERVICE_NAME + "" + j)
+        for (j <- workerCounter to numWorkersAtMachine - 1) {
+          // create specific configuration for the worker
+          val remoteWorkerConfiguration = DefaultRemoteWorkerConfiguration(ipAddress = ip, serviceName = Constants.WORKER_SERVICE_NAME + "" + j)
 
-        // add the worker configuration to the list
-        config.workerConfigurations.put(j, remoteWorkerConfiguration)
+          // add the worker configuration to the list
+          config.workerConfigurations.put(j, remoteWorkerConfiguration)
+        }
+
+        // increment id counter
+        workerCounter = workerCounter + numWorkersAtMachine
+
+        if (config.numberOfWorkers == 1)
+          break
+
       }
-
-      // increment id counter
-      workerCounter = workerCounter + numWorkersAtNode
-
     }
 
   }

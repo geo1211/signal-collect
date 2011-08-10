@@ -31,9 +31,9 @@ trait DistributedConfiguration extends Configuration {
 
   def userName: String
 
-  def numberOfNodes: Int
+  def numberOfMachines: Int
 
-  def nodesAddress: List[String]
+  def machinesAddress: List[String]
 
   def leaderAddress: String
 
@@ -54,8 +54,8 @@ case class DefaultDistributedConfiguration(
   executionConfiguration: ExecutionConfiguration = DefaultExecutionConfiguration,
   workerConfiguration: WorkerConfiguration = DefaultRemoteWorkerReferenceConfiguration(),
   maxInboxSize: Option[Long] = None, //Some(Runtime.getRuntime.availableProcessors*5000),
-  numberOfNodes: Int = 1,
-  var nodesAddress: List[String] = List("localhost"),
+  numberOfMachines: Int = 1,
+  var machinesAddress: List[String] = List("localhost"),
   var leaderAddress: String = "localhost",
   provisionFactory: ProvisionFactory = provision.EqualProvisioning,
   var workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = new HashMap[Int, RemoteWorkerConfiguration]()) extends DistributedConfiguration

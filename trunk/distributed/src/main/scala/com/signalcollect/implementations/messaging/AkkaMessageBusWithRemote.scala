@@ -59,32 +59,47 @@ class AkkaMessageBusWithRemote[IdType](
 
   def sendToCoordinator(message: Any) {
     if (!message.isInstanceOf[LogMessage]) {
-      messagesSent += 1
+
+      if (coordinator.isRunning) {
+        messagesSent += 1
+
+        try {
+
+          coordinator ! message
+        } catch {
+          case e: java.nio.channels.ClosedChannelException => println("ignored")
+        }
+
+      }
     }
 
-    if (coordinator.isRunning)
-      coordinator ! message
   }
 
   def sendToWorkerForVertexId(message: Any, recipientId: IdType) {
     val worker = workers(mapper.getWorkerIdForVertexId(recipientId)).asInstanceOf[ActorRef]
-    messagesSent += 1
-    if (worker.isRunning)
+
+    if (worker.isRunning) {
+      messagesSent += 1
       worker ! message
+    }
+
   }
 
   def sendToWorkerForVertexIdHash(message: Any, recipientIdHash: Int) {
     val worker = workers(mapper.getWorkerIdForVertexIdHash(recipientIdHash)).asInstanceOf[ActorRef]
-    messagesSent += 1
-    if (worker.isRunning)
+    if (worker.isRunning) {
+      messagesSent += 1
       worker ! message
+    }
   }
 
-  def sendToWorker(workerId: Int, m: Any) {
-    messagesSent += 1
+  def sendToWorker(workerId: Int, message: Any) {
     val worker = workers(workerId).asInstanceOf[ActorRef]
-    if (worker.isRunning)
-      worker ! m
+
+    if (worker.isRunning) {
+      messagesSent += 1
+      worker ! message
+    }
   }
 
   def sendToWorkers(message: Any) {
@@ -92,8 +107,7 @@ class AkkaMessageBusWithRemote[IdType](
     val i = workers.iterator
     while (i.hasNext) {
       val worker = (i.next).asInstanceOf[ActorRef]
-      if (worker.isRunning)
-        worker ! message
+      worker ! message
     }
   }
 }

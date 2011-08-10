@@ -24,8 +24,7 @@ import akka.actor.ActorRef
 import akka.actor.Actor._
 import akka.dispatch._
 import akka.actor.ReceiveTimeout
-import akka.remoteinterface._
-import akka.serialization.RemoteActorSerialization._
+import akka.actor.PoisonPill
 
 import java.util.Date
 
@@ -36,10 +35,10 @@ import com.signalcollect.implementations.coordinator.WorkerApi
 import com.signalcollect.util._
 
 class AkkaWorker(workerId: Int,
-                 workerConfig: WorkerConfiguration,
-                 numberOfWorkers: Int,
-                 coordinator: Any,
-                 mapper: VertexToWorkerMapper)
+  workerConfig: WorkerConfiguration,
+  numberOfWorkers: Int,
+  coordinator: Any,
+  mapper: VertexToWorkerMapper)
   extends LocalWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)
   with Actor {
 
@@ -50,6 +49,11 @@ class AkkaWorker(workerId: Int,
    */
   override def initialize {
     self.start
+  }
+
+  override def postStop {
+    println("Shutdown worker" + workerId)
+    messageBus.sendToCoordinator("Shutdown")
   }
 
   /**
@@ -76,7 +80,7 @@ class AkkaWorker(workerId: Int,
   /**
    * Timeout for akka actor idling (in milliseconds)
    */
-  self.receiveTimeout = Some(50l)
+  self.receiveTimeout = Some(25l)
 
   /**
    * This is method gets executed when the akka actor receives a message.
@@ -84,13 +88,8 @@ class AkkaWorker(workerId: Int,
    */
   def receive = {
 
-    /**
-     * When a remote shutdown is requested (not required for the algorithm run, only for graceful shutdown)
-     * To trigger this message, issue a remote.shutdown() from the manager that created the actor (in the remote case)
-     */
-    case RemoteServerShutdown(server) =>
-      debug("WorkerId" + workerId + "=> shutdown received at " + new Date)
-      self.exit()
+    case PoisonPill =>
+      shutdown
 
     /**
      * ReceiveTimeout message only gets sent after akka actor mailbox has been empty for "receiveTimeout" milliseconds
@@ -135,11 +134,11 @@ class AkkaWorker(workerId: Int,
 
         // if nothing was left to be processed from last processing
         if (processedAllLastTime) {
-          //vertexStore.toSignal.foreach(executeSignalOperationOfVertex(_), true)
+          vertexStore.toSignal.foreach(executeSignalOperationOfVertex(_), true)	
           processedAllLastTime = vertexStore.toCollect.foreach(
             (vertexId, uncollectedSignals) => {
 
-              val collectExecuted = executeCollectOperationOfVertex(vertexId, uncollectedSignals)
+              val collectExecuted = executeCollectOperationOfVertex(vertexId, uncollectedSignals, false)
               if (collectExecuted) {
                 executeSignalOperationOfVertex(vertexId)
               }
@@ -147,7 +146,7 @@ class AkkaWorker(workerId: Int,
         } else
           processedAllLastTime = vertexStore.toCollect.foreach(
             (vertexId, uncollectedSignals) => {
-              val collectExecuted = executeCollectOperationOfVertex(vertexId, uncollectedSignals)
+              val collectExecuted = executeCollectOperationOfVertex(vertexId, uncollectedSignals, false)
               if (collectExecuted) {
                 executeSignalOperationOfVertex(vertexId)
               }
@@ -166,18 +165,5 @@ class AkkaWorker(workerId: Int,
    * Just a check. Sending messages to Akka workers it should be done using the bang operator ( ! )
    */
   override def receive(message: Any) = sys.error("Receive should not be called from Akka Workers. This receive is not the same one from Akka.")
-
-  override def registerWorker(workerId: Int, w: Any) {
-    debug("registerWorker(" + workerId + ")")
-
-    if (w.isInstanceOf[RemoteWorkerConfiguration]) {
-      val worker = remote.actorFor(w.asInstanceOf[RemoteWorkerConfiguration].serviceName, w.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT).start
-      println("register worker @ worker " + workerId + " - " + w.asInstanceOf[RemoteWorkerInfo].serviceName + "@" + w.asInstanceOf[RemoteWorkerInfo].ipAddress)
-      messageBus.registerWorker(workerId, worker)
-
-    } else
-      messageBus.registerWorker(workerId, w)
-
-  }
 
 }

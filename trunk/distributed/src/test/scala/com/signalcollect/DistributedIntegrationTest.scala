@@ -16,7 +16,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *  
- */
+ 
 
 package com.signalcollect
 
@@ -33,19 +33,21 @@ import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-/**
+import akka.actor.Actor._
+
+*//**
  * Hint: For information on how to run specs see the specs v.1 website
  * http://code.google.com/p/specs/wiki/RunningSpecs
- */
+ *//*
 @RunWith(classOf[JUnitRunner])
 class DistributedIntegrationTest extends SpecificationWithJUnit {
 
   val computeGraphFactories: List[Int => ComputeGraph] = List(
-    (numberOfWorkers: Int) => DefaultDistributedComputeGraphBuilder.withNumberOfNodes(1).withNumberOfWorkers(numberOfWorkers).build.get)
+    (numberOfWorkers: Int) => DefaultDistributedComputeGraphBuilder.withNumberOfMachines(2).withNumberOfWorkers(numberOfWorkers).build.get)
 
   val executionModes = List(OptimizedAsynchronousExecutionMode, SynchronousExecutionMode)
 
-  val testWorkerCounts = List(1, 2, 4, 8 /*, 16, 32, 64, 128*/ )
+  val testWorkerCounts = List(1, 2, 4, 8 , 16, 32, 64, 128 )
 
   def test(graphProviders: List[Int => ComputeGraph] = computeGraphFactories, verify: Vertex => Boolean, buildGraph: ComputeGraph => Unit = (cg: ComputeGraph) => (), numberOfWorkers: Traversable[Int] = testWorkerCounts, signalThreshold: Double = 0, collectThreshold: Double = 0): Boolean = {
     var correct = true
@@ -54,6 +56,11 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
     for (workers <- numberOfWorkers) {
       for (executionMode <- executionModes) {
         for (graphProvider <- graphProviders) {
+
+          val blindZombie = remote.actorFor("blind-zombie", "130.60.157.194", 2552)
+
+          blindZombie ! "Start"
+
           val cg = graphProvider.apply(workers)
           buildGraph(cg)
           val stats = cg.execute(ExecutionConfiguration(executionMode = executionMode, signalThreshold = signalThreshold))
@@ -62,6 +69,7 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
             System.err.println("Test failed. Computation stats: " + stats)
           }
           cg.shutdown
+
         }
       }
     }
@@ -211,4 +219,4 @@ class DistributedIntegrationTest extends SpecificationWithJUnit {
     }
 
   }
-}
+}*/

@@ -37,10 +37,11 @@ import akka.actor.Actor
 import akka.actor.Actor._
 import akka.actor.ActorRef
 
+import scala.collection.JavaConversions._
+
 import com.hazelcast.core._
 
 import scala.util.Random
-import scala.collection.JavaConversions._
 
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
@@ -50,10 +51,7 @@ import scala.collection.JavaConversions._
  * -Dakka.config=akka.conf
  *
  */
-class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends Bootstrap with RemoteSendUtils with BootstrapHelper {
-
-  // the machine's local IP
-  val localIp = java.net.InetAddress.getLocalHost.getHostAddress
+class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends Bootstrap with BootstrapHelper {
 
   // reference to the coordinator forwarder
   var coordinatorForwarder: ActorRef = _
@@ -66,20 +64,14 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    */
   def start: MachineType = {
 
-    //println("Starting machine services...")
-
     // start Akka remote server
     remote.start(localIp, Constants.REMOTE_SERVER_PORT)
 
-    /** Everyone has a leader service in the beginning */
-    remote.register("leader-service", actorOf(new LeaderManager(config.numberOfNodes)))
+    var hazelcastRetry = false
 
-    //println("<<<<<< Hazelcast >>>>>>")
+    while (!hazelcastRetry) {
 
-    var leaderIp = ""
-
-    // if only one node, avoid using hazelcast
-    if (config.numberOfNodes != 1) {
+      hazelcastRetry = false
 
       // hazelcast config
       val hcConfigXml = new com.hazelcast.config.FileSystemXmlConfig(getHazelcastConfigFile) //-Dhazelcast.logging.type=none
@@ -87,40 +79,71 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
       // hazelcast cluster
       val cluster = Hazelcast.init(hcConfigXml).getCluster
 
-      // map of members joining the hazelcast cluster
-      val distributedMap: com.hazelcast.core.IMap[String, Long] = Hazelcast.getMap("members")
+      var retries = 0
 
-      // map put ip + random generated long
-      //distributedMap.put(localIp, Random.nextLong.abs)
-      distributedMap.put(localIp, -1l)
-      //distributedMap.put(localIp, Long.MaxValue)
+      var retriesDone = false
 
-      println("... Waiting Hazelcast all joined ...") // TODO: ADD TIMEOUT
-      // wait until all nodes have joined
-      while (config.numberOfNodes != distributedMap.keySet().size) {
+      var lastSize = cluster.getMembers().size()
+
+      while (cluster.getMembers().size() != config.numberOfMachines || retriesDone) {
         Thread.sleep(500)
+
+        retries = retries + 1
+
+        if (retries == 25) { // after 12,5 seconds
+          retriesDone = true
+          retries = 0
+        }
+
+        if (lastSize != cluster.getMembers().size())
+          retries = 0
+
       }
 
-      // get ip with smallest long
-      val leaderId = distributedMap.foldLeft(Long.MaxValue)((min, kv) => Math.min(min, kv._2))
+      if (retriesDone) {
+        Hazelcast.shutdownAll
+      } else
+        hazelcastRetry = true
 
-      distributedMap.foreach(x => if (x._2 == leaderId) leaderIp = x._1)
-
-      // set ip of leader in config
-      config.leaderAddress = leaderIp
-
-      // put the other ips on the nodesAddress in config
-      config.nodesAddress = distributedMap.keySet().toList
-
-      // terminate hazelcast
-      Hazelcast.shutdownAll
-    } else {
-      leaderIp = localIp
-      config.leaderAddress = leaderIp
-      config.nodesAddress = List(localIp)
     }
 
-    // if local ip == ip with smallest long, then I am the leader
+    // map of ips + random number
+    val distributedMap: com.hazelcast.core.IMap[String, Long] = Hazelcast.getMap("members")
+
+    //distributedMap.put(localIp, Random.nextLong.abs)
+    distributedMap.put(localIp, -1l)
+    //distributedMap.put(localIp, Long.MaxValue)
+
+    // wait until all machines have joined
+    println("Waiting HAZELCAST")
+    while (config.numberOfMachines != distributedMap.keySet().size) {
+      Thread.sleep(500)
+    }
+    println("Hazelcast Done!")
+
+    var leaderIp = ""
+
+    // get ip with smallest long
+    val leaderId = distributedMap.foldLeft(Long.MaxValue)((min, kv) => Math.min(min, kv._2))
+    distributedMap.foreach(x => if (x._2 == leaderId) leaderIp = x._1)
+
+    // set ip of leader in config
+    config.leaderAddress = leaderIp
+
+    // put the other ips on the machinesAddress in config
+    config.machinesAddress = distributedMap.keySet().toList
+
+    // shutdown
+    Hazelcast.shutdown
+
+    // terminate hazelcast
+    Hazelcast.shutdownAll
+    /*} else {
+      leaderIp = localIp
+      config.leaderAddress = leaderIp
+      config.machinesAddress = List(localIp)
+    }*/
+
     if (localIp equals leaderIp)
       LeaderType
     // else I am zombie
@@ -152,6 +175,8 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
   def deployLeader {
 
     println("I'm the leader")
+
+    remote.register("leader-service", actorOf(new LeaderManager(config.numberOfMachines)))
 
     leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
@@ -200,14 +225,14 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    */
   def bootOption: Option[ComputeGraph] = {
 
-    // from leader election phase, get node type
-    val nodeType = start
+    // from leader election phase, get machine type
+    val machineType = start
 
     // optional compute graph
     var optionalCg: Option[ComputeGraph] = None
 
-    // check for node type
-    nodeType match {
+    // check for machine type
+    machineType match {
 
       /** ZOMBIE */
       case ZombieType =>
