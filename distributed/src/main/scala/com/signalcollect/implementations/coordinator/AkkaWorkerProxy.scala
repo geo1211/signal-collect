@@ -93,9 +93,17 @@ class AkkaWorkerProxy(val workerId: Int, val messageBus: MessageBus[Any]) extend
        */
       if (workerMessage == null) {
         monitor.synchronized {
-          while (workerMessage == null) {
+          
+          var c = 0
+          
+          while (workerMessage == null && c < 3000) {
             monitor.wait(10)
+            c = c + 1
           }
+          
+          if ( c >= 3000 )
+            throw new Exception("No response from worker within 30 secs")
+          
         }
       }
       if (workerMessage.isDefined) {

@@ -16,6 +16,7 @@
             <tcp-ip enabled="true">
             	<hostname>franciscos-iMac.local</hostname>
             	<hostname>Thierry-Bourquins-iMac.local</hostname> 
+            	<hostname>yvess-imac.local</hostname>
             	<!-- <hostname>eolimeister</hostname> -->
             </tcp-ip>
         </join>
