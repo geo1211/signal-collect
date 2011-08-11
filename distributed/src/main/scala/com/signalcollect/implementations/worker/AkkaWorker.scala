@@ -81,7 +81,7 @@ class AkkaWorker(workerId: Int,
   /**
    * Timeout for akka actor idling (in milliseconds)
    */
-  self.receiveTimeout = Some(25l)
+  self.receiveTimeout = Some(250l)
 
   /**
    * This is method gets executed when the akka actor receives a message.

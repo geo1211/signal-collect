@@ -27,7 +27,6 @@ import com.signalcollect.implementations.messaging.AbstractMessageRecipient
 import com.signalcollect.api._
 import java.lang.reflect.Method
 import akka.actor.ActorRef
-import com.signalcollect.implementations.logging.Logging
 
 object AkkaWorkerProxy {
 

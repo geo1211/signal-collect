@@ -22,7 +22,6 @@ package com.signalcollect.configuration
 import com.signalcollect.api.factory._
 import com.signalcollect.interfaces._
 import scala.collection.mutable.HashMap
-import com.signalcollect.implementations.logging.LoggingLevel
 
 /**
  * Configuration for the distributed execution of signal/collect

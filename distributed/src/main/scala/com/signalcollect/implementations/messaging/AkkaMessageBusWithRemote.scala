@@ -60,49 +60,32 @@ class AkkaMessageBusWithRemote[IdType](
   }
 
   def sendToCoordinator(message: Any) {
-    if (!message.isInstanceOf[LogMessage]) {
 
-      if (coordinator.isRunning) {
-        
-        //println("msg to coord: " + message + " random thing = " + Random.nextInt)
-        
+    if (coordinator.isRunning) {
+      if (!message.isInstanceOf[LogMessage])
         messagesSent += 1
-
-        coordinator ! message
-
-      }
+      coordinator ! message
     }
 
   }
 
   def sendToWorkerForVertexId(message: Any, recipientId: IdType) {
     val worker = workers(mapper.getWorkerIdForVertexId(recipientId)).asInstanceOf[ActorRef]
-
-    if (worker.isRunning) {
       messagesSent += 1
       worker ! message
-    }
 
   }
 
   def sendToWorkerForVertexIdHash(message: Any, recipientIdHash: Int) {
     val worker = workers(mapper.getWorkerIdForVertexIdHash(recipientIdHash)).asInstanceOf[ActorRef]
-    if (worker.isRunning) {
       messagesSent += 1
       worker ! message
-    }
   }
 
   def sendToWorker(workerId: Int, message: Any) {
     val worker = workers(workerId).asInstanceOf[ActorRef]
-
-    if (worker.isRunning) {
       messagesSent += 1
-      
-      //println("ID: " + workerId + " -> message= "+ message + " random thing = " + Random.nextInt)
-      
       worker ! message
-    }
   }
 
   def sendToWorkers(message: Any) {
@@ -110,7 +93,6 @@ class AkkaMessageBusWithRemote[IdType](
     val i = workers.iterator
     while (i.hasNext) {
       val worker = (i.next).asInstanceOf[ActorRef]
-      //println("ID: as i :" + i + " -> message= "+ message + " random thing = " + Random.nextInt)
       worker ! message
     }
   }
