@@ -47,8 +47,8 @@ class LeaderManager(numberOfNodes: Int) extends Manager with Actor {
     case "Hello" =>
       self.reply("ok")
 
-    case Config(c) =>
-      zombieRefs foreach { x => x ! Config(c) }
+    case ConfigPackage(c) =>
+      zombieRefs foreach { x => x ! ConfigPackage(c) }
 
     case Shutdown =>
       // shutdown all zombie managers, not needed anymore

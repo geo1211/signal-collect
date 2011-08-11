@@ -33,10 +33,10 @@ object Manager {
   /**
    * The configuration will allow a Zombie to instantiate remote workers
    */
-  case class Config(config: DistributedConfiguration) extends ManagerMessage
+  case class ConfigPackage(config: DistributedConfiguration) extends ManagerMessage
 
-  case class CheckAllReady extends ManagerMessage
-  case class CheckAllAlive extends ManagerMessage
+  case object CheckAllReady extends ManagerMessage
+  case object CheckAllAlive extends ManagerMessage
 
   /**
    * It is a way to tell the master manager that all workers have been instantiated
@@ -45,11 +45,11 @@ object Manager {
   
   case class ZombieIsAlive(addr: String) extends ManagerMessage
   
-  case class SendAlive extends ManagerMessage
+  case object SendAlive extends ManagerMessage
 
   case class CoordinatorReference(coordinator: Any) extends ManagerMessage
   
-  case class Shutdown extends ManagerMessage
+  case object Shutdown extends ManagerMessage
   
   case class Start(numMachines: Int)
 }

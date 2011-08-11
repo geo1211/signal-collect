@@ -60,7 +60,7 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with BootstrapH
       self.stop
 
     // get configuration from leader
-    case Config(c) =>
+    case ConfigPackage(c) =>
       config = c
 
       println("||||||||||||||||||||||||||")
