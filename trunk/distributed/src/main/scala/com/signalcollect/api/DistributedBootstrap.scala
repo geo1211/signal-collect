@@ -251,10 +251,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         leaderManager ! ConfigPackage(config)
 
         println("Wait ALL READY")
-        waitZombie(leaderManager, CheckAllReady)
-
-        // after everyone has been setup we can shutdown the leader. this triggers zombie managers shutdown
-        leaderManager ! Shutdown
+        waitZombie(leaderManager, CheckAllReady) 
 
         // create optional logger
         var logger = createLogger
