@@ -26,18 +26,18 @@ import com.signalcollect.interfaces._
 import com.signalcollect.implementations.messaging.AbstractMessageRecipient
 import com.signalcollect.api._
 import java.lang.reflect.Method
-
 import akka.actor.ActorRef
+import com.signalcollect.implementations.logging.Logging
 
 object AkkaWorkerProxy {
 
   protected val workerClass = classOf[Worker]
 
-  def create(workerId: Int, messageBus: MessageBus[Any]): Worker = {
+  def create(workerId: Int, messageBus: MessageBus[Any], loggingLevel: Int): Worker = {
     Proxy.newProxyInstance(
       workerClass.getClassLoader,
       Array[Class[_]](classOf[Worker]), //workerClass.getInterfaces,
-      new AkkaWorkerProxy(workerId, messageBus)).asInstanceOf[Worker]
+      new AkkaWorkerProxy(workerId, messageBus, loggingLevel)).asInstanceOf[Worker]
   }
 
 }
@@ -51,7 +51,7 @@ object AkkaWorkerProxy {
  * This is mainly an architectural place holder until we find a proper RPC solution to use
  * with our message bus as the transport. 
  */
-class AkkaWorkerProxy(val workerId: Int, val messageBus: MessageBus[Any]) extends InvocationHandler with Logging {
+class AkkaWorkerProxy(val workerId: Int, val messageBus: MessageBus[Any], val loggingLevel: Int) extends InvocationHandler with Logging {
 
   protected def relay(command: Worker => Unit) = messageBus.sendToWorker(workerId, WorkerRequest(command))
 

@@ -21,8 +21,8 @@ package com.signalcollect.configuration
 
 import com.signalcollect.api.factory._
 import com.signalcollect.interfaces._
-
 import scala.collection.mutable.HashMap
+import com.signalcollect.implementations.logging.LoggingLevel
 
 /**
  * Configuration for the distributed execution of signal/collect
@@ -50,6 +50,7 @@ trait DistributedConfiguration extends Configuration {
 case class DefaultDistributedConfiguration(
   userName: String = System.getProperty("user.name"),
   numberOfWorkers: Int = Runtime.getRuntime.availableProcessors,
+  loggingLevel: Int = LoggingLevel.Warning,
   customLogger: Option[MessageRecipient[LogMessage]] = None,
   executionConfiguration: ExecutionConfiguration = DefaultExecutionConfiguration,
   workerConfiguration: WorkerConfiguration = DefaultRemoteWorkerReferenceConfiguration(),

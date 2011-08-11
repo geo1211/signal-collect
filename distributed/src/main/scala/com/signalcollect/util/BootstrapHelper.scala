@@ -61,7 +61,7 @@ trait BootstrapHelper extends RemoteSendUtils {
       //println("ID = " + workerId + "@" + workerConfig.ipAddress + " - " + workerConfig.serviceName)
 
       // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
-      workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, coordinatorForwarder, mapper)
+      workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, coordinatorForwarder, mapper, config.loggingLevel)
 
       val worker = remote.actorFor(workerConfig.serviceName, workerConfig.ipAddress, Constants.REMOTE_SERVER_PORT)
 

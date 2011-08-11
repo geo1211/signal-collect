@@ -56,11 +56,12 @@ package factory {
   package worker {
 
     object AkkaLocal extends AkkaWorkerFactory {
-      def createInstance(workerId: Int,
+      override def createInstance(workerId: Int,
                          workerConfig: WorkerConfiguration,
                          numberOfWorkers: Int,
                          coordinator: Any,
-                         mapper: VertexToWorkerMapper): ActorRef = actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper))
+                         mapper: VertexToWorkerMapper,
+                         loggingLevel: Int): ActorRef = actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper, loggingLevel))
     }
 
     /**
@@ -73,12 +74,13 @@ package factory {
                          workerConfig: WorkerConfiguration,
                          numberOfWorkers: Int,
                          coordinator: Any,
-                         mapper: VertexToWorkerMapper): Any = {
+                         mapper: VertexToWorkerMapper,
+                         loggingLevel: Int): Any = {
 
         // TODO: test if coordinator is an actor class?
 
         // register worker
-        remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)))
+        remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper, loggingLevel)))
 
       }
 
@@ -96,7 +98,8 @@ package factory {
                          workerConfig: WorkerConfiguration,
                          numberOfWorkers: Int,
                          coordinator: Any,
-                         mapper: VertexToWorkerMapper): ActorRef = {
+                         mapper: VertexToWorkerMapper,
+                         loggingLevel: Int): ActorRef = {
 
         /**
          *  The Real creation of workers in a distributed case happen via the Distributed Bootstrap using [AkkaRemoteWorker] factory
