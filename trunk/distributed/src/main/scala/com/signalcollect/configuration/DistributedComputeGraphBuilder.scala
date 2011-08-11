@@ -39,6 +39,8 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
    * Common configuration
    */
   def withNumberOfWorkers(newNumberOfWorkers: Int) = newRemoteBuilder(numberOfWorkers = newNumberOfWorkers)
+  
+  def withLoggingLevel(newLoggingLevel: Int) = newRemoteBuilder(loggingLevel = newLoggingLevel)
 
   def withLogger(logger: MessageRecipient[LogMessage]) = newRemoteBuilder(customLogger = Some(logger))
 
@@ -72,6 +74,7 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
   def newRemoteBuilder(
     userName: String = config.asInstanceOf[DistributedConfiguration].userName,
     numberOfWorkers: Int = config.numberOfWorkers,
+    loggingLevel: Int = config.loggingLevel,
     customLogger: Option[MessageRecipient[LogMessage]] = config.customLogger,
     workerFactory: WorkerFactory = config.workerConfiguration.workerFactory,
     messageBusFactory: MessageBusFactory = config.workerConfiguration.messageBusFactory,
@@ -86,6 +89,7 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
       DefaultDistributedConfiguration(
         userName = userName,
         numberOfWorkers = numberOfWorkers,
+        loggingLevel = loggingLevel,
         customLogger = customLogger,
         executionConfiguration = executionConfiguration,
         workerConfiguration = DefaultRemoteWorkerReferenceConfiguration(
