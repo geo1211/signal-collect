@@ -29,6 +29,8 @@ import akka.actor.ActorRef
 import akka.actor.Actor
 import akka.actor.Actor._
 
+import scala.util.Random
+
 class AkkaMessageBusWithRemote[IdType](
   val numberOfWorkers: Int,
   protected val mapper: VertexToWorkerMapper)
@@ -61,14 +63,12 @@ class AkkaMessageBusWithRemote[IdType](
     if (!message.isInstanceOf[LogMessage]) {
 
       if (coordinator.isRunning) {
+        
+        //println("msg to coord: " + message + " random thing = " + Random.nextInt)
+        
         messagesSent += 1
 
-        try {
-
-          coordinator ! message
-        } catch {
-          case e: java.nio.channels.ClosedChannelException => println("ignored")
-        }
+        coordinator ! message
 
       }
     }
@@ -98,6 +98,9 @@ class AkkaMessageBusWithRemote[IdType](
 
     if (worker.isRunning) {
       messagesSent += 1
+      
+      //println("ID: " + workerId + " -> message= "+ message + " random thing = " + Random.nextInt)
+      
       worker ! message
     }
   }
@@ -107,6 +110,7 @@ class AkkaMessageBusWithRemote[IdType](
     val i = workers.iterator
     while (i.hasNext) {
       val worker = (i.next).asInstanceOf[ActorRef]
+      //println("ID: as i :" + i + " -> message= "+ message + " random thing = " + Random.nextInt)
       worker ! message
     }
   }

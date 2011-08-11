@@ -32,16 +32,13 @@ import com.signalcollect.implementations.coordinator._
 import com.signalcollect.implementations.logging._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.util._
-
 import akka.actor.Actor
 import akka.actor.Actor._
 import akka.actor.ActorRef
-
 import scala.collection.JavaConversions._
-
 import com.hazelcast.core._
-
 import scala.util.Random
+import akka.actor.PoisonPill
 
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
@@ -66,6 +63,8 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
     // start Akka remote server
     remote.start(localIp, Constants.REMOTE_SERVER_PORT)
+    
+    remote.register(Constants.LEADER_MANAGER_SERVICE_NAME, actorOf(new LeaderManager(config.numberOfMachines)))
 
     var hazelcastRetry = false
 
@@ -110,8 +109,8 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     // map of ips + random number
     val distributedMap: com.hazelcast.core.IMap[String, Long] = Hazelcast.getMap("members")
 
-    //distributedMap.put(localIp, Random.nextLong.abs)
-    distributedMap.put(localIp, -1l)
+    distributedMap.put(localIp, Random.nextLong.abs)
+    //distributedMap.put(localIp, -1l)
     //distributedMap.put(localIp, Long.MaxValue)
 
     // wait until all machines have joined
@@ -158,6 +157,10 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
   def deployZombie {
 
     println("ZOMBIE... Braaaaaiinnnsss")
+    
+    leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
+    
+    leaderManager ! PoisonPill
 
     // start zombie manager
     remote.register(Constants.ZOMBIE_MANAGER_SERVICE_NAME, actorOf(new ZombieManager(config.leaderAddress)))
@@ -175,8 +178,6 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
   def deployLeader {
 
     println("I'm the leader")
-
-    remote.register("leader-service", actorOf(new LeaderManager(config.numberOfMachines)))
 
     leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 

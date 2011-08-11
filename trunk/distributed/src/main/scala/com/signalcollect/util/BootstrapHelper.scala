@@ -103,17 +103,17 @@ trait BootstrapHelper extends RemoteSendUtils {
 
     val file = new java.io.File(folder + "hazelcast.xml")
 
-    if (!file.exists()) {
-      val is = this.getClass().getResourceAsStream("hazelcast.xml")
-      val out = new FileOutputStream(file)
-      val buf = Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
-      val len = buf.length
+    /*if (!file.exists()) {*/
+    val is = this.getClass().getResourceAsStream("hazelcast.xml")
+    val out = new FileOutputStream(file)
+    val buf = Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
+    val len = buf.length
 
-      out.write(buf, 0, len)
-      out.close
+    out.write(buf, 0, len)
+    out.close
 
-      is.close
-    }
+    is.close
+    //}
 
     file
 
