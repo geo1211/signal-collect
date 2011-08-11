@@ -35,7 +35,7 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
   override protected def createWorkerProxies: Array[Worker] = {
     val workerProxies = new Array[Worker](config.numberOfWorkers)
     for (workerId <- 0 until config.numberOfWorkers) {
-      val workerProxy = AkkaWorkerProxy.create(workerId, workerProxyMessageBuses(workerId))
+      val workerProxy = AkkaWorkerProxy.create(workerId, workerProxyMessageBuses(workerId), config.loggingLevel)
       workerProxies(workerId) = workerProxy
     }
     workerProxies

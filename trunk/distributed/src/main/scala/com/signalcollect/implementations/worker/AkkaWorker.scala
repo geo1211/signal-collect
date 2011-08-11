@@ -38,8 +38,9 @@ class AkkaWorker(workerId: Int,
   workerConfig: WorkerConfiguration,
   numberOfWorkers: Int,
   coordinator: Any,
-  mapper: VertexToWorkerMapper)
-  extends LocalWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper)
+  mapper: VertexToWorkerMapper,
+  loggingLevel: Int)
+  extends LocalWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper, loggingLevel)
   with Actor {
 
   var zombieState = true

@@ -29,11 +29,12 @@ trait ProvisionFactory extends Factory {
 }
 
 trait AkkaWorkerFactory extends WorkerFactory {
-  override def createInstance(workerId: Int,
-                              workerConfig: WorkerConfiguration,
-                              numberOfWorkers: Int,
-                              coordinator: Any,
-                              mapper: VertexToWorkerMapper): ActorRef
+  def createInstance(workerId: Int,
+    workerConfig: WorkerConfiguration,
+    numberOfWorkers: Int,
+    coordinator: Any,
+    mapper: VertexToWorkerMapper,
+    loggingLevel: Int): ActorRef
 }
 
 trait MessageBusFactory extends Factory {
