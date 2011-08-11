@@ -20,6 +20,7 @@
 package com.signalcollect.implementations.coordinator
 
 import com.signalcollect.interfaces._
+import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.api.factory._
@@ -80,11 +81,8 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
     workers foreach {
       x =>
         x.asInstanceOf[ActorRef] ! PoisonPill
-        //println(i)
         i = i + 1
     }
-
-    println("i " + i + " # " + config.numberOfWorkers)
 
     if (i != config.numberOfWorkers)
       sys.error("not all workers ended")
@@ -92,11 +90,14 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
     while (!coordinatorForwarder.isShutdown) {
       Thread.sleep(100)
     }
+    
+    val leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, config.asInstanceOf[DistributedConfiguration].leaderAddress, Constants.REMOTE_SERVER_PORT)
+    
+    leaderManager !! Shutdown
 
     registry.shutdownAll
 
     remote.shutdown
-    //println("shutdown complete")
 
     remote.shutdownServerModule
 

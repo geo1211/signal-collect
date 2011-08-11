@@ -68,8 +68,6 @@ class AkkaWorker(workerId: Int,
   override def shutdown = {
     debug("WorkerId" + workerId + "=> shutdown received at " + new Date)
     self.stop
-    remote.shutdown
-
   }
 
   /**

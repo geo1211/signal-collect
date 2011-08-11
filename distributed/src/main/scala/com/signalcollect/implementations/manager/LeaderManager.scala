@@ -41,6 +41,10 @@ class LeaderManager(numberOfNodes: Int) extends Manager with Actor {
 
   var allReady = false
   var allAlive = false
+  
+  override def postStop {
+    println("Leader stop!")
+  }
 
   def receive = {
 
@@ -53,6 +57,7 @@ class LeaderManager(numberOfNodes: Int) extends Manager with Actor {
     case Shutdown =>
       // shutdown all zombie managers, not needed anymore
       zombieRefs foreach { x => x ! Shutdown }
+      self.reply("ok")
       self.stop
 
     // a zombie is ready (workers are instantiated)

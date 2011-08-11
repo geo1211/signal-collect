@@ -41,6 +41,20 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with BootstrapH
 
   var leader: ActorRef = _
 
+  override def postStop {
+
+    registry.shutdownAll
+
+    remote.shutdown
+
+    remote.shutdownServerModule
+
+    println("Zombie Stop!")
+
+    System.gc()
+
+  }
+
   override def preStart {
 
     val timeout = 500l
@@ -66,7 +80,7 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with BootstrapH
       println("||||||||||||||||||||||||||")
       println("||||| ZOMBIE WORKERS |||||")
       println("||||||||||||||||||||||||||")
-      
+
       val coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, config.leaderAddress, Constants.REMOTE_SERVER_PORT)
 
       createLocalWorkers(coordinatorForwarder, config)
