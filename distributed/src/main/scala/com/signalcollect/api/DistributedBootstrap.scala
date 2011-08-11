@@ -20,25 +20,25 @@
 package com.signalcollect.api
 
 import com.signalcollect.api.factory._
-import com.signalcollect.interfaces.Manager
+import com.signalcollect.interfaces._
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
-import com.signalcollect.interfaces.MessageRecipient
-import com.signalcollect.interfaces.ComputeGraph
-import com.signalcollect.interfaces.LogMessage
 import com.signalcollect.implementations.worker._
 import com.signalcollect.implementations.manager._
 import com.signalcollect.implementations.coordinator._
 import com.signalcollect.implementations.logging._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.util._
+
 import akka.actor.Actor
 import akka.actor.Actor._
 import akka.actor.ActorRef
-import scala.collection.JavaConversions._
-import com.hazelcast.core._
-import scala.util.Random
 import akka.actor.PoisonPill
+
+import scala.collection.JavaConversions._
+
+import com.hazelcast.core._
+
 
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
@@ -109,9 +109,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     // map of ips + random number
     val distributedMap: com.hazelcast.core.IMap[String, Long] = Hazelcast.getMap("members")
 
-    distributedMap.put(localIp, Random.nextLong.abs)
-    //distributedMap.put(localIp, -1l)
-    //distributedMap.put(localIp, Long.MaxValue)
+    distributedMap.put(localIp, scala.util.Random.nextLong.abs)
 
     // wait until all machines have joined
     println("Waiting HAZELCAST")
@@ -123,7 +121,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     var leaderIp = ""
 
     // get ip with smallest long
-    val leaderId = distributedMap.foldLeft(Long.MaxValue)((min, kv) => Math.min(min, kv._2))
+    val leaderId = distributedMap.foldLeft(Long.MaxValue)((min, kv) => scala.math.min(min, kv._2))
     distributedMap.foreach(x => if (x._2 == leaderId) leaderIp = x._1)
 
     // set ip of leader in config
@@ -131,9 +129,6 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
     // put the other ips on the machinesAddress in config
     config.machinesAddress = distributedMap.keySet().toList
-
-    // shutdown
-    Hazelcast.shutdown
 
     // terminate hazelcast
     Hazelcast.shutdownAll
@@ -253,7 +248,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         waitZombie(leaderManager, CheckAllAlive)
 
         // send configuration parameters to leader after it has been properly set by provisioning
-        leaderManager ! Config(config)
+        leaderManager ! ConfigPackage(config)
 
         println("Wait ALL READY")
         waitZombie(leaderManager, CheckAllReady)
