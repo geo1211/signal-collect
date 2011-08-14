@@ -28,8 +28,6 @@ import scala.collection.mutable.HashMap
  */
 trait DistributedConfiguration extends Configuration {
 
-  def userName: String
-
   def numberOfMachines: Int
 
   def machinesAddress: List[String]
@@ -47,7 +45,6 @@ trait DistributedConfiguration extends Configuration {
 }
 
 case class DefaultDistributedConfiguration(
-  userName: String = System.getProperty("user.name"),
   numberOfWorkers: Int = Runtime.getRuntime.availableProcessors,
   loggingLevel: Int = LoggingLevel.Warning,
   customLogger: Option[MessageRecipient[LogMessage]] = None,

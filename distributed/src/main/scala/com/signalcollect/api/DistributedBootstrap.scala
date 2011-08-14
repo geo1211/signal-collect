@@ -39,7 +39,6 @@ import scala.collection.JavaConversions._
 
 import com.hazelcast.core._
 
-
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
  *
@@ -50,20 +49,20 @@ import com.hazelcast.core._
  */
 class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends Bootstrap with BootstrapHelper {
 
-  // reference to the coordinator forwarder
+  // reference to the coordinator forwarder actor
   var coordinatorForwarder: ActorRef = _
 
   // reference to the leader manager actor
   var leaderManager: ActorRef = _
 
   /**
-   * Starts essential services for machine discovery and determination of machine type via leader election
+   * Starts essential services for machine discovery and determination of machine type via simple leader election
    */
   def start: MachineType = {
 
     // start Akka remote server
     remote.start(localIp, Constants.REMOTE_SERVER_PORT)
-    
+
     remote.register(Constants.LEADER_MANAGER_SERVICE_NAME, actorOf(new LeaderManager(config.numberOfMachines)))
 
     var hazelcastRetry = false
@@ -152,9 +151,9 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
   def deployZombie {
 
     println("ZOMBIE... Braaaaaiinnnsss")
-    
+
     leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
-    
+
     leaderManager ! PoisonPill
 
     // start zombie manager
@@ -162,6 +161,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
     val zombieManager = remote.actorFor(Constants.ZOMBIE_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
+    // after successful zombie initialization, the zombie can tell the leader it is alive
     zombieManager ! SendAlive
 
   }
@@ -188,8 +188,6 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     createLocalWorkers(coordinatorForwarder, config)
 
   }
-
-  protected def createLogger: MessageRecipient[LogMessage] = new DefaultLogger
 
   def createWorkers(workerApi: WorkerApi) {
 
@@ -251,10 +249,13 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         leaderManager ! ConfigPackage(config)
 
         println("Wait ALL READY")
-        waitZombie(leaderManager, CheckAllReady) 
+        waitZombie(leaderManager, CheckAllReady)
 
         // create optional logger
-        var logger = createLogger
+        var logger = if (config.customLogger.isDefined)
+          config.customLogger.get
+        else
+          createLogger
 
         val workerApi = new AkkaWorkerApi(config, logger)
 

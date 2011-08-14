@@ -58,8 +58,6 @@ trait BootstrapHelper extends RemoteSendUtils {
 
       val workerFactory = workerConfig.workerFactory
 
-      //println("ID = " + workerId + "@" + workerConfig.ipAddress + " - " + workerConfig.serviceName)
-
       // create the worker with the retrieved configuration (ip,port), coordinator reference, and mapper
       workerFactory.createInstance(workerId, workerConfig, config.numberOfWorkers, coordinatorForwarder, mapper, config.loggingLevel)
 
@@ -76,14 +74,13 @@ trait BootstrapHelper extends RemoteSendUtils {
     var isCompleted = false
 
     // waits for zombie availability
-    // TODO: ADD TIMEOUT
     while (!isCompleted) {
 
       val result = leaderManager !! checkType
 
       result match {
         case Some(reply) => isCompleted = reply.asInstanceOf[Boolean] // handle reply
-        case None => sys.error("timeout waiting for reply")
+        case None        => sys.error("timeout waiting for reply")
       }
 
       Thread.sleep(100)
@@ -92,18 +89,13 @@ trait BootstrapHelper extends RemoteSendUtils {
 
   }
 
+  /**
+   * Writes hazelcast.xml file from jar to the filesystem in order to load it inside the bootstrap
+   */
   def getHazelcastConfigFile: File = {
 
-    var folder = ""
+    val file = new java.io.File(System.getProperty("user.home") + "/tmp/" + "hazelcast.xml")
 
-    if (System.getProperty("os.name").startsWith("Windows"))
-      folder = "c:/temp/"
-    else
-      folder = "/tmp/"
-
-    val file = new java.io.File(folder + "hazelcast.xml")
-
-    /*if (!file.exists()) {*/
     val is = this.getClass().getResourceAsStream("hazelcast.xml")
     val out = new FileOutputStream(file)
     val buf = Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
@@ -113,7 +105,6 @@ trait BootstrapHelper extends RemoteSendUtils {
     out.close
 
     is.close
-    //}
 
     file
 

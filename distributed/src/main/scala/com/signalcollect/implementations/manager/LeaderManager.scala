@@ -41,7 +41,7 @@ class LeaderManager(numberOfNodes: Int) extends Manager with Actor {
 
   var allReady = false
   var allAlive = false
-  
+
   override def postStop {
     println("Leader stop!")
   }
@@ -51,6 +51,7 @@ class LeaderManager(numberOfNodes: Int) extends Manager with Actor {
     case "Hello" =>
       self.reply("ok")
 
+    // whenever the leader receives the config it can forward to all zombies
     case ConfigPackage(c) =>
       zombieRefs foreach { x => x ! ConfigPackage(c) }
 
@@ -63,28 +64,30 @@ class LeaderManager(numberOfNodes: Int) extends Manager with Actor {
     // a zombie is ready (workers are instantiated)
     case ZombieIsReady(addr) =>
 
-      println("zombie is ready = " + addr)
+      println("Zombie is ready = " + addr)
 
       // add node ready
       nodesReady = nodesReady + 1
 
+    // leader check if all zombies are ready
     case CheckAllReady =>
       if (nodesReady == numberOfNodes - 1)
         allReady = true
 
       self.reply(allReady)
 
-    // a zombie requested the configuration
+    // a zombie has booted
     case ZombieIsAlive(addr) =>
 
       nodesAlive = nodesAlive + 1
 
-      println("zombie " + addr + " is alive...")
+      println("Zombie " + addr + " is alive...")
 
       // add node joined
       val ref = self.sender.get
       zombieRefs = ref :: zombieRefs
 
+    // leader check if all zombies have booted
     case CheckAllAlive =>
       if (nodesAlive == numberOfNodes - 1)
         allAlive = true

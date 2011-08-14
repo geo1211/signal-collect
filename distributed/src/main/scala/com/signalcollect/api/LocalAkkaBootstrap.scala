@@ -33,8 +33,6 @@ import akka.actor.ActorRef
  */
 class LocalAkkaBootstrap(val config: Configuration) extends Bootstrap {
 
-  protected def createLogger: MessageRecipient[LogMessage] = new DefaultLogger
-
   protected def createWorkers(workerApi: WorkerApi) {
 
     for (workerId <- 0 until config.numberOfWorkers) {

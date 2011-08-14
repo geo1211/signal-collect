@@ -33,6 +33,9 @@ import com.signalcollect.util.Constants
 
 package factory {
 
+  /**
+   * Definition for provisioning factory
+   */
   package provision {
 
     object EqualProvisioning extends ProvisionFactory {
@@ -42,11 +45,16 @@ package factory {
 
   package messageBus {
     
+    /**
+     * Used by the distributed case when communicating with remote actors
+     */
     object AkkaBusRemote extends MessageBusFactory {
       def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBusWithRemote[Any](numberOfWorkers, mapper)
     }
     
-
+    /**
+     * Used by the local case implementation of AKka workers
+     */
     object AkkaBus extends MessageBusFactory {
       def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBus[Any](numberOfWorkers, mapper)
     }
@@ -67,7 +75,7 @@ package factory {
     /**
      * Worker real creation
      *
-     * This is used by zombies to start remote workers
+     * This is used to start remote workers
      */
     object AkkaRemoteWorker extends WorkerFactory {
       def createInstance(workerId: Int,
@@ -76,8 +84,6 @@ package factory {
                          coordinator: Any,
                          mapper: VertexToWorkerMapper,
                          loggingLevel: Int): Any = {
-
-        // TODO: test if coordinator is an actor class?
 
         // register worker
         remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper, loggingLevel)))
@@ -90,7 +96,7 @@ package factory {
      * Creating akka worker references for the distributed case.
      * The factory just gets the hook to the remote worker.
      *
-     * This factory should be used in the coordinator side
+     * This factory is used at the coordinator side
      *
      */
     object AkkaRemoteReference extends AkkaWorkerFactory {
@@ -100,10 +106,6 @@ package factory {
                          coordinator: Any,
                          mapper: VertexToWorkerMapper,
                          loggingLevel: Int): ActorRef = {
-
-        /**
-         *  The Real creation of workers in a distributed case happen via the Distributed Bootstrap using [AkkaRemoteWorker] factory
-         */
 
         // get the hook for the remote actor as a actor ref
         val worker = remote.actorFor(workerConfig.asInstanceOf[RemoteWorkerConfiguration].serviceName, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT).start
