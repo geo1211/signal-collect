@@ -27,8 +27,6 @@ import com.signalcollect.configuration._
  * Provisioning for nodes
  *
  * How many workers per node
- * TODO: vertices per worker
- * TODO: segments per worker
  *
  */
 trait NodeProvisioning extends Serializable {

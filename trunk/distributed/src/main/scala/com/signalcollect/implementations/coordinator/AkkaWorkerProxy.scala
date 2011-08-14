@@ -87,22 +87,20 @@ class AkkaWorkerProxy(val workerId: Int, val messageBus: MessageBus[Any], val lo
       /*
        * Blocking operation, until receive of worker reply by coordinator
        * The reply will trigger the invoke again with receive method
-       * 
-       * TODO: catch exception for remote worker response time
        */
       if (workerMessage == null) {
         monitor.synchronized {
-          
+
           var c = 0
-          
+
           while (workerMessage == null && c < 3000) {
             monitor.wait(10)
             c = c + 1
           }
-          
-          if ( c >= 3000 )
-            throw new Exception("No response from worker within 30 secs")
-          
+
+          if (c >= 3000)
+            throw new Exception("No response from worker ID = " + workerId + " within 30 secs")
+
         }
       }
       if (workerMessage.isDefined) {

@@ -35,21 +35,29 @@ object Manager {
    */
   case class ConfigPackage(config: DistributedConfiguration) extends ManagerMessage
 
-  case object CheckAllReady extends ManagerMessage
-  case object CheckAllAlive extends ManagerMessage
-
   /**
-   * It is a way to tell the master manager that all workers have been instantiated
+   * It is a way to tell the leader that all workers have been instantiated
    */
   case class ZombieIsReady(addr: String) extends ManagerMessage
-  
+
+  // all zombies succesfully booted
+  case object CheckAllReady extends ManagerMessage
+
+  /**
+   * It is a way to tell the leader that the zombie has booted and it's waiting for the config
+   */
   case class ZombieIsAlive(addr: String) extends ManagerMessage
-  
+
+  // all zombies have booted
+  case object CheckAllAlive extends ManagerMessage
+
+  // after successful zombie initialization, the zombie can tell the leader it is alive
   case object SendAlive extends ManagerMessage
 
+  // this is a reference to the coordinator staying at the leader, sent to all zombies for proper message forwarding
   case class CoordinatorReference(coordinator: Any) extends ManagerMessage
-  
+
   case object Shutdown extends ManagerMessage
-  
+
   case class Start(numMachines: Int)
 }

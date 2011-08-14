@@ -58,9 +58,6 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
           numWorkersAtMachine = math.ceil(div).asInstanceOf[Int]
         else
           numWorkersAtMachine = math.floor(div).asInstanceOf[Int]
-        /*
-      println("workers at machine = " + numWorkersAtMachine)
-      println("total workers = " + config.numberOfWorkers)*/
 
         numWorkersAtMachine = numWorkersAtMachine + workerCounter
 
