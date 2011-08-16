@@ -60,7 +60,7 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with BootstrapH
     val timeout = 500l
 
     // get leader hook
-    leader = remote.actorFor(LEADER_MANAGER_SERVICE_NAME, leaderIp, REMOTE_SERVER_PORT)
+    leader = remote.actorFor(LEADER_NAME, leaderIp, REMOTE_SERVER_PORT)
 
     checkAliveWithRetry(leader, 5)
   }
@@ -81,7 +81,7 @@ class ZombieManager(leaderIp: String) extends Manager with Actor with BootstrapH
       println("||||| ZOMBIE WORKERS |||||")
       println("||||||||||||||||||||||||||")
 
-      val coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, config.leaderAddress, Constants.REMOTE_SERVER_PORT)
+      val coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_NAME, config.leaderAddress, Constants.REMOTE_SERVER_PORT)
 
       createLocalWorkers(coordinatorForwarder, config)
       //println("Zombie finished workers")

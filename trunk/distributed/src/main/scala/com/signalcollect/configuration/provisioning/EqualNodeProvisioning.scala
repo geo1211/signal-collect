@@ -39,45 +39,41 @@ class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvis
 
     val nodesAddress = config.machinesAddress
     val numberOfMachines = config.numberOfMachines
+    val numWorkers = config.numberOfWorkers
 
-    // equal division of workers among all nodes
-    val div = config.numberOfWorkers.asInstanceOf[Double] / numberOfMachines.asInstanceOf[Double]
+    var div = numWorkers.asInstanceOf[Double] / numberOfMachines.asInstanceOf[Double]
 
-    var workerCounter = 0
+    var workerCounter = numWorkers
 
-    breakable {
-      // for each node 
-      for (i <- 0 to numberOfMachines - 1) {
+    var machinesCounter = numberOfMachines
 
-        var numWorkersAtMachine = 0
+    // for each node 
+    for (i <- 0 until numberOfMachines) {
 
-        val ip = nodesAddress(i)
+      var numWorkersAtMachine = 0
 
-        // in case its an odd number of workers and nodes, the first node gets one more worker than the others
-        if (i == 0)
-          numWorkersAtMachine = math.ceil(div).asInstanceOf[Int]
-        else
-          numWorkersAtMachine = math.floor(div).asInstanceOf[Int]
+      val ip = nodesAddress(i)
 
-        numWorkersAtMachine = numWorkersAtMachine + workerCounter
+      numWorkersAtMachine = math.ceil(div).asInstanceOf[Int]
 
-        var names = List[String]()
+      var names = List[String]()
 
-        for (j <- workerCounter to numWorkersAtMachine - 1) {
-          // create specific configuration for the worker
-          val remoteWorkerConfiguration = DefaultRemoteWorkerConfiguration(ipAddress = ip, serviceName = Constants.WORKER_SERVICE_NAME + "" + j)
+      for (j <- workerCounter - 1 to (workerCounter - numWorkersAtMachine) by -1) {
+        // create specific configuration for the worker
+        val remoteWorkerConfiguration = DefaultRemoteWorkerConfiguration(ipAddress = ip, serviceName = Constants.WORKER_NAME + "" + j)
 
-          // add the worker configuration to the list
-          config.workerConfigurations.put(j, remoteWorkerConfiguration)
-        }
-
-        // increment id counter
-        workerCounter = workerCounter + numWorkersAtMachine
-
-        if (config.numberOfWorkers == 1)
-          break
+        // add the worker configuration to the list
+        config.workerConfigurations.put(j, remoteWorkerConfiguration)
 
       }
+
+      // increment id counter
+      workerCounter = workerCounter - numWorkersAtMachine
+
+      machinesCounter = machinesCounter - 1
+
+      div = workerCounter.asInstanceOf[Double] / machinesCounter.asInstanceOf[Double]
+
     }
 
   }

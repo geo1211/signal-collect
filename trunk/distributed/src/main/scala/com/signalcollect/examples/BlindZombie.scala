@@ -2,11 +2,12 @@ package com.signalcollect.examples
 
 import com.signalcollect.configuration._
 import com.signalcollect.interfaces._
-import com.signalcollect.interfaces.Manager._
 
 import akka.actor.Actor
 import akka.actor.Actor._
 import akka.actor.ActorRef
+
+case class Start(numMachines: Int)
 
 class BlindZombie extends Actor {
 

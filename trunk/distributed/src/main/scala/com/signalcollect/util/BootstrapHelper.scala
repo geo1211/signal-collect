@@ -21,6 +21,7 @@ package com.signalcollect.util
 
 import com.signalcollect.configuration._
 import com.signalcollect.implementations.messaging.DefaultVertexToWorkerMapper
+import com.signalcollect.interfaces.Manager._
 
 import akka.actor.Actor._
 import akka.actor.ActorRef
@@ -28,9 +29,11 @@ import akka.actor.ActorRef
 import java.io.File
 import java.io.FileOutputStream
 import java.net.InetAddress
+import java.util.jar._
 
 import com.hazelcast.core._
 
+import scala.collection.JavaConversions._
 import scala.util.Random
 
 sealed trait MachineType
@@ -80,13 +83,73 @@ trait BootstrapHelper extends RemoteSendUtils {
 
       result match {
         case Some(reply) => isCompleted = reply.asInstanceOf[Boolean] // handle reply
-        case None        => sys.error("timeout waiting for reply")
+        case None => sys.error("timeout waiting for reply")
+      }
+
+      Thread.sleep(100)
+
+    }
+  }
+
+  def getLeaderIpFromBootManager(bootManager: ActorRef): String = {
+
+    var isCompleted = false
+
+    var leaderIp = ""
+
+    while (!isCompleted) {
+
+      val result = bootManager !! RequestLeaderIp
+
+      result match {
+        case Some(reply) =>
+          leaderIp = reply.asInstanceOf[String] // handle reply
+
+          if (!leaderIp.equals("undecided"))
+            isCompleted = true
+
+        case None => sys.error("timeout waiting for reply")
       }
 
       Thread.sleep(100)
 
     }
 
+    leaderIp
+
+  }
+
+  def startHazelcastGetAddresses(numberOfMachines: Int): List[String] = {
+    // hazelcast config
+    val hcConfigXml = new com.hazelcast.config.FileSystemXmlConfig(getHazelcastConfigFile) //-Dhazelcast.logging.type=none
+
+    // hazelcast cluster
+    val cluster = Hazelcast.init(hcConfigXml).getCluster
+
+    // variable for timeout
+    var wait = 0
+
+    // wait until all machines have joined
+    println("Waiting HAZELCAST")
+    while (cluster.getMembers().size() != numberOfMachines) {
+      Thread.sleep(500)
+      wait = wait + 1
+
+      if (wait == 240) // after 2 minutes
+      {
+        sys.error("After " + wait / 2 + " seconds, not all machines came online. Abort.")
+        System.exit(-1)
+      }
+    }
+
+    val setMembers = cluster.getMembers
+
+    var machinesAddress: List[String] = List()
+
+    for (member <- setMembers)
+      machinesAddress = member.getInetAddress().getHostAddress() :: machinesAddress
+
+    machinesAddress
   }
 
   /**
@@ -94,20 +157,48 @@ trait BootstrapHelper extends RemoteSendUtils {
    */
   def getHazelcastConfigFile: File = {
 
-    val file = new java.io.File(System.getProperty("user.home") + "/tmp/" + "hazelcast.xml")
+    var file: File = null
 
-    val is = this.getClass().getResourceAsStream("hazelcast.xml")
-    val out = new FileOutputStream(file)
-    val buf = Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
-    val len = buf.length
+    val classpath = System.getProperty("java.class.path")
 
-    out.write(buf, 0, len)
-    out.close
+    val jarFile = new JarFile(classpath)
 
-    is.close
+    val enum = jarFile.entries()
+
+    while (enum.hasMoreElements())
+      process(enum.nextElement())
+
+    def process(obj: Object) {
+      val entry = obj.asInstanceOf[JarEntry]
+      val name = entry.getName()
+
+      if (name.contains("hazelcast.xml")) {
+
+        val in = jarFile.getInputStream(entry)
+
+        val dir = new java.io.File(System.getProperty("user.home") + "/tmp")
+
+        if (!dir.exists)
+          dir.mkdirs
+
+        file = new java.io.File(System.getProperty("user.home") + "/tmp/" + "hazelcast.xml")
+
+        val out = new FileOutputStream(file)
+        val buf = Stream.continually(in.read).takeWhile(-1 !=).map(_.toByte).toArray
+        val len = buf.length
+
+        out.write(buf, 0, len)
+        out.close
+
+        in.close
+
+      }
+    }
 
     file
 
   }
+
+  def shutdownHazelcast = Hazelcast.shutdownAll()
 
 }

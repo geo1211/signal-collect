@@ -24,15 +24,16 @@ package com.signalcollect.util
  */
 object Constants {
 
+  // default port for all machines
   def REMOTE_SERVER_PORT = 2552
 
-  def LEADER_MANAGER_SERVICE_NAME = "leader-service"
-  def ZOMBIE_MANAGER_SERVICE_NAME = "zombie-service"
-  def COORDINATOR_SERVICE_NAME = "coordinator-service"
+  def LEADER_NAME = "leader-service"
+  def ZOMBIE_NAME = "zombie-service"
+  def COORDINATOR_NAME = "coordinator-service"
 
-  def LOGGER_SERVICE_NAME = "logger-service"
+  def BOOT_NAME = "boot-service"
 
-  def WORKER_SERVICE_NAME = "worker-service"
+  def WORKER_NAME = "worker-service"
 
   // timeout for getting a msg back
   def REPLY_TIMEOUT = 500l

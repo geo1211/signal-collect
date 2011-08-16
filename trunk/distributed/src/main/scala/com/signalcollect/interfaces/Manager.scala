@@ -58,6 +58,14 @@ object Manager {
   case class CoordinatorReference(coordinator: Any) extends ManagerMessage
 
   case object Shutdown extends ManagerMessage
-
-  case class Start(numMachines: Int)
+  
+  
+  /**
+   * BOOT MANAGER MESSAGES
+   */
+  case class MachinesAddress(list: List[String]) extends ManagerMessage
+  
+  case class Id(from: String, id: Long) extends ManagerMessage
+  
+  case object RequestLeaderIp extends ManagerMessage
 }
