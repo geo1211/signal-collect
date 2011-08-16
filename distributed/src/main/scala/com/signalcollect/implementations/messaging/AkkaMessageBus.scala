@@ -44,10 +44,14 @@ class AkkaMessageBus[IdType](
   }
 
   def sendToCoordinator(message: Any) {
-    if (!message.isInstanceOf[LogMessage]) {
-      messagesSent += 1
+
+    if (!(message equals "Shutdown")) {
+
+      if (!message.isInstanceOf[LogMessage]) {
+        messagesSent += 1
+      }
+      coordinator.receive(message)
     }
-    coordinator.receive(message)
   }
 
   def sendToWorkerForVertexId(message: Any, recipientId: IdType) {

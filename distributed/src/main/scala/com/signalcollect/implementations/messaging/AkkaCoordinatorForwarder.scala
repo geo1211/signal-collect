@@ -44,8 +44,7 @@ class AkkaCoordinatorForwarder(numWorkers: Int) extends Actor {
 
     case CoordinatorReference(x) => coordinator = x
 
-    case x =>
-      coordinator.asInstanceOf[MessageRecipient[Any]].receive(x)
+    case x => coordinator.asInstanceOf[MessageRecipient[Any]].receive(x)
 
   }
 

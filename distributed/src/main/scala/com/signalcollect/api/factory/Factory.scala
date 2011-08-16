@@ -86,7 +86,7 @@ package factory {
                          loggingLevel: Int): Any = {
 
         // register worker
-        remote.register(Constants.WORKER_SERVICE_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper, loggingLevel)))
+        remote.register(Constants.WORKER_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper, loggingLevel)))
 
       }
 

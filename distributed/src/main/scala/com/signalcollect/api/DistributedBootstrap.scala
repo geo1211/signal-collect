@@ -35,10 +35,6 @@ import akka.actor.Actor._
 import akka.actor.ActorRef
 import akka.actor.PoisonPill
 
-import scala.collection.JavaConversions._
-
-import com.hazelcast.core._
-
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
  *
@@ -55,6 +51,9 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
   // reference to the leader manager actor
   var leaderManager: ActorRef = _
 
+  // reference to the boot manager
+  var bootManager: ActorRef = _
+
   /**
    * Starts essential services for machine discovery and determination of machine type via simple leader election
    */
@@ -63,79 +62,31 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     // start Akka remote server
     remote.start(localIp, Constants.REMOTE_SERVER_PORT)
 
-    remote.register(Constants.LEADER_MANAGER_SERVICE_NAME, actorOf(new LeaderManager(config.numberOfMachines)))
+    // register leader manager (everyone is a leader in the beginning
+    remote.register(Constants.LEADER_NAME, actorOf(new LeaderManager(config.numberOfMachines)))
 
-    var hazelcastRetry = false
+    // register bootstrap manager
+    remote.register(Constants.BOOT_NAME, actorOf(new BootstrapManager(config.numberOfMachines)))
 
-    while (!hazelcastRetry) {
+    // get his reference
+    bootManager = remote.actorFor(Constants.BOOT_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
-      hazelcastRetry = false
+    // start hazelcast machine finding
+    val machinesAddress = startHazelcastGetAddresses(config.numberOfMachines)
 
-      // hazelcast config
-      val hcConfigXml = new com.hazelcast.config.FileSystemXmlConfig(getHazelcastConfigFile) //-Dhazelcast.logging.type=none
+    // tell the bootmanager what machine ips came online
+    bootManager ! MachinesAddress(machinesAddress)
 
-      // hazelcast cluster
-      val cluster = Hazelcast.init(hcConfigXml).getCluster
+    // leader ip from boot manager
+    var leaderIp = getLeaderIpFromBootManager(bootManager)
 
-      var retries = 0
-
-      var retriesDone = false
-
-      var lastSize = cluster.getMembers().size()
-
-      while (cluster.getMembers().size() != config.numberOfMachines || retriesDone) {
-        Thread.sleep(500)
-
-        retries = retries + 1
-
-        if (retries == 25) { // after 12,5 seconds
-          retriesDone = true
-          retries = 0
-        }
-
-        if (lastSize != cluster.getMembers().size())
-          retries = 0
-
-      }
-
-      if (retriesDone) {
-        Hazelcast.shutdownAll
-      } else
-        hazelcastRetry = true
-
-    }
-
-    // map of ips + random number
-    val distributedMap: com.hazelcast.core.IMap[String, Long] = Hazelcast.getMap("members")
-
-    distributedMap.put(localIp, scala.util.Random.nextLong.abs)
-
-    // wait until all machines have joined
-    println("Waiting HAZELCAST")
-    while (config.numberOfMachines != distributedMap.keySet().size) {
-      Thread.sleep(500)
-    }
-    println("Hazelcast Done!")
-
-    var leaderIp = ""
-
-    // get ip with smallest long
-    val leaderId = distributedMap.foldLeft(Long.MaxValue)((min, kv) => scala.math.min(min, kv._2))
-    distributedMap.foreach(x => if (x._2 == leaderId) leaderIp = x._1)
+    println(leaderIp)
 
     // set ip of leader in config
     config.leaderAddress = leaderIp
 
-    // put the other ips on the machinesAddress in config
-    config.machinesAddress = distributedMap.keySet().toList
-
-    // terminate hazelcast
-    Hazelcast.shutdownAll
-    /*} else {
-      leaderIp = localIp
-      config.leaderAddress = leaderIp
-      config.machinesAddress = List(localIp)
-    }*/
+    // put all the ips on the machinesAddress in config
+    config.machinesAddress = machinesAddress
 
     if (localIp equals leaderIp)
       LeaderType
@@ -152,17 +103,23 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
     println("ZOMBIE... Braaaaaiinnnsss")
 
-    leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
+    leaderManager = remote.actorFor(Constants.LEADER_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
     leaderManager ! PoisonPill
 
     // start zombie manager
-    remote.register(Constants.ZOMBIE_MANAGER_SERVICE_NAME, actorOf(new ZombieManager(config.leaderAddress)))
+    remote.register(Constants.ZOMBIE_NAME, actorOf(new ZombieManager(config.leaderAddress)))
 
-    val zombieManager = remote.actorFor(Constants.ZOMBIE_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
+    val zombieManager = remote.actorFor(Constants.ZOMBIE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
     // after successful zombie initialization, the zombie can tell the leader it is alive
     zombieManager ! SendAlive
+
+    // kill bootmanager
+    bootManager ! PoisonPill
+
+    // terminate hazelcast
+    shutdownHazelcast
 
   }
 
@@ -174,15 +131,15 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
     println("I'm the leader")
 
-    leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
+    leaderManager = remote.actorFor(Constants.LEADER_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
     checkAlive(leaderManager)
 
     // start coordinator forwarder which will receive coordinator messages
-    remote.register(Constants.COORDINATOR_SERVICE_NAME, actorOf(new AkkaCoordinatorForwarder(config.numberOfWorkers)))
+    remote.register(Constants.COORDINATOR_NAME, actorOf(new AkkaCoordinatorForwarder(config.numberOfWorkers)))
 
     // get its hook
-    coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, config.leaderAddress, Constants.REMOTE_SERVER_PORT)
+    coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_NAME, config.leaderAddress, Constants.REMOTE_SERVER_PORT)
 
     // create my local workers, i.e, create workers staying at the leader
     createLocalWorkers(coordinatorForwarder, config)
@@ -244,6 +201,12 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
         println("Wait ALL ALIVE")
         waitZombie(leaderManager, CheckAllAlive)
+
+        // terminate hazelcast
+        shutdownHazelcast
+
+        // kill bootmanager
+        bootManager ! PoisonPill
 
         // send configuration parameters to leader after it has been properly set by provisioning
         leaderManager ! ConfigPackage(config)

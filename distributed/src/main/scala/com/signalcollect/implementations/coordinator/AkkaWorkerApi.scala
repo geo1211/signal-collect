@@ -46,7 +46,7 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
     val workerProxyMessageBuses = new Array[MessageBus[Any]](config.numberOfWorkers)
     for (workerId <- 0 until config.numberOfWorkers) {
       val proxyMessageBus = config.workerConfiguration.messageBusFactory.createInstance(config.numberOfWorkers, mapper)
-      proxyMessageBus.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].leaderAddress, serviceName = Constants.COORDINATOR_SERVICE_NAME))
+      proxyMessageBus.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].leaderAddress, serviceName = Constants.COORDINATOR_NAME))
       workerProxyMessageBuses(workerId) = proxyMessageBus
     }
     workerProxyMessageBuses
@@ -56,8 +56,8 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
 
     if (!isInitialized) {
       Thread.currentThread.setName("Coordinator")
-      messageBus.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].leaderAddress, serviceName = Constants.COORDINATOR_SERVICE_NAME))
-      workerProxyMessageBuses foreach (_.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].leaderAddress, serviceName = Constants.COORDINATOR_SERVICE_NAME)))
+      messageBus.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].leaderAddress, serviceName = Constants.COORDINATOR_NAME))
+      workerProxyMessageBuses foreach (_.registerCoordinator(RemoteWorkerInfo(ipAddress = config.asInstanceOf[DistributedConfiguration].leaderAddress, serviceName = Constants.COORDINATOR_NAME)))
       for (workerId <- 0 until config.numberOfWorkers) {
         val workerConfig = config.asInstanceOf[DistributedConfiguration].workerConfigurations.get(workerId).get
         messageBus.registerWorker(workerId, RemoteWorkerInfo(ipAddress = workerConfig.ipAddress, serviceName = workerConfig.serviceName))
@@ -74,7 +74,7 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
 
   override def shutdown = {
 
-    val coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_SERVICE_NAME, config.asInstanceOf[DistributedConfiguration].leaderAddress, Constants.REMOTE_SERVER_PORT)
+    val coordinatorForwarder = remote.actorFor(Constants.COORDINATOR_NAME, config.asInstanceOf[DistributedConfiguration].leaderAddress, Constants.REMOTE_SERVER_PORT)
 
     var i = 0
 
@@ -90,9 +90,9 @@ class AkkaWorkerApi(config: Configuration, logger: MessageRecipient[LogMessage])
     while (!coordinatorForwarder.isShutdown) {
       Thread.sleep(100)
     }
-    
-    val leaderManager = remote.actorFor(Constants.LEADER_MANAGER_SERVICE_NAME, config.asInstanceOf[DistributedConfiguration].leaderAddress, Constants.REMOTE_SERVER_PORT)
-    
+
+    val leaderManager = remote.actorFor(Constants.LEADER_NAME, config.asInstanceOf[DistributedConfiguration].leaderAddress, Constants.REMOTE_SERVER_PORT)
+
     leaderManager !! Shutdown
 
     registry.shutdownAll
