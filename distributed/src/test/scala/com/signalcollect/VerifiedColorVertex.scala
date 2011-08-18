@@ -1,8 +1,7 @@
 package com.signalcollect
 
 
-import com.signalcollect.api._
-import com.signalcollect.api.factory._
+import com.signalcollect.factory._
 import com.signalcollect.configuration._
 import com.signalcollect.interfaces._
 import com.signalcollect.graphproviders._

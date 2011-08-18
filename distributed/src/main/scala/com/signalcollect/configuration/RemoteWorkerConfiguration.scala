@@ -19,7 +19,7 @@
 
 package com.signalcollect.configuration
 
-import com.signalcollect.api.factory._
+import com.signalcollect.factory._
 import com.signalcollect.interfaces._
 
 /**
@@ -38,7 +38,7 @@ case class RemoteWorkerInfo(ipAddress: String, serviceName: String)
 case class DefaultRemoteWorkerConfiguration(
   workerFactory: WorkerFactory = worker.AkkaRemoteWorker,
   messageBusFactory: MessageBusFactory = messageBus.AkkaBusRemote,
-  statusUpdateIntervallInMillis: Option[Long] = None /*Some(500l)*/, 
+  statusUpdateIntervalInMillis: Option[Long] = None /*Some(500l)*/, 
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
   serviceName: String = "") extends RemoteWorkerConfiguration
@@ -49,7 +49,7 @@ case class DefaultRemoteWorkerConfiguration(
 case class DefaultRemoteWorkerReferenceConfiguration(
   workerFactory: WorkerFactory = worker.AkkaRemoteReference,
   messageBusFactory: MessageBusFactory = messageBus.AkkaBusRemote,
-  statusUpdateIntervallInMillis: Option[Long] = None /*Some(500l)*/,
+  statusUpdateIntervalInMillis: Option[Long] = None /*Some(500l)*/,
   storageFactory: StorageFactory = storage.InMemory,
   ipAddress: String = "",
   serviceName: String = "") extends RemoteWorkerConfiguration

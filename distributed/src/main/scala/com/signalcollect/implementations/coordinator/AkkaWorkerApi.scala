@@ -23,7 +23,7 @@ import com.signalcollect.interfaces._
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
 import com.signalcollect.implementations.messaging._
-import com.signalcollect.api.factory._
+import com.signalcollect.factory._
 import com.signalcollect.util._
 import akka.actor.Actor._
 import akka.actor.ActorRef

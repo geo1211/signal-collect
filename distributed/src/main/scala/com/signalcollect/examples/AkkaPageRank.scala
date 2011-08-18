@@ -19,8 +19,7 @@
 
 package com.signalcollect.examples
 
-import com.signalcollect.api._
-import com.signalcollect.api.factory._
+import com.signalcollect.factory._
 import com.signalcollect.implementations.graph.SumOfOutWeights
 import com.signalcollect.configuration._
 
@@ -30,7 +29,7 @@ import java.util.LinkedList
 
 /** Builds a PageRank compute graph and executes the computation */
 object AkkaPageRank extends App {
-  val cg = AkkaLocalComputeGraphBuilder.withMessageBusFactory(messageBus.AkkaBus).withWorkerFactory(worker.AkkaLocal).build
+  val cg = AkkaLocalGraphBuilder.withMessageBusFactory(messageBus.AkkaBus).withWorkerFactory(worker.AkkaLocal).build
   cg.addVertex(new Page(1))
   cg.addVertex(new Page(2))
   cg.addVertex(new Page(3))

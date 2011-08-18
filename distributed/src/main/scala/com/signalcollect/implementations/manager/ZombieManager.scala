@@ -24,7 +24,6 @@ import akka.actor.Actor._
 import akka.actor.ActorRef
 import akka.dispatch._
 
-import com.signalcollect.api.factory._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
