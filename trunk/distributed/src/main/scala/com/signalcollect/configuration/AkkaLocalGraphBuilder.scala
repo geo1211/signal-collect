@@ -19,7 +19,7 @@
 
 package com.signalcollect.configuration
 
-import com.signalcollect.api._
+import com.signalcollect._
 import com.signalcollect.interfaces._
 
 /**
@@ -27,14 +27,14 @@ import com.signalcollect.interfaces._
  * These builders make configuring a compute graph with Java almost as simple
  * as when using Scala default parameters.
  */
-object AkkaLocalComputeGraphBuilder extends LocalComputeGraphBuilder
+object AkkaLocalGraphBuilder extends AkkaLocalGraphBuilder(LocalConfiguration())
 
 /**
  * Builder for the creation of a compute graph needs a configuration object for the creation.
  * If the user passes a configuration object but then uses a method of this class, the configuration's object
  * parameter gets overriden ("inserted" in the config object) by the method call's parameter which was passed.
  */
-class LocalComputeGraphBuilder(protected val config: Configuration = new DefaultLocalConfiguration) extends Serializable {
+class AkkaLocalGraphBuilder(protected val config: Configuration = LocalConfiguration()) extends Serializable {
 
   def build = new LocalAkkaBootstrap(config).boot
 
@@ -65,12 +65,12 @@ class LocalComputeGraphBuilder(protected val config: Configuration = new Default
     workerFactory: WorkerFactory = config.workerConfiguration.workerFactory,
     messageBusFactory: MessageBusFactory = config.workerConfiguration.messageBusFactory,
     storageFactory: StorageFactory = config.workerConfiguration.storageFactory,
-    executionConfiguration: ExecutionConfiguration = config.executionConfiguration): LocalComputeGraphBuilder = {
-    new LocalComputeGraphBuilder(
-      DefaultLocalConfiguration(
+    executionConfiguration: ExecutionConfiguration = config.executionConfiguration): AkkaLocalGraphBuilder = {
+    new AkkaLocalGraphBuilder(
+      LocalConfiguration(
         numberOfWorkers = numberOfWorkers,
         customLogger = customLogger,
-        workerConfiguration = DefaultLocalWorkerConfiguration(
+        workerConfiguration = LocalWorkerConfiguration(
           workerFactory = workerFactory,
           messageBusFactory = messageBusFactory,
           storageFactory = storageFactory),

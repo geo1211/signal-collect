@@ -19,19 +19,17 @@
 
 package com.signalcollect.examples
 
-import com.signalcollect.api._
-import com.signalcollect.configuration._
-import com.signalcollect.interfaces._
-
+import com.signalcollect._
 import akka.actor.Actor._
+import com.signalcollect.configuration.DistributedGraphBuilder
 
 object DistributedPageRank {
 
-  var cg: ComputeGraph = _
+  var cg: Graph = _
 
   def main(args: Array[String]) {
 
-    val optionalCg = new DistributedComputeGraphBuilder().withNumberOfMachines(2).withNumberOfWorkers(2).withExecutionConfiguration(ExecutionConfiguration(executionMode = SynchronousExecutionMode)).build
+    val optionalCg = new DistributedGraphBuilder().withNumberOfMachines(2).withNumberOfWorkers(2).withExecutionConfiguration(ExecutionConfiguration(executionMode = SynchronousExecutionMode)).build
 
     if (optionalCg.isDefined) {
       cg = optionalCg.get

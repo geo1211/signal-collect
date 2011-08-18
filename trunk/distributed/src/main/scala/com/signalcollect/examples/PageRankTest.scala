@@ -1,8 +1,7 @@
 package com.signalcollect.examples
 
 import com.signalcollect._
-import com.signalcollect.api._
-import com.signalcollect.api.factory._
+import com.signalcollect.factory._
 import com.signalcollect.configuration._
 import com.signalcollect.interfaces._
 import com.signalcollect.interfaces.Manager._
@@ -30,14 +29,14 @@ object PageRankTest {
     }
   }
 
-  val computeGraphFactories: List[Int => ComputeGraph] = List(
-    (numberOfWorkers: Int) => DefaultDistributedComputeGraphBuilder.withNumberOfMachines(1).withNumberOfWorkers(numberOfWorkers).build.get)
+  val computeGraphFactories: List[Int => Graph] = List(
+    (numberOfWorkers: Int) => DistributedGraphBuilder.withNumberOfMachines(1).withNumberOfWorkers(numberOfWorkers).build.get)
 
   val executionModes = List(OptimizedAsynchronousExecutionMode, SynchronousExecutionMode)
 
   val testWorkerCounts = List(2, 4, 8, 16 /*, 32, 64, 128*/ )
 
-  def test(graphProviders: List[Int => ComputeGraph] = computeGraphFactories, verify: Vertex => Boolean, buildGraph: ComputeGraph => Unit = (cg: ComputeGraph) => (), numberOfWorkers: Traversable[Int] = testWorkerCounts, signalThreshold: Double = 0, collectThreshold: Double = 0): Boolean = {
+  def test(graphProviders: List[Int => Graph] = computeGraphFactories, verify: Vertex => Boolean, buildGraph: Graph => Unit = (cg: Graph) => (), numberOfWorkers: Traversable[Int] = testWorkerCounts, signalThreshold: Double = 0, collectThreshold: Double = 0): Boolean = {
     var correct = true
     var computationStatistics = Map[String, List[ExecutionInformation]]()
 
@@ -64,7 +63,7 @@ object PageRankTest {
     correct
   }
 
-  def buildPageRankGraph(cg: ComputeGraph, edgeTuples: Traversable[Tuple2[Int, Int]]): ComputeGraph = {
+  def buildPageRankGraph(cg: Graph, edgeTuples: Traversable[Tuple2[Int, Int]]): Graph = {
     edgeTuples foreach {
       case (sourceId: Int, targetId: Int) =>
         cg.addVertex(new Page(sourceId, 0.85))

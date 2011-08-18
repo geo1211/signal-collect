@@ -19,9 +19,11 @@
 
 package com.signalcollect.configuration
 
-import com.signalcollect.api.factory._
 import com.signalcollect.interfaces._
+import com.signalcollect.factory._
 import scala.collection.mutable.HashMap
+import com.signalcollect.ExecutionConfiguration
+import com.signalcollect.DefaultExecutionConfiguration
 
 /**
  * Configuration for the distributed execution of signal/collect

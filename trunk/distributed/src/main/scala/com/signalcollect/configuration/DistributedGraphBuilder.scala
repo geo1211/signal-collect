@@ -19,25 +19,26 @@
 
 package com.signalcollect.configuration
 
-import com.signalcollect.api._
 import com.signalcollect.interfaces._
 import com.signalcollect.configuration.provisioning._
 import scala.collection.mutable.HashMap
+import com.signalcollect.ExecutionConfiguration
+import com.signalcollect.Graph
 
-object DefaultDistributedComputeGraphBuilder extends DistributedComputeGraphBuilder
+object DistributedGraphBuilder extends DistributedGraphBuilder(DefaultDistributedConfiguration())
 
 /**
  * Builder for the creation of a compute graph needs a configuration object for the creation.
  * If the user passes a configuration object but then uses a method of this class, the configuration's object
  * parameter gets overriden ("inserted" in the config object) by the method call's parameter which was passed.
  */
-class DistributedComputeGraphBuilder(protected val config: DefaultDistributedConfiguration = new DefaultDistributedConfiguration) extends Serializable {
+class DistributedGraphBuilder(protected val config: DefaultDistributedConfiguration = new DefaultDistributedConfiguration) extends Serializable {
 
   /**
    * Optional since zombie machines don't get a reference to the compute graph
    * TODO: for the distributed graph loading maybe that is a feature to add
    */
-  def build: Option[ComputeGraph] = new DistributedBootstrap(config).bootOption
+  def build: Option[Graph] = new DistributedBootstrap(config).bootOption
 
   /**
    * Common configuration
@@ -85,8 +86,8 @@ class DistributedComputeGraphBuilder(protected val config: DefaultDistributedCon
     machinesAddress: List[String] = config.asInstanceOf[DistributedConfiguration].machinesAddress,
     leaderAddress: String = config.asInstanceOf[DistributedConfiguration].leaderAddress,
     provisionFactory: ProvisionFactory = config.asInstanceOf[DistributedConfiguration].provisionFactory,
-    workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = config.asInstanceOf[DistributedConfiguration].workerConfigurations): DistributedComputeGraphBuilder = {
-    new DistributedComputeGraphBuilder(
+    workerConfigurations: HashMap[Int, RemoteWorkerConfiguration] = config.asInstanceOf[DistributedConfiguration].workerConfigurations): DistributedGraphBuilder = {
+    new DistributedGraphBuilder(
       DefaultDistributedConfiguration(
         numberOfWorkers = numberOfWorkers,
         loggingLevel = loggingLevel,

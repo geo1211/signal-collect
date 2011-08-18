@@ -17,9 +17,8 @@
  *  
  */
 
-package com.signalcollect.api
+package com.signalcollect.configuration
 
-import com.signalcollect.api.factory._
 import com.signalcollect.interfaces._
 import com.signalcollect.interfaces.Manager._
 import com.signalcollect.configuration._
@@ -29,11 +28,12 @@ import com.signalcollect.implementations.coordinator._
 import com.signalcollect.implementations.logging._
 import com.signalcollect.implementations.messaging._
 import com.signalcollect.util._
-
 import akka.actor.Actor
 import akka.actor.Actor._
 import akka.actor.ActorRef
 import akka.actor.PoisonPill
+import com.signalcollect.Graph
+import com.signalcollect.factory.worker.AkkaRemoteReference
 
 /**
  * The bootstrap sequence for initializing the distributed infrastructure
@@ -151,7 +151,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     for (workerId <- 0 until config.numberOfWorkers) {
 
       config.workerConfiguration.workerFactory match {
-        case worker.AkkaRemoteReference =>
+        case AkkaRemoteReference =>
 
           // workerConfiguration
           val workerConfig = DefaultRemoteWorkerReferenceConfiguration(ipAddress = config.workerConfigurations.get(workerId).get.ipAddress, serviceName = config.workerConfigurations.get(workerId).get.serviceName)
@@ -173,13 +173,13 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    *
    * @return optional compute graph. The compute graph is only used by the leader
    */
-  def bootOption: Option[ComputeGraph] = {
+  def bootOption: Option[Graph] = {
 
     // from leader election phase, get machine type
     val machineType = start
 
     // optional compute graph
-    var optionalCg: Option[ComputeGraph] = None
+    var optionalCg: Option[Graph] = None
 
     // check for machine type
     machineType match {
@@ -232,7 +232,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         val coordinator = new Coordinator(workerApi, config)
 
         // create the compute graph
-        computeGraph = createComputeGraph(workerApi, coordinator)
+        computeGraph = createGraph(workerApi, coordinator)
 
         // return it for execution
         optionalCg = Some(computeGraph)
