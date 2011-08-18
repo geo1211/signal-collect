@@ -34,10 +34,13 @@ import com.signalcollect.util.Constants
 package factory {
 
   /**
-   * Definition for provisioning factory
+   * Definitions for provisioning factory
    */
   package provision {
 
+    /**
+     * Equal provisioning of workers per machine
+     */
     object EqualProvisioning extends ProvisionFactory {
       def createInstance(config: DistributedConfiguration): NodeProvisioning = new EqualNodeProvisioning(config)
     }
@@ -53,7 +56,7 @@ package factory {
     }
     
     /**
-     * Used by the local case implementation of AKka workers
+     * Used by the shared memory implementation of AKka workers
      */
     object AkkaBus extends MessageBusFactory {
       def createInstance(numberOfWorkers: Int, mapper: VertexToWorkerMapper): MessageBus[Any] = new AkkaMessageBus[Any](numberOfWorkers, mapper)
@@ -63,6 +66,9 @@ package factory {
 
   package worker {
 
+    /**
+     * Shared memory implementation of Akka workers
+     */
     object AkkaLocal extends AkkaWorkerFactory {
       override def createInstance(workerId: Int,
                          workerConfig: WorkerConfiguration,
@@ -85,7 +91,7 @@ package factory {
                          mapper: VertexToWorkerMapper,
                          loggingLevel: Int): Any = {
 
-        // register worker
+        // register worker in Akka server registry
         remote.register(Constants.WORKER_NAME + "" + workerId, actorOf(new AkkaWorker(workerId, workerConfig, numberOfWorkers, coordinator, mapper, loggingLevel)))
 
       }
@@ -107,7 +113,7 @@ package factory {
                          mapper: VertexToWorkerMapper,
                          loggingLevel: Int): ActorRef = {
 
-        // get the hook for the remote actor as a actor ref
+        // get the hook for the remote actor as an actor ref
         val worker = remote.actorFor(workerConfig.asInstanceOf[RemoteWorkerConfiguration].serviceName, workerConfig.asInstanceOf[RemoteWorkerConfiguration].ipAddress, Constants.REMOTE_SERVER_PORT).start
         
         worker

@@ -31,7 +31,7 @@ object PageRankTest {
   }
 
   val computeGraphFactories: List[Int => ComputeGraph] = List(
-    (numberOfWorkers: Int) => DefaultDistributedComputeGraphBuilder.withNumberOfMachines(2).withNumberOfWorkers(numberOfWorkers).build.get)
+    (numberOfWorkers: Int) => DefaultDistributedComputeGraphBuilder.withNumberOfMachines(1).withNumberOfWorkers(numberOfWorkers).build.get)
 
   val executionModes = List(OptimizedAsynchronousExecutionMode, SynchronousExecutionMode)
 
@@ -45,24 +45,17 @@ object PageRankTest {
       for (executionMode <- executionModes) {
         for (graphProvider <- graphProviders) {
 
-          val blindZombie = remote.actorFor("blind-zombie", "130.60.157.194", 2552)
-
-          blindZombie ! Start(2)
-          
-          Thread.sleep(5000)
-
-          //println("start")
           val cg = graphProvider.apply(workers)
-          //println("build graph")
+
           buildGraph(cg)
-          //println("execute")
+
           val stats = cg.execute(ExecutionConfiguration(executionMode = executionMode, signalThreshold = signalThreshold))
-          //println("finished execution <><><> aggregate now")
+
           correct &= cg.customAggregate(true, (a: Boolean, b: Boolean) => (a && b), verify)
           if (!correct) {
             System.err.println("Test failed. Computation stats: " + stats)
           }
-          //println("shutdown")
+
           cg.shutdown
 
         }

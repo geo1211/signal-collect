@@ -33,6 +33,10 @@ import com.signalcollect.util._
 
 import scala.collection.mutable.HashMap
 
+/**
+ * Deals with messages related to the bootstrap and leader election mechanism
+ *
+ */
 class BootstrapManager(numberOfNodes: Int) extends Manager with Actor {
 
   self.dispatcher = Dispatchers.newThreadBasedDispatcher(self)
@@ -49,6 +53,9 @@ class BootstrapManager(numberOfNodes: Int) extends Manager with Actor {
 
   def receive = {
 
+    /**
+     * send all machines my Ip address
+     */
     case MachinesAddress(ipAddressList: List[String]) =>
 
       ipAddressList foreach { ip =>
@@ -62,6 +69,7 @@ class BootstrapManager(numberOfNodes: Int) extends Manager with Actor {
 
       }
 
+    // received an Id from another machine, calculate who's leader when received all ids
     case Id(from: String, id: Long) =>
 
       numIdsReceived = numIdsReceived + 1
@@ -77,6 +85,7 @@ class BootstrapManager(numberOfNodes: Int) extends Manager with Actor {
 
       }
 
+    // poll to check if leader ip has been defined
     case RequestLeaderIp =>
       self.reply(leaderIp)
 

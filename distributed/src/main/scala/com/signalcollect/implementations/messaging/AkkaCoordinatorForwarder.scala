@@ -25,6 +25,10 @@ import akka.dispatch._
 import com.signalcollect.interfaces.Manager
 import com.signalcollect.interfaces.Manager._
 
+/**
+ * Forwards all requests to the coordinator at the leader
+ * This instance is also staying at the leader machine
+ */
 class AkkaCoordinatorForwarder(numWorkers: Int) extends Actor {
 
   var coordinator: Any = _

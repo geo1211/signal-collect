@@ -36,15 +36,24 @@ import com.hazelcast.core._
 import scala.collection.JavaConversions._
 import scala.util.Random
 
+/** IDENTIFIER FOR MACHINE TYPE USED AT THE BOOTSTRAP */
 sealed trait MachineType
 case object ZombieType extends MachineType
 case object LeaderType extends MachineType
 
+/**
+ * Little helper class with common functions executed at the distributed bootstrap
+ */
 trait BootstrapHelper extends RemoteSendUtils {
 
   // the machine's local IP
   def localIp = java.net.InetAddress.getLocalHost.getHostAddress
 
+  /**
+   * Real worker local instantiation
+   *
+   * @param: coordinatorForwarder is the reference to the coordinator staying at the leader
+   */
   def createLocalWorkers(coordinatorForwarder: ActorRef, config: DistributedConfiguration) {
 
     val mapper = new DefaultVertexToWorkerMapper(config.numberOfWorkers)
@@ -72,6 +81,9 @@ trait BootstrapHelper extends RemoteSendUtils {
 
   }
 
+  /**
+   * Wait for a certain task to complete at the zombie side. Can be either for "alive" or for "ready"
+   */
   def waitZombie(leaderManager: ActorRef, checkType: Any) {
 
     var isCompleted = false
@@ -91,13 +103,16 @@ trait BootstrapHelper extends RemoteSendUtils {
     }
   }
 
+  /**
+   * Part of the leader election algorithm
+   */
   def getLeaderIpFromBootManager(bootManager: ActorRef): String = {
 
-    var isCompleted = false
+    var decided = false
 
     var leaderIp = ""
 
-    while (!isCompleted) {
+    while (!decided) {
 
       val result = bootManager !! RequestLeaderIp
 
@@ -106,7 +121,7 @@ trait BootstrapHelper extends RemoteSendUtils {
           leaderIp = reply.asInstanceOf[String] // handle reply
 
           if (!leaderIp.equals("undecided"))
-            isCompleted = true
+            decided = true
 
         case None => sys.error("timeout waiting for reply")
       }
@@ -119,34 +134,55 @@ trait BootstrapHelper extends RemoteSendUtils {
 
   }
 
+  /**
+   * Hazelcast sequence of commands for starting the "cluster" and finding machines on it
+   *
+   * @return a list with all the IP address of the available machines
+   */
   def startHazelcastGetAddresses(numberOfMachines: Int): List[String] = {
+
+    var hazelcastSuccess = false
+
     // hazelcast config
     val hcConfigXml = new com.hazelcast.config.FileSystemXmlConfig(getHazelcastConfigFile) //-Dhazelcast.logging.type=none
 
     // hazelcast cluster
     val cluster = Hazelcast.init(hcConfigXml).getCluster
 
-    // variable for timeout
-    var wait = 0
+    while (!hazelcastSuccess) {
+      // variable for timeout
+      var wait = 0
 
-    // wait until all machines have joined
-    println("Waiting HAZELCAST")
-    while (cluster.getMembers().size() != numberOfMachines) {
-      Thread.sleep(500)
-      wait = wait + 1
+      var shouldRestart = false
 
-      if (wait == 240) // after 2 minutes
-      {
-        sys.error("After " + wait / 2 + " seconds, not all machines came online. Abort.")
-        System.exit(-1)
+      // wait until all machines have joined
+      println("Waiting HAZELCAST")
+      while (cluster.getMembers().size() != numberOfMachines || !shouldRestart) {
+        Thread.sleep(500)
+        wait = wait + 1
+
+        if (wait == 240) // after 2 minutes
+        {
+          sys.error("After " + wait / 2 + " seconds, not all machines came online. Abort.")
+          System.exit(-1)
+        } // after 30 seconds and if it failed to get cluster reference
+        else if (wait == 60 && (cluster.getMembers().size() == 1)) {
+          shouldRestart = true
+        }
       }
+
+      if (!shouldRestart)
+        hazelcastSuccess = true
+      else
+        Hazelcast.restart()
+
     }
 
-    val setMembers = cluster.getMembers
+    val membersSet = cluster.getMembers
 
     var machinesAddress: List[String] = List()
 
-    for (member <- setMembers)
+    for (member <- membersSet)
       machinesAddress = member.getInetAddress().getHostAddress() :: machinesAddress
 
     machinesAddress
@@ -165,10 +201,12 @@ trait BootstrapHelper extends RemoteSendUtils {
 
     val enum = jarFile.entries()
 
-    while (enum.hasMoreElements())
-      process(enum.nextElement())
+    var found = false
 
-    def process(obj: Object) {
+    while (enum.hasMoreElements() && !found)
+      found = process(enum.nextElement())
+
+    def process(obj: Object): Boolean = {
       val entry = obj.asInstanceOf[JarEntry]
       val name = entry.getName()
 
@@ -192,13 +230,20 @@ trait BootstrapHelper extends RemoteSendUtils {
 
         in.close
 
-      }
+        true
+
+      } else
+        false
+
     }
 
     file
 
   }
 
+  /**
+   * Function to shutdown hazelcast
+   */
   def shutdownHazelcast = Hazelcast.shutdownAll()
 
 }
