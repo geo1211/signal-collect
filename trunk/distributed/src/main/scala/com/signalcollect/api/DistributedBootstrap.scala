@@ -80,17 +80,16 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
     // leader ip from boot manager
     var leaderIp = getLeaderIpFromBootManager(bootManager)
 
-    println(leaderIp)
-
     // set ip of leader in config
     config.leaderAddress = leaderIp
 
     // put all the ips on the machinesAddress in config
     config.machinesAddress = machinesAddress
 
+    // am I the leader?
     if (localIp equals leaderIp)
       LeaderType
-    // else I am zombie
+    // I am zombie
     else
       ZombieType
 
@@ -101,8 +100,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    */
   def deployZombie {
 
-    println("ZOMBIE... Braaaaaiinnnsss")
-
+    // kill the local leader manager
     leaderManager = remote.actorFor(Constants.LEADER_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
     leaderManager ! PoisonPill
@@ -112,7 +110,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
     val zombieManager = remote.actorFor(Constants.ZOMBIE_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
-    // after successful zombie initialization, the zombie can tell the leader it is alive
+    // after successful zombie start, the zombie can tell the leader it is alive
     zombieManager ! SendAlive
 
     // kill bootmanager
@@ -129,8 +127,6 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
    */
   def deployLeader {
 
-    println("I'm the leader")
-
     leaderManager = remote.actorFor(Constants.LEADER_NAME, localIp, Constants.REMOTE_SERVER_PORT)
 
     checkAlive(leaderManager)
@@ -146,6 +142,9 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
 
   }
 
+  /**
+   * Executed by the leader, it gets the references of all the workers, distributed and local ones 
+   */
   def createWorkers(workerApi: WorkerApi) {
 
     // create a hook for all worker instances (whether local or remote), the leader will distribute them when executing workerApi.initialize @see WorkerApi.initialize
@@ -199,7 +198,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         // deploy network services and remote infrastructure
         deployLeader
 
-        println("Wait ALL ALIVE")
+        // wait until all zombies come alive
         waitZombie(leaderManager, CheckAllAlive)
 
         // terminate hazelcast
@@ -211,7 +210,7 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         // send configuration parameters to leader after it has been properly set by provisioning
         leaderManager ! ConfigPackage(config)
 
-        println("Wait ALL READY")
+        // wait until all zombies have instantiated their remote workers
         waitZombie(leaderManager, CheckAllReady)
 
         // create optional logger
@@ -227,12 +226,15 @@ class DistributedBootstrap(var config: DefaultDistributedConfiguration) extends 
         // set coordinator at the forwarder (now that it is correctly available)
         coordinatorForwarder ! CoordinatorReference(workerApi)
 
+        // distribute infrastructure information
         workerApi.initialize
 
         val coordinator = new Coordinator(workerApi, config)
 
+        // create the compute graph
         computeGraph = createComputeGraph(workerApi, coordinator)
 
+        // return it for execution
         optionalCg = Some(computeGraph)
     }
 

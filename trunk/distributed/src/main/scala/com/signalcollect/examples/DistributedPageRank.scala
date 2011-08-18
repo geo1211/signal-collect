@@ -31,10 +31,6 @@ object DistributedPageRank {
 
   def main(args: Array[String]) {
 
-    val blindZombie = remote.actorFor("blind-zombie", "130.60.157.194", 2552)
-
-    blindZombie ! "Start"
-
     val optionalCg = new DistributedComputeGraphBuilder().withNumberOfMachines(2).withNumberOfWorkers(2).withExecutionConfiguration(ExecutionConfiguration(executionMode = SynchronousExecutionMode)).build
 
     if (optionalCg.isDefined) {

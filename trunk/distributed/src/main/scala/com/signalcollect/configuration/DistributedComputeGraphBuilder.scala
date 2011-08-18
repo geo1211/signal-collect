@@ -33,6 +33,10 @@ object DefaultDistributedComputeGraphBuilder extends DistributedComputeGraphBuil
  */
 class DistributedComputeGraphBuilder(protected val config: DefaultDistributedConfiguration = new DefaultDistributedConfiguration) extends Serializable {
 
+  /**
+   * Optional since zombie machines don't get a reference to the compute graph
+   * TODO: for the distributed graph loading maybe that is a feature to add
+   */
   def build: Option[ComputeGraph] = new DistributedBootstrap(config).bootOption
 
   /**

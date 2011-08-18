@@ -27,9 +27,8 @@ import com.signalcollect.configuration._
 
 /**
  *
- * Equal node provisioning will put the same amount of workers in every node.
- * In case in case it's and odd number of workers and nodes, the first node gets one more worker than the others
- * eg. 25 workers in 3 nodes = 9 on the first, 8 on the other 2
+ * Equal node provisioning will try to put the same amount of workers in each machine.
+ * 
  */
 class EqualNodeProvisioning(config: DistributedConfiguration) extends NodeProvisioning {
 
