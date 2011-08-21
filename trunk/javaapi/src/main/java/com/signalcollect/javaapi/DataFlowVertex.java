@@ -27,7 +27,7 @@ import java.util.LinkedList;
 @SuppressWarnings("serial")
 public abstract class DataFlowVertex<IdTypeParameter, StateTypeParameter, SignalTypeParameter>
 		extends
-		VertexJ<IdTypeParameter, StateTypeParameter, SignalTypeParameter> {
+		JavaVertex<IdTypeParameter, StateTypeParameter, SignalTypeParameter> {
 
 	public DataFlowVertex(IdTypeParameter vertexId,
 			StateTypeParameter initialState) {

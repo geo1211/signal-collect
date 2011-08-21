@@ -27,7 +27,7 @@ import java.util.LinkedList;
 @SuppressWarnings("serial")
 public abstract class DataFlowVertexWithStateResetAfterSignaling<IdTypeParameter, StateTypeParameter, SignalTypeParameter>
 		extends
-		VertexJWithResetStateAfterSignaling<IdTypeParameter, StateTypeParameter, SignalTypeParameter> {
+		JavaVertexWithResetStateAfterSignaling<IdTypeParameter, StateTypeParameter, SignalTypeParameter> {
 
 	public DataFlowVertexWithStateResetAfterSignaling(IdTypeParameter vertexId,
 			StateTypeParameter initialState, StateTypeParameter resetState) {
