@@ -3,7 +3,8 @@ package com.signalcollect.javaapi.examples;
 import com.signalcollect.Vertex;
 import com.signalcollect.ExecutionInformation;
 import com.signalcollect.Graph;
-import com.signalcollect.javaapi.*;
+import com.signalcollect.javaapi.GraphBuilder;
+import com.signalcollect.javaapi.VertexCommand;
 
 public class PageRank {
 
@@ -28,7 +29,7 @@ public class PageRank {
 //				System.out.println(v);
 //			}
 //		});
-		cg.forVertexWithId(1, new Command() {
+		cg.forVertexWithId(1, new VertexCommand() {
 			public void f(Vertex v) {
 				System.out.println(v);
 			}

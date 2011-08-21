@@ -28,7 +28,7 @@ import com.signalcollect.interfaces.SignalMessage;
 import java.util.HashMap;
 
 @SuppressWarnings("serial")
-public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, SignalTypeParameter> extends VertexJ<IdTypeParameter, StateTypeParameter, SignalTypeParameter> {
+public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, SignalTypeParameter> extends JavaVertex<IdTypeParameter, StateTypeParameter, SignalTypeParameter> {
 
 	public DataGraphVertex(IdTypeParameter vertexId, StateTypeParameter initialState) {
 		super(vertexId, initialState);
