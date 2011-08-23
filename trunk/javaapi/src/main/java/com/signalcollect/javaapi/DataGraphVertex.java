@@ -43,9 +43,10 @@ public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, Signa
 			SignalMessage<?, IdTypeParameter, SignalTypeParameter> castMessage = (SignalMessage<?, IdTypeParameter, SignalTypeParameter>) message;
 	    	mostRecentSignalMap.put(castMessage.edgeId(), castMessage.signal());
 	    }
-	    setState(collect(mostRecentSignalMap.values()));
+	    setState(collect(getState(), mostRecentSignalMap.values()));
 	}
-	
-	public abstract StateTypeParameter collect(Iterable<SignalTypeParameter> mostRecentSignals);
+
+	public abstract StateTypeParameter collect(StateTypeParameter oldState,
+			Iterable<SignalTypeParameter> mostRecentSignals);
   
 }
