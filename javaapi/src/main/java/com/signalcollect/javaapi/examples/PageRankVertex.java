@@ -14,7 +14,7 @@ public class PageRankVertex extends DataGraphVertex<Integer, Double, Double> {
 		this.dampingFactor = 1 - baseRank;
 	}
 
-	public Double collect(Iterable<Double> mostRecentSignals) {
+	public Double collect(Double oldState, Iterable<Double> mostRecentSignals) {
 		Double rankSum = 0.0;
 		for (Double signal : mostRecentSignals) {
 			rankSum += signal;

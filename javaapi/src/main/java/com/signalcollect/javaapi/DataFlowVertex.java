@@ -53,10 +53,10 @@ public abstract class DataFlowVertex<IdTypeParameter, StateTypeParameter, Signal
 			newUncollectedMessages.add(castMessage);
 		}
 		uncollectedMessages = newUncollectedMessages;
-		setState(collect(uncollectedSignals));
+		setState(collect(getState(), uncollectedSignals));
 	}
 
-	public abstract StateTypeParameter collect(
+	public abstract StateTypeParameter collect(StateTypeParameter oldState,
 			Iterable<SignalTypeParameter> uncollectedSignals);
 
 }
