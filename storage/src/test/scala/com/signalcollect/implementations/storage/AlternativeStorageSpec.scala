@@ -22,6 +22,7 @@ import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.matcher.Matcher
+import com.signalcollect._
 import com.signalcollect.interfaces._
 import com.signalcollect.implementations.messaging.DefaultMessageBus
 import com.signalcollect.examples.Page

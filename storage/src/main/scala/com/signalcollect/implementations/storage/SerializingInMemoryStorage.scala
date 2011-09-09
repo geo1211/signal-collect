@@ -19,6 +19,7 @@
 package com.signalcollect.implementations.storage
 
 import java.util.Set
+import com.signalcollect._
 import com.signalcollect.interfaces._
 import java.util.HashMap
 

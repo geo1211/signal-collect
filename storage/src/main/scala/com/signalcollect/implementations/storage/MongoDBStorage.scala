@@ -19,6 +19,7 @@
 package com.signalcollect.implementations.storage
 
 import com.mongodb.casbah.Imports._
+import com.signalcollect._
 import com.signalcollect.interfaces._
 import java.util.HashMap
 import org.apache.log4j.helpers.LogLog
