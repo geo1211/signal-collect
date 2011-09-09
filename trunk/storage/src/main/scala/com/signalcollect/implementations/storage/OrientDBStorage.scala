@@ -20,6 +20,7 @@
 package com.signalcollect.implementations.storage
 
 import com.signalcollect.implementations.storage.wrappers._
+import com.signalcollect._
 import com.signalcollect.interfaces._
 import javax.persistence.{ Id, Version }
 import com.orientechnologies.orient.core.id.ORecordId
