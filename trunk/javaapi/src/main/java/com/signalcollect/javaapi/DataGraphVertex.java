@@ -48,5 +48,15 @@ public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, Signa
 
 	public abstract StateTypeParameter collect(StateTypeParameter oldState,
 			Iterable<SignalTypeParameter> mostRecentSignals);
-  
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public scala.Option getVertexIdsOfPredecessors() {
+		scala.collection.mutable.ListBuffer<Object> result = new scala.collection.mutable.ListBuffer<Object>();
+		for(EdgeId id : mostRecentSignalMap.keySet()) {
+			result.apply(id.sourceId());
+		}
+		
+		return null;
+	}
 }
