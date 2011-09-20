@@ -19,6 +19,7 @@
 
 package com.signalcollect.javaapi;
 
+import scala.Some;
 import scala.collection.JavaConversions;
 import com.signalcollect.EdgeId;
 
@@ -26,6 +27,8 @@ import com.signalcollect.interfaces.MessageBus;
 import com.signalcollect.interfaces.SignalMessage;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, SignalTypeParameter> extends JavaVertex<IdTypeParameter, StateTypeParameter, SignalTypeParameter> {
@@ -51,12 +54,42 @@ public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, Signa
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public scala.Option getVertexIdsOfPredecessors() {
+	public scala.Option<scala.collection.Iterable<Object>> getVertexIdsOfPredecessors() {
 		scala.collection.mutable.ListBuffer<Object> result = new scala.collection.mutable.ListBuffer<Object>();
 		for(EdgeId id : mostRecentSignalMap.keySet()) {
-			result.apply(id.sourceId());
+			result.$plus$eq(id.sourceId());
 		}
 		
-		return null;
+		return new Some(result);
 	}
+	
+//	  def getPredecessors(v: Vertex): java.lang.Iterable[Vertex] = {
+//			    val result = new LinkedList[Vertex]()
+//			    val predecessors = v.getVertexIdsOfPredecessors
+//			    if (predecessors.isDefined) {
+//			      for (neighborId <- predecessors.get) {
+//			        val neighbor = cg.forVertexWithId(neighborId, { v: Vertex => v })
+//			        if (neighbor.isDefined) {
+//			          result.add(neighbor.get)
+//			        }
+//			      }
+//			    }
+//			    result
+//			  }
+	
+	
+	
+	
+	
+	
+	
+	
+//	public scala.Option getVertexIdsOfPredecessors() {
+//		scala.collection.mutable.Buffer<Object> result = new scala.collection.mutable.ListBuffer<Object>();
+//		for(EdgeId id : mostRecentSignalMap.keySet()) {
+//			result.apply(id.sourceId());
+//		}
+//		
+//		return Option.apply(result);
+//	}
 }
