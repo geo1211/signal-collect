@@ -34,8 +34,4 @@ The root directory for the project should be your workspace where you actually c
 
 Browse to the directory, select the directory where the project is (not the project directory itself) and you should see that the wizard found the *pom.xml* configuration. With that just finish the wizard.
 
-== Step 4 ==
-
-The project is now added to the IDE with the Maven management in place. The last step now is to right click it and select _Configure_ -> _Add Scala nature_
-
 With that, you're ready to go.
