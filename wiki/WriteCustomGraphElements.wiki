@@ -1,0 +1,60 @@
+#summary This explains to to write custom vertices and edges to achieve a better fit for a specific use case.
+#labels Phase-Implementation
+
+= Implementing Custom Graph Elements =
+
+For many applications, writing custom graph elements such as vertices and possibly edges might considerably improve the overall performance. The available vertex templates in the framework are designed to facilitate the implementation of algorithms in the signal-collect computing paradigm and are therefore held very general to support a variety of use cases. If you wan't to improve the performance of your application it might be a good idea to try to implement the needed interfaces of the respective classes by your self.
+
+== Custom Serialization ==
+
+Implementing the [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/Vertex.scala Vertex Trait] requires every vertex to be `Serializable` so you have to make sure that your own vertex implementation are serializable as well. Per default each vertex is serialized using standard Java serialization with ObjectOutputStreams. This ensures that a wide variety of types can be serialized but is rather inefficient.
+
+http://chart.apis.google.com/chart?chtt=Time%20for%20Object%20Creation%20%2B%20Serialization%20%2B%20Deserialization&chf=c||lg||0||FFFFFF||1||76A4FB||0|bg||s||EFEFEF&chs=600x400&chd=t:5917.121999999999,6911.219,7746.0375,10105.623,11598.1135,11702.6325,12798.176,13289.6525,13308.289,14413.6315,15197.342,15251.716,16006.7985,18152.156499999997,20703.491,21125.9925,29864.972999999998,34437.3555,42352.662,65733.528,97347.103&chds=0,107081.81330000001&chxt=y&chxl=0:|java|JsonMarshaller|xstream%20(stax%20with%20conv)|hessian|binaryxml/FI|json/jackson-databind|stax/woodstox|javolution%20xmlformat|protostuff-json|thrift|protostuff-numeric-json|stax/aalto|json%20(jackson)|sbinary|avro-generic|activemq%20protobuf|protobuf|avro-specific|kryo|kryo-optimized|java%20(externalizable)&chm=N%20*f*,000000,0,-1,10&lklk&chdlp=t&chco=660000|660033|660066|660099|6600CC|6600FF|663300|663333|663366|663399|6633CC|6633FF|666600|666633|666666&cht=bhg&chbh=10&nonsense=aaa.png
+
+(Source: http://code.google.com/p/thrift-protobuf-compare/)
+
+Custom vertex implementations where the types are given explicitly can help speeding up the serialization process considerably, because less type inspection is needed and the serialization process is much more straight forward. If you wan't to improve the serialization speed of your custom implementation even further you could also provide an `Externalizable` implementations, which describes explicitly how to write your objects to an output stream and how to read them back from it. To give a practical example on how such an implementation could look like, the externalizable code for a rather simplistic vertex that represents a page for a PageRank calculation is shown here. Note that all this page needs to store are its id, its state, its last signal, the pages it links to and a map with the states of all the pages that link to it.
+
+{{{
+class MemoryEfficientPage(var id: Int) extends Vertex with Externalizable {
+//...
+  def writeExternal(out: ObjectOutput) {
+    out.writeInt(id)
+    out.writeFloat(state)
+    out.writeFloat(lastSignalState)
+    // Write links
+    out.writeInt(targetIdArray.length)
+    for (i <- 0 until targetIdArray.length) {
+      out.writeInt(targetIdArray(i))
+    }
+    //write most recent signals
+    out.writeInt(mostRecentSignalMap.values.size)
+    mostRecentSignalMap.foreach(signal => {
+      out.writeInt(signal._1)
+      out.writeFloat(signal._2)
+    })
+  }
+
+  def readExternal(in: ObjectInput) {
+    id = in.readInt
+    state = in.readFloat
+    lastSignalState = in.readFloat
+    //read Links
+    val numberOfLinks = in.readInt
+    targetIdArray = new Array[Int](numberOfLinks)
+    for (i <- 0 until numberOfLinks) {
+      targetIdArray(i) = in.readInt
+    }
+    //read most recent signals
+    mostRecentSignalMap = Map[Int, Float]()
+    val numberOfMostRecentSignals = in.readInt
+    for (i <- 0 until numberOfMostRecentSignals) {
+      mostRecentSignalMap += ((in.readInt, in.readFloat))
+    }
+  }
+}
+}}}
+
+The effect of having a custom vertex implementation and an externalizable serialization implemented, is clearly visible in the time consumed to serialize and deserialize objects.
+
+http://chart.apis.google.com/chart?chxr=0,0,199996.667&chxs=0,676767,11.5,-0.167,l,676767&chxt=x&chbh=19,5,21&chs=460x217&cht=bhg&chco=224499,3366CC,3072F3&chds=0,200000,0,200000,0,200000&chd=t:75635,176802|57399,121488|47582,60959&chdl=Default+Page%2C+Default+Serializer|Custom+Page%2C+Default+Serializer|Custom+Page%2C+Custom+Serializer&chma=5,5,2,5&chm=t++Serialization,676767,1,0,14|t++Deserialization,676767,1,1,14&chtt=++++Serialization+Time+PageRank+Vertex+(ms)&chts=676767,14.5.png
