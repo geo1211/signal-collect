@@ -5,7 +5,7 @@
 
 *How it works*
   * [TerminationDetection Termination Detection]
-  * [WriteCustomGraphElements Write Custom Graph-Elements]
+  * [WriteCustomGraphElements Custom Graph-Elements]
   * [OnDiskStorage Scale to Disk]
 
 *About the Project*
