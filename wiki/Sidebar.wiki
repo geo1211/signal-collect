@@ -1,6 +1,6 @@
 *Getting Started*
   * [RecommendedTools Recommended Tools]
-  * [SettingUpSignalCollectInEclipse Setting Up Signal-Collect]
+  * [SettingUpSignalCollectInEclipse Setting Up Signal/Collect]
   * Run Example Algorithm
 
 *How it works*
