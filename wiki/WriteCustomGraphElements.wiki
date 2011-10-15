@@ -1,4 +1,4 @@
-#summary This explains to to write custom vertices and edges to achieve a better fit for a specific use case.
+#summary This explains how to write custom vertices and edges to achieve a better fit for a specific use case.
 #labels Phase-Implementation
 
 = Implementing Custom Graph Elements =
