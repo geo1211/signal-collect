@@ -3,7 +3,7 @@
 
 = Implementing Custom Graph Elements =
 
-For many applications, writing custom graph elements such as vertices and possibly edges might considerably improve the overall performance. The available vertex templates in the framework are designed to facilitate the implementation of algorithms in the Signal/Collect computing paradigm and are therefore held very general to support a variety of use cases. If you wan't to improve the performance of your application it might be a good idea to try to implement the needed interfaces of the respective classes by yourself.
+For many applications, writing custom graph elements such as vertices and possibly edges might considerably improve the overall performance. The available vertex templates in the framework are designed to facilitate the implementation of algorithms in the Signal/Collect computing paradigm and are therefore held very general to support a variety of use cases. If you would like to improve the performance for your specific use case it might be a good idea to try to implement the needed interfaces of the respective classes by yourself.
 
 == Custom Serialization ==
 
