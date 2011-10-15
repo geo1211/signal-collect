@@ -1,0 +1,12 @@
+*Getting Started*
+  * [RecommendedTools Recommended Tools]
+  * [SettingUpSignalCollectInEclipse Setting Up Signal-Collect]
+  * Run Example Algorithm
+
+*How it works*
+  * [TerminationDetection Termination Detection]
+  * [WriteCustomGraphElements Write Custom Graph-Elements]
+  * [OnDiskStorage Scale to Disk]
+
+*About the Project*
+  * [ContinuousIntegrationServer Integration Server]
