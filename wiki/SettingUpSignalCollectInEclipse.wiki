@@ -8,7 +8,7 @@ If you previously followed our RecommendedTools  tutorial then this tutorial is 
 
 == Considerations ==
 
-For simplicity, we are going to demonstrate how to perform all the steps inside eclipse. You can also do it from the command line for operations related with *svn* and *maven*.
+For simplicity, we are going to demonstrate how to perform all the steps inside eclipse. You can also do it from the command line for operations related to *svn* and *maven*.
 
 = Steps =
 
