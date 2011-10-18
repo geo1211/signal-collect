@@ -11,4 +11,4 @@
 
 *About the Project*
   * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of S/C]
-  * [ContinuousIntegrationServer Integration Server]
+  * [ContinuousIntegrationServer Continuous Integration Server]
