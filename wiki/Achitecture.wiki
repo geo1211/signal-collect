@@ -10,6 +10,6 @@ DefaultGraph delegates GraphEditor calls to an instance of DefaultGraphEditor an
 
 Coordinator in turn coordinates computations by controlling workers using the WorkerApi, which accesses WorkerProxies which access Workers via a kind of RPC over the MessageBus implementation DefaultMessageBus.
 
-The workers receive commands vio the message bus. Some worker commands will initiate a reply from the worker, but this is entirely specified within the command, the worker is oblivious to the communication protocol used.
+The workers (by default of type LocalWorker) receive commands via the message bus. Some worker commands will initiate a reply from the worker, but this is entirely specified within the command, the worker is oblivious to the communication protocol used.
 
 The worker itself stores Vertices in Storage, which by default is of type InMemoryStorage.
