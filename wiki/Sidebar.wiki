@@ -9,5 +9,5 @@
   * [OnDiskStorage Scale to Disk]
 
 *About the Project*
-  * [Architecture High-level Architecture of S/C]
+  * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of S/C]
   * [ContinuousIntegrationServer Integration Server]
