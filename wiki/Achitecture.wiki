@@ -1,0 +1,15 @@
+#summary Architecture of the Signal/Collect framework
+
+http://signal-collect.googlecode.com/svn/wiki/images/architecture.png
+
+The Signal/Collect architecture is designed to be easily extendable to a distributed setting. For this purpose much of the complexity of the distributed version will be handled inside the MessageBus, while as much as possible of the high-level computation coordination will be shared.
+
+The main API offered to users of Signal/Collect is the Graph, which extends GraphEditor. The implementation created by GraphBuilder is of type DefaultGraph.
+
+DefaultGraph delegates GraphEditor calls to an instance of DefaultGraphEditor and execution/aggregation related calls to an instance of Coordinator.
+
+Coordinator in turn coordinates computations by controlling workers using the WorkerApi, which accesses WorkerProxies which access Workers via a kind of RPC over the MessageBus implementation DefaultMessageBus.
+
+The workers receive commands vio the message bus. Some worker commands will initiate a reply from the worker, but this is entirely specified within the command, the worker is oblivious to the communication protocol used.
+
+The worker itself stores Vertices in Storage, which by default is of type InMemoryStorage.
