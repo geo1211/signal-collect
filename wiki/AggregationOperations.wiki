@@ -94,7 +94,7 @@ SumOfStates is defined in `com.signalcollect.AggregationOperations`. It represen
     graph.addVertex(new PageRankVertex(2))
     graph.addEdge(new PageRankEdge(1, 2))
     graph.addEdge(new PageRankEdge(2, 1))
-    graph.execute(ExecutionConfiguration.withSignalThreshold(0))
+    graph.execute
     val sumOfStates = graph.aggregate(new SumOfStates[Double]).get
 }}}
 
