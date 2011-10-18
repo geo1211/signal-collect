@@ -10,5 +10,5 @@
   * [OnDiskStorage Scale to Disk]
 
 *About the Project*
-  * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of S/C]
+  * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of Signal/Collect]
   * [ContinuousIntegrationServer Continuous Integration Server]
