@@ -16,7 +16,7 @@ trait Graph {
 }
 }}}
 
-
+{{{
 trait AggregationOperation[ValueType] {
   val neutralElement: ValueType
   def aggregate(a: ValueType, b: ValueType): ValueType
