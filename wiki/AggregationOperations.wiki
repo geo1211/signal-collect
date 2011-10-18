@@ -108,8 +108,8 @@ This example shows how to specify a global termination condition that gets check
           sum.isDefined && sum.get > 1.0
         }
       }
-      val execConfig = ExecutionConfiguration
-        .withGlobalTerminationCondition(terminationCondition)
-        .withExecutionMode(SynchronousExecutionMode)
-      val info = graph.execute(execConfig)
+    val execConfig = ExecutionConfiguration
+      .withGlobalTerminationCondition(terminationCondition)
+      .withExecutionMode(SynchronousExecutionMode)
+    val info = graph.execute(execConfig)
 }}}
