@@ -9,4 +9,5 @@
   * [OnDiskStorage Scale to Disk]
 
 *About the Project*
+  * [Architecture High-level Architecture of S/C]
   * [ContinuousIntegrationServer Integration Server]
