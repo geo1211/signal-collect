@@ -2,7 +2,7 @@
 
 http://signal-collect.googlecode.com/svn/wiki/images/architecture.png
 
-The Signal/Collect architecture is designed to be easily extendable to a distributed setting. For this purpose much of the complexity of the distributed version will be handled inside the MessageBus, while as much as possible of the high-level computation coordination will be shared.
+The Signal/Collect architecture is designed to be easily extensible to a distributed setting. For this purpose much of the complexity of the distributed version will be handled inside the MessageBus, while as much as possible of the high-level computation coordination will be shared.
 
 The main API offered to users of Signal/Collect is the Graph, which extends GraphEditor. The implementation created by GraphBuilder is of type DefaultGraph.
 
