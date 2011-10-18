@@ -8,7 +8,7 @@ Aggregation functions calculate a global value over the entire graph. This has m
   * Sample some values from the graph
   * Specify a global termination condition for a computation
 
-=How to use aggregation operations=
+=How to define aggregation operations=
 An aggregation operation is specified by implementing the AggregationOperation trait.
 {{{
 /**
