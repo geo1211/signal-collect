@@ -5,7 +5,7 @@
 
 *How it works*
   * [TerminationDetection Termination Detection]
-  * [AggregationFunctions Aggregation Functions]
+  * [AggregationOperations Aggregation Operations]
   * [WriteCustomGraphElements Custom Graph-Elements]
   * [OnDiskStorage Scale to Disk]
 
