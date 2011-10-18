@@ -41,7 +41,7 @@ trait Graph {
 }
 }}}
 
-In order to use an aggregation operation as a termination condition an instance of `GloablTerminationCondition`has to be specified:
+In order to use an aggregation operation as a termination condition an instance of `GloablTerminationCondition` has to be specified:
 {{{
 /**
  *  GlobalTerminationCondition defines a termination condition that depends on the global state of the graph.
