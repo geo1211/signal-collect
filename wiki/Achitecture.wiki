@@ -1,4 +1,5 @@
 #summary Architecture of the Signal/Collect framework
+#labels Phase-Design
 
 http://signal-collect.googlecode.com/svn/wiki/images/architecture.png
 
