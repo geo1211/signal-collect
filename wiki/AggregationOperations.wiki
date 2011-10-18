@@ -3,10 +3,10 @@
 
 =What aggregation operations are used for=
 Aggregation functions calculate a global value over the entire graph. This has many uses:
-  * Calculating the final result of a computation
+  * Calculate the final result of a computation
   * Compute a global normalization constant
   * Sample some values from the graph
-  * Specifying a global termination condition
+  * Specify a global termination condition
 
 =How to use aggregation operations=
 An aggregation operation is specified by implementing the AggregationOperation trait.
