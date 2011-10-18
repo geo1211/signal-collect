@@ -84,10 +84,10 @@ abstract class GlobalTerminationCondition[ValueType](
 
 GlobalTerminationCondition defines a termination condition that depends on the global state of the graph. The value `aggregationOperation` is used to compute the globally aggregated value, while `aggregationInterval` has a different semantic depending on the execution type: In a synchronous computation it specifies the aggregation interval in computation steps. An interval of 2 would mean that the global aggregation condition is checked every other computation step. In an asynchronous computation the parameter `aggregationInterval` specifies the interval between aggregations in milliseconds. The predicate `shouldTerminate` is applied to the result of the aggregation operation. If it returns `true` this means that the computation should end.
 
-Examples for aggregation operations can be found in the core project file `com.signalcollect.AggregationOperations.scala`.
+Examples for aggregation operations can be found in the core project file [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/AggregationOperations.scala `com.signalcollect.AggregationOperations.scala`].
 
 =Usage examples=
-SumOfStates is defined in the core project file `com.signalcollect.AggregationOperations.scala`. It represents an aggregation operation that calculates the sum of numeric states. This might be useful to calculate a global normalization factor:
+SumOfStates is defined in the core project file [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/AggregationOperations.scala `com.signalcollect.AggregationOperations.scala`]. It represents an aggregation operation that calculates the sum of numeric states. This might be useful to calculate a global normalization factor:
 {{{
     val graph = GraphBuilder.build
     graph.addVertex(new PageRankVertex(1))
