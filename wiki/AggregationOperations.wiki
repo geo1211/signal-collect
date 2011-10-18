@@ -31,11 +31,13 @@ trait Graph {
 }}}
 
 In order to use an aggregation operation as a termination condition an instance of `GloablTerminationCondition`has to be specified:
+{{{
 abstract class GlobalTerminationCondition[ValueType](
   val aggregationOperation: AggregationOperation[ValueType],
   val aggregationInterval: Long = 1000l) {
   def shouldTerminate(value: ValueType): Boolean
 }
+}}}
 
 GloablTerminationCondition defines a termination condition that depends on the global state of the graph. The parameter `aggregationOperation` is used to compute the globally aggregated value, while the parameter `aggregationInterval` has a different semantic depending on the execution type: In a synchronous computation it specifies the aggregation interval in computation steps. An interval of 2 would mean that the global aggregation condition is checked every other computation step. In an asynchronous computation the parameter `aggregationInterval` specifies the interval between in milliseconds. The predicate `shouldTerminate` is applied to the result of the aggregation operation. If it returns true this means that the computation should end.
 
