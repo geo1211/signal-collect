@@ -62,26 +62,26 @@ class ComputeGraphInspector(val cg: Graph) {
     }
   }
 
-  def searchVertex(vertexId: String): java.lang.Iterable[Vertex] = {
-    if (isInt(vertexId)) {
-      val vertex = getVertexWithId(vertexId.toInt.asInstanceOf[AnyRef])
-      if (vertex != null) {
-        List[Vertex](vertex)
-      } else {
-        List[Vertex]()
-      }
-    } else {
-      cg.customAggregate(List[Vertex](), { (a: List[Vertex], b: List[Vertex]) =>
-        a ++ b
-      }, { v: Vertex =>
-        if (v.id.toString.toLowerCase.contains(vertexId.toLowerCase))
-          List(v)
-        else {
-          List[Vertex]()
-        }
-      })
-    }
-  }
+//  def searchVertex(vertexId: String): java.lang.Iterable[Vertex] = {
+//    if (isInt(vertexId)) {
+//      val vertex = getVertexWithId(vertexId.toInt.asInstanceOf[AnyRef])
+//      if (vertex != null) {
+//        List[Vertex](vertex)
+//      } else {
+//        List[Vertex]()
+//      }
+//    } else {
+//      cg.customAggregate(List[Vertex](), { (a: List[Vertex], b: List[Vertex]) =>
+//        a ++ b
+//      }, { v: Vertex =>
+//        if (v.id.toString.toLowerCase.contains(vertexId.toLowerCase))
+//          List(v)
+//        else {
+//          List[Vertex]()
+//        }
+//      })
+//    }
+//  }
 
   def getVertexWithId(id: Object): Vertex = {
     val vertexOption = cg.forVertexWithId(id, { v: Vertex => v })
