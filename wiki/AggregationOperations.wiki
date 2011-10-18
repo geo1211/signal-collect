@@ -116,4 +116,4 @@ This example shows how to specify a global termination condition that gets check
     val info = graph.execute(execConfig)
 }}}
 
-More usage examples can be found among the tests of the core project in the file `com.signalcollect.AggregationOperationsSpec.scala`.
+More usage examples can be found among the tests of the core project in the file [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/test/scala/com/signalcollect/features/AggregationOperationsSpec.scala `com.signalcollect.AggregationOperationsSpec.scala`].
