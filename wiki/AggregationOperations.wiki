@@ -19,9 +19,9 @@ trait AggregationOperation[ValueType] {
 }}}
 
 Every aggregation operation aggregates some value of type `ValueType` over all the vertices in a graph. 
-The values that get aggregated first get extracted from the vertices by the `extractor` function. The extracted values then  get aggregated by the aggregation function specified by the `operation` parameter. There is no guarantee about the order in which this operation gets executed on the graph. Also required is the parameter `neutralElement`, which represents the neutral element of the aggregation function `operation`: `operation(x, neutralElement) == x`.
+The values that get aggregated first get extracted from the vertices with the `extract` function. The extracted values then  get aggregated by the `aggregate` function. There is no guarantee about the order in which this operation gets executed on the graph. Also required is the `neutralElement`, which represents the neutral element of the aggregation function `aggregate`: `aggregate(x, neutralElement) == x`.
 
-Once an instance of this trait has been created it can be submitted to the graph by calling the `aggregate` function on an instance of `Graph`. The returned result is the aggregated value:
+Once an instance of this trait has been created it can be submitted to the `aggregate` function on an instance of `Graph`. The returned result is the aggregated value:
 
 {{{
 trait Graph {
