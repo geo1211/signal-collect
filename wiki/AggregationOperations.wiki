@@ -85,3 +85,31 @@ abstract class GlobalTerminationCondition[ValueType](
 GlobalTerminationCondition defines a termination condition that depends on the global state of the graph. The value `aggregationOperation` is used to compute the globally aggregated value, while `aggregationInterval` has a different semantic depending on the execution type: In a synchronous computation it specifies the aggregation interval in computation steps. An interval of 2 would mean that the global aggregation condition is checked every other computation step. In an asynchronous computation the parameter `aggregationInterval` specifies the interval between aggregations in milliseconds. The predicate `shouldTerminate` is applied to the result of the aggregation operation. If it returns `true` this means that the computation should end.
 
 =Usage examples=
+SumOfStates is defined in `com.signalcollect.AggregationOperations`. It represents an aggregation operation that calculates the sum of numeric states. This might be useful to calculate a global normalization constant:
+{{{
+    val graph = GraphBuilder.build
+    graph.addVertex(new PageRankVertex(1))
+    graph.addVertex(new PageRankVertex(2))
+    graph.addEdge(new PageRankEdge(1, 2))
+    graph.addEdge(new PageRankEdge(2, 1))
+    graph.execute(ExecutionConfiguration.withSignalThreshold(0))
+    val sumOfStates = graph.aggregate(new SumOfStates[Double]).get
+}}}
+
+This example shows how to specify a global termination condition that gets checked every two synchronous computation steps and terminates when the sum of states is larger than 1.0:
+{{{
+    val graph = GraphBuilder.build
+    graph.addVertex(new PageRankVertex(1))
+    graph.addVertex(new PageRankVertex(2))
+    graph.addEdge(new PageRankEdge(1, 2))
+    graph.addEdge(new PageRankEdge(2, 1))
+      val terminationCondition = new GlobalTerminationCondition(new SumOfStates[Double], 2) {
+        def shouldTerminate(sum: Option[Double]): Boolean = {
+          sum.isDefined && sum.get > 1.0
+        }
+      }
+      val execConfig = ExecutionConfiguration
+        .withGlobalTerminationCondition(terminationCondition)
+        .withExecutionMode(SynchronousExecutionMode)
+      val info = graph.execute(execConfig)
+}}}
