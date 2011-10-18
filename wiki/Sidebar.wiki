@@ -1,10 +1,11 @@
 *Getting Started*
   * [RecommendedTools Recommended Tools]
   * [SettingUpSignalCollectInEclipse Setting Up Signal/Collect]
-  * Run Example Algorithm
+  * Running an Example Algorithm
 
 *How it works*
   * [TerminationDetection Termination Detection]
+  * [AggregationFunctions Aggregation Functions]
   * [WriteCustomGraphElements Custom Graph-Elements]
   * [OnDiskStorage Scale to Disk]
 
