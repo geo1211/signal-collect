@@ -24,6 +24,17 @@ The values that get aggregated first get extracted from the vertices with the `e
 Once an instance of this trait has been created it can be submitted to the `aggregate` function on an instance of `Graph`. The returned result is the aggregated value:
 
 {{{
+  /**
+   *  Applies an aggregation operation to the graph and returns the result.
+   *
+   *  @param aggregationOperation The aggregation operation that will get executed on the graph
+   *
+   *  @return The result of the aggregation operation.
+   *
+   *  @note There is no guarantee about the order in which the aggregation operations get executed on the vertices.
+   *
+   *  @example See concrete implementations of other aggregation operations, i.e. `SumOperation`.
+   */
 trait Graph {
   def aggregate[ValueType](aggregationOperation: AggregationOperation[ValueType]): ValueType
   ...
