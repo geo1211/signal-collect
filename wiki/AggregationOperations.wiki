@@ -50,7 +50,7 @@ Once an instance of this trait has been created it can be submitted to the `aggr
    *
    *  @note There is no guarantee about the order in which the aggregation operations get executed on the vertices.
    *
-   *  @example See concrete implementations of other aggregation operations, i.e. `SumOperation`.
+   *  @example See concrete implementations of other aggregation operations, i.e. `SumOfStates`.
    */
 trait Graph {
   def aggregate[ValueType](aggregationOperation: AggregationOperation[ValueType]): ValueType
