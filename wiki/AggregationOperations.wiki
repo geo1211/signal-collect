@@ -9,7 +9,7 @@ Aggregation functions calculate a global value over the entire graph. This has m
   * Specify a global termination condition for a computation
 
 =How to define aggregation operations=
-An aggregation operation is specified by implementing the AggregationOperation trait.
+An aggregation operation is specified by implementing the [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/interfaces/AggregationOperation.scala `AggregationOperation`] trait.
 {{{
 /**
  *  An aggregation operation aggregates some value of type `ValueType` over all the vertices in a graph.
