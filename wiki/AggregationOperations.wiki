@@ -87,7 +87,7 @@ GlobalTerminationCondition defines a termination condition that depends on the g
 Examples for aggregation operations can be found in the core project file `com.signalcollect.AggregationOperations.scala`.
 
 =Usage examples=
-SumOfStates is defined in `com.signalcollect.AggregationOperations`. It represents an aggregation operation that calculates the sum of numeric states. This might be useful to calculate a global normalization constant:
+SumOfStates is defined in the core project file `com.signalcollect.AggregationOperations.scala`. It represents an aggregation operation that calculates the sum of numeric states. This might be useful to calculate a global normalization factor:
 {{{
     val graph = GraphBuilder.build
     graph.addVertex(new PageRankVertex(1))
