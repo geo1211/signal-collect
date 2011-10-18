@@ -9,7 +9,7 @@ Aggregation functions calculate a global value over the entire graph. This has m
   * Specify a global termination condition for a computation
 
 =How to define aggregation operations=
-An aggregation operation is specified by implementing the [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/interfaces/AggregationOperation.scala `AggregationOperation`] trait.
+An aggregation operation is specified by implementing the [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/interfaces/AggregationOperation.scala AggregationOperation] trait.
 {{{
 /**
  *  An aggregation operation aggregates some value of type `ValueType` over all the vertices in a graph.
@@ -38,7 +38,7 @@ trait AggregationOperation[ValueType] {
 Every aggregation operation aggregates some value of type `ValueType` over all the vertices in a graph. 
 The values that get aggregated first get extracted from the vertices with the `extract` function. The extracted values then  get aggregated by the `aggregate` function. There is no guarantee about the order in which this operation gets executed on the graph. Also required is the `neutralElement`, which represents the neutral element of the aggregation function `aggregate`: `aggregate(x, neutralElement) == x`.
 
-Once an instance of this trait has been created it can be submitted to the `aggregate` function on an instance of [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/Graph.scala `Graph`]. The returned result is the aggregated value:
+Once an instance of this trait has been created it can be submitted to the `aggregate` function on an instance of [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/Graph.scala Graph]. The returned result is the aggregated value:
 
 {{{
   /**
@@ -58,7 +58,7 @@ trait Graph {
 }
 }}}
 
-In order to use an aggregation operation as a termination condition an instance of [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/ExecutionConfiguration.scala `GloablTerminationCondition`] has to be specified:
+In order to use an aggregation operation as a termination condition an instance of [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/ExecutionConfiguration.scala GloablTerminationCondition] has to be specified:
 {{{
 /**
  *  GlobalTerminationCondition defines a termination condition that depends on the global state of the graph.
@@ -82,12 +82,12 @@ abstract class GlobalTerminationCondition[ValueType](
 }
 }}}
 
-[http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/ExecutionConfiguration.scala `GlobalTerminationCondition`] defines a termination condition that depends on the global state of the graph. The value `aggregationOperation` is used to compute the globally aggregated value, while `aggregationInterval` has a different semantic depending on the execution type: In a synchronous computation it specifies the aggregation interval in computation steps. An interval of 2 would mean that the global aggregation condition is checked every other computation step. In an asynchronous computation the parameter `aggregationInterval` specifies the interval between aggregations in milliseconds. The predicate `shouldTerminate` is applied to the result of the aggregation operation. If it returns `true` this means that the computation should end.
+[http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/ExecutionConfiguration.scala GlobalTerminationCondition] defines a termination condition that depends on the global state of the graph. The value `aggregationOperation` is used to compute the globally aggregated value, while `aggregationInterval` has a different semantic depending on the execution type: In a synchronous computation it specifies the aggregation interval in computation steps. An interval of 2 would mean that the global aggregation condition is checked every other computation step. In an asynchronous computation the parameter `aggregationInterval` specifies the interval between aggregations in milliseconds. The predicate `shouldTerminate` is applied to the result of the aggregation operation. If it returns `true` this means that the computation should end.
 
-Examples for aggregation operations can be found in the core project file [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/AggregationOperations.scala `com.signalcollect.AggregationOperations.scala`].
+Examples for aggregation operations can be found in [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/AggregationOperations.scala AggregationOperations].
 
 =Usage examples=
-SumOfStates is defined in the core project file [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/AggregationOperations.scala `com.signalcollect.AggregationOperations.scala`]. It represents an aggregation operation that calculates the sum of numeric states. This might be useful to calculate a global normalization factor:
+SumOfStates is defined in [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/AggregationOperations.scala AggregationOperations]. It represents an aggregation operation that calculates the sum of numeric states. This might be useful to calculate a global normalization factor:
 {{{
     val graph = GraphBuilder.build
     graph.addVertex(new PageRankVertex(1))
@@ -116,4 +116,4 @@ This example shows how to specify a global termination condition that gets check
     val info = graph.execute(execConfig)
 }}}
 
-More usage examples can be found among the tests of the core project in the file [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/test/scala/com/signalcollect/features/AggregationOperationsSpec.scala `com.signalcollect.AggregationOperationsSpec.scala`].
+More usage examples can be found among the tests of the core project in the file [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/test/scala/com/signalcollect/features/AggregationOperationsSpec.scala AggregationOperationsSpec].
