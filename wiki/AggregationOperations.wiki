@@ -9,7 +9,7 @@ Aggregation functions calculate a global value over the entire graph. This has m
   * Specifying a global termination condition
 
 =How to use aggregation operations=
-An aggregation function has to implement the AggregationOperation trait.
+An aggregation operation is specified by implementing the AggregationOperation trait.
 {{{
 trait AggregationOperation[ValueType] {
   def extract(v: Vertex): ValueType
