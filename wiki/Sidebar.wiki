@@ -1,6 +1,5 @@
 *Getting Started*
-  * [RecommendedTools Recommended Tools]
-  * [SettingUpSignalCollectInEclipse Setting Up Signal/Collect]
+  * [ProgrammingModel The Signal/Collect programming Model]
   * Running an Example Algorithm
 
 *How it works*
@@ -12,3 +11,7 @@
 *About the Project*
   * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of Signal/Collect]
   * [ContinuousIntegrationServer Continuous Integration Server]
+
+*For Developers*
+  * [RecommendedTools Recommended Tools]
+  * [SettingUpSignalCollectInEclipse Setting Up Signal/Collect]
