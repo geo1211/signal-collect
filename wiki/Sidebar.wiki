@@ -1,5 +1,5 @@
 *Getting Started*
-  * [ProgrammingModel The Signal/Collect programming Model]
+  * [ProgrammingModel Programming Model]
   * Running an Example Algorithm
 
 *How it works*
