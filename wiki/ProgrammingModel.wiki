@@ -5,7 +5,7 @@ The goals of the Signal/Collect programming model are:
   * Can define both synchronous and dataflow-like asynchronous computations
   * Straightforward to parallelize/distribute
 
-The intuition behind the Signal/Collect programming model is that computations are executed on a graph, where the vertices are the computational units that interact by the means of signals that flow along the edges This is similar to the actor programming model. All computations in the vertices are accomplished by collecting the incoming signals and then signaling the neighbors in the graph.
+The intuition behind the Signal/Collect programming model is that computations are executed on a graph, where the vertices are the computational units that interact by the means of signals that flow along the edges. This is similar to the actor programming model. All computations in the vertices are accomplished by collecting the incoming signals and then signaling the neighbors in the graph.
 
 This means that every *vertex* has a *collect* function which computes the new vertex state based on the old vertex state and the signals that were received.
 {{{
