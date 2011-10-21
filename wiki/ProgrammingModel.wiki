@@ -1,0 +1,19 @@
+#summary Description of the ideas behind the Signal/Collect programming model
+
+The general intuition behind the Signal/Collect programming model is that computations are executed on a graph, where the vertices are the computational units that interact by the means of signals that flow along the edges. All computations in the vertices are accomplished by collecting the incoming signals and then signaling the neighbors in the graph.
+
+This means that every *vertex* has a *collect* function which computes the new vertex state based on the old vertex state and the signals that were received.
+
+Every *edge* has a *signal* function which computes the signal sent along this edge based on its source vertex.
+
+=Example: Single Source Shortest Path=
+Imagine a graph with vertices that represent locations and edges that represent paths between locations. We would like to determine the shortest path from a special location S to all the other locations in the graph.
+Every location starts out with the length of the shortest currently known path from S as the state. That means, initially, the state of S is set to 0 and the state of all the other locations is set to infinity.
+
+[http://www.signalcollect.com http://signal-collect.googlecode.com/svn/wiki/images/sssp.png]
+
+In a first step, all edges signal the state of their source location plus the edge weight (= path length, in the example above this is 1) to their respective target location and the target locations collect those signals by setting their new state to the lowest signal received (as long as this is smaller than their state). 
+
+In a second step, the same Signal/Collect operations get executed using the updated vertex states. It is easy to imagine how these steps, when repeatedly executed, iteratively compute the shortest paths from S to all the other locations in the graph.
+
+Signal/Collect transparently parallelizes algorithms by scheduling vertex signal/collect operations onto different threads.
