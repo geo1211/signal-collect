@@ -1,4 +1,4 @@
-#summary Steps needed to make signal-collect scala for large graphs
+#summary Steps needed to make signal-collect scale for large graphs
 
 = Introduction =
 
