@@ -3,8 +3,18 @@
 The general intuition behind the Signal/Collect programming model is that computations are executed on a graph, where the vertices are the computational units that interact by the means of signals that flow along the edges. All computations in the vertices are accomplished by collecting the incoming signals and then signaling the neighbors in the graph.
 
 This means that every *vertex* has a *collect* function which computes the new vertex state based on the old vertex state and the signals that were received.
+{{{
+class Vertex {
+  def collect(oldState: State, uncollectedSignals: Iterable[Signal]): State
+}
+}}}
 
 Every *edge* has a *signal* function which computes the signal sent along this edge based on its source vertex.
+{{{
+class Edge {
+    def signal(sourceVertex: SourceVertex): Signal
+}
+}}}
 
 =Example: Single Source Shortest Path=
 Imagine a graph with vertices that represent locations and edges that represent paths between locations. We would like to determine the shortest path from a special location S to all the other locations in the graph.
