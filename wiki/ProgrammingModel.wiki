@@ -30,7 +30,8 @@ In a first step, all edges signal the state of their source location plus the ed
 class SsspEdge extends Edge {
   type SourceVertex = SsspVertex
   def signal(sourceVertex: SsspVertex) = {
-    math.max(sourceVertex.state + weight.toInt, sourceVertex.state) // to prevent integer overflow
+    val pathLengthSignal = sourceVertex.state + weight.toInt
+    math.max(pathLengthSignal, sourceVertex.state) // to prevent integer overflow
   }
 }
 }}}
