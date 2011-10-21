@@ -1,5 +1,7 @@
 #summary Description of the ideas behind the Signal/Collect programming model
 
+=Goals of the Programming Model=
+
 The goals of the Signal/Collect programming model are:
   * Expressive enough to tersely formulate a broad range of graph algorithms
   * Can define both synchronous and dataflow-like asynchronous computations
