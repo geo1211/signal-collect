@@ -1,6 +1,6 @@
 *Getting Started*
   * [ProgrammingModel Programming Model]
-  * [Running an Example Algorithm | ExampleAlgorithm]
+  * [ExampleAlgorithm | Running an Example Algorithm]
 
 *How it works*
   * [TerminationDetection Termination Detection]
