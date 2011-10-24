@@ -36,7 +36,7 @@ These are the default implementations in [http://code.google.com/p/signal-collec
 
 The default implementation of the `scoreSignal` function indicates that a vertex should have its edges signal if a new edge was added or if the state has changed.
 
-*IMPORTANT:* Detection of a changed vertex state is by default done with a reference comparison, so if the state reference points to a mutable collection that has changed, no change will be detected! You should in this case either use immutable collections or override the `scoreSignal` function.
+*IMPORTANT:* Detection of a changed vertex state is by default done with a reference comparison, so if the `state` reference points to a mutable collection that has changed, no change will be detected! You should in this case either use immutable collections or override the `scoreSignal` function.
 
 The `scoreSignal` function can be overridden with an algorithm-specific implementation, for example to use the residual as a convergence criterium.
 
