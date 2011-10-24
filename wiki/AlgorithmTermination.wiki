@@ -71,7 +71,7 @@ val execConfig = ExecutionConfiguration
 graph.execute(execConfig)
 }}}
 
-=Continuous Execution=
+==Continuous Execution==
 Continuous execution is an asynchronous execution mode disables the automated termination upon convergence detection. The main use case is for dataflow computations where the system should keep running even if it should converge occasionally.
 
 
