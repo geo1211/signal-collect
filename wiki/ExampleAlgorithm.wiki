@@ -8,15 +8,15 @@ This example algorithm shows how to use the Signal/Collect programming model for
 
 For our example we use the a variation of the [http://web.mit.edu/rajsingh/www/lab/alife/schelling.html Schelling Segregation model]. Let's assume te following properties:
 
-  * We have a space represented by  a two dimensional m*n grid. This space could be thought of a neighborhood in a city district. Each cell in this grid could stand for a housing unit that can be occupied by residents of a binary type e.g. rich or poor.
+  * We have a space represented by  a two dimensional m*n grid. This space could be thought of as a neighborhood in a city district. Each cell in this grid could stand for a housing unit that can be occupied by residents of a binary type e.g. rich or poor.
   * Each cell in the grid has a preference for its surrounding cells to be the same type. E.g. a resident could require to have at least 40% of its neighbors of the same income as himself.
   * If the minimum conformity is not met, the cell changes its state. E.g. the resident moves away and the unit is occupied by someone from the other income level.
 
-The model states that even if the individual cells are relatively tolerant the space will be clearly separated.
+The model predicts that the space will be clearly separated even if the individual cells are relatively tolerant.
 
 == Design of the Signal/Collect computation ==
 
-To map the algorithm described above in a computation suitable for the signal collect we need to construct a graph from the given grid. For this reason we view each cell as a vertex that is connected to its neighboring vertices. 
+To map the algorithm described above to a Signal/Collect computation we need to construct a graph that represents the given grid. For this reason we view each cell as a vertex that is connected to its neighboring vertices.
 
 {{{
 class SegregationAgent(id: Any, initialState: Int, equalityThreshold: Float) extends DataGraphVertex(id, initialState) {
