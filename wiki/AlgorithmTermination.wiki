@@ -44,5 +44,13 @@ def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
 The default implementation of the `scoreCollect` function indicates that a vertex should collect if it has received at least one signal. It can be overridden too, if necessary.
 
 =Global Termination Conditions=
+It is possible to define termination conditions that depend on some global criterium by using AggregationOperations. There is a detailed description of how to use this including a usage example in the AggregationOperations wiki article.
 
-It is possible to define termination conditions that depend on some global criterium by using AggregationOperations. There is a detailed description of how to use this in the AggregationOperations wiki article.
+=Time=
+It is possible to set a time limit in milliseconds for a computation. The framework will terminate the computation when the limit is overstepped.
+
+Usage:
+{{{
+val execConfig = ExecutionConfiguration.withTimeLimit(10000) // 10 seconds
+graph.execute(execConfig)
+}}}
