@@ -14,7 +14,7 @@ A computation ends when a computation has converged. Convergence is detected wit
   * Or an outgoing edge was added/removed
   * Or an explicit re-scoring was triggered via `Graph.recalculateScoresForVertexWithId`/`Graph.recalculateScores`
 
-Vertices are only re-scored using`scoreSignal` if:
+Vertices are only re-scored using `scoreSignal` if:
   * The collect operation was executed
   * Or an outgoing edge was added/removed
   * Or an explicit re-scoring was triggered via `Graph.recalculateScoresForVertexWithId`/`Graph.recalculateScores`
