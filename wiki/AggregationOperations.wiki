@@ -58,6 +58,8 @@ trait Graph {
 }
 }}}
 
+=Global Termination Condition=
+
 In order to use an aggregation operation as a termination condition an instance of [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/ExecutionConfiguration.scala GloablTerminationCondition] has to be specified:
 {{{
 /**
