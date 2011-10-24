@@ -38,7 +38,17 @@ The default implementation of the `scoreSignal` function indicates that a vertex
 
 *IMPORTANT:* Detection of a changed vertex state is by default done with a reference comparison, so if the `state` reference points to a mutable collection that has changed, no change will be detected! You should in this case either use immutable collections or override the `scoreSignal` function.
 
-The `scoreSignal` function can be overridden with an algorithm-specific implementation, for example to use the residual as a convergence criterium.
+The `scoreSignal` function can be overridden with an algorithm-specific implementation, for example to use the residual as a convergence criterium:
+{{{
+override def scoreSignal: Double = {
+  lastSignalState match {
+    case None => 1
+    case Some(oldState) => (state - oldState).abs
+  }
+}
+}}}
+
+The default implementation of the `scoreCollect` function indicates that a vertex should collect if it has received at least one signal:
 
 {{{
 def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
@@ -46,7 +56,7 @@ def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
 }
 }}}
 
-The default implementation of the `scoreCollect` function indicates that a vertex should collect if it has received at least one signal. It can be overridden too, if necessary.
+ It can be overridden too, if necessary.
 
 ==Global Termination Conditions==
 It is possible to define termination conditions that depend on some global criterium by using AggregationOperations. There is a detailed description of how to use this including a usage example in the AggregationOperations wiki article.
