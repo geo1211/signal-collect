@@ -2,7 +2,7 @@
 
 = Example Algorithm - Tutorial =
 
-This example algorithm shows how to use the signal-collect computation model for a simple simulation.
+This example algorithm shows how to use the Signal/Collect programming model for a simple simulation.
 
 == The general algorithm ==
 
