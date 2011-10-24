@@ -1,6 +1,11 @@
 #summary How to specifiy when a computation is done.
 
-=Automated Convergence Detection=
+=Algorithm Termination=
+
+There are several different mechanism to terminate algorithm execution.
+
+==Automated Convergence Detection==
+This is the default way for a computation to end and it is always enabled.
 
 A computation ends when a computation has converged. Convergence is detected with the `scoreSignal`/`scoreCollect` functions on vertices and the respective `signalThreshold`/`collectThreshold` which are defined globally. The framework will execute `signal`/`collect` operations while the respective scores are above the thresholds. A computation ends when no score is above the respective threshold anymore.
 
@@ -43,14 +48,25 @@ def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
 
 The default implementation of the `scoreCollect` function indicates that a vertex should collect if it has received at least one signal. It can be overridden too, if necessary.
 
-=Global Termination Conditions=
+==Global Termination Conditions==
 It is possible to define termination conditions that depend on some global criterium by using AggregationOperations. There is a detailed description of how to use this including a usage example in the AggregationOperations wiki article.
 
-=Time=
+==Time==
 It is possible to set a time limit in milliseconds for a computation. The framework will terminate the computation when the limit is overstepped.
 
 Usage:
 {{{
 val execConfig = ExecutionConfiguration.withTimeLimit(10000) // 10 seconds
+graph.execute(execConfig)
+}}}
+
+==Computation Steps==
+For synchronous computations it is possible to limit the number of computation steps that get executed.
+
+Usage:
+{{{
+val execConfig = ExecutionConfiguration
+      .withExecutionMode(SynchronousExecutionMode)
+      .withStepsLimit(1)
 graph.execute(execConfig)
 }}}
