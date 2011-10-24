@@ -6,7 +6,7 @@ This example algorithm shows how to use the Signal/Collect programming model for
 
 == The general algorithm ==
 
-For our example we use the a variation of the [http://web.mit.edu/rajsingh/www/lab/alife/schelling.html Schelling Segregation model]. Let's assume te following properties:
+For our example we use the a variation of the [http://web.mit.edu/rajsingh/www/lab/alife/schelling.html Schelling Segregation model]. Let's assume the following properties:
 
   * We have a space represented by a two dimensional m*n grid. This space could be thought of as a neighborhood in a city district. Each cell in this grid could stand for a housing unit that can be occupied by residents of a binary type e.g. rich or poor.
   * Each cell in the grid has a preference for its surrounding cells to be the same type. E.g. a resident could require to have at least 40% of its neighbors of the same income as himself.
