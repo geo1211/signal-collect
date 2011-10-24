@@ -55,8 +55,7 @@ def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
   signals.size
 }
 }}}
-
- It can be overridden too, if necessary.
+It can be overridden, if necessary.
 
 ==Global Termination Conditions==
 It is possible to define termination conditions that depend on some global criterium by using AggregationOperations. There is a detailed description of how to use this including a usage example in the AggregationOperations wiki article.
