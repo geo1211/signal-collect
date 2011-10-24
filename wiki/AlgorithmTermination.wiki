@@ -42,3 +42,7 @@ def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
 }}}
 
 The default implementation of the `scoreCollect` function indicates that a vertex should collect if it has received at least one signal. It can be overridden too, if necessary.
+
+=Global Termination Conditions=
+
+It is possible to define termination conditions that depend on some global criterium by using AggregationOperations. There is a detailed description of how to use this in the AggregationOperations wiki article.
