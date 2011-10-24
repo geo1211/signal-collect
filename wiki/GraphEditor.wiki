@@ -1,1 +1,3 @@
 #summary How to interact with the graph.
+
+The main way to interact with the graph via the graph object which is usually created by calling {{{ GraphBuilder.build }}}. This returns an instance of ...
