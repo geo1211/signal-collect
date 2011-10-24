@@ -5,7 +5,7 @@
 There are several different mechanism to terminate algorithm execution.
 
 ==Automated Convergence Detection==
-This is the default way for a computation to end and it is always enabled.
+This is the usual way for a computation to end and it is enabled by default. See `Continuous Execution` below to find out how to explicitly disable it.
 
 A computation ends when a computation has converged. Convergence is detected with the `scoreSignal`/`scoreCollect` functions on vertices and the respective `signalThreshold`/`collectThreshold` which are defined globally. The framework will execute `signal`/`collect` operations while the respective scores are above the thresholds. A computation ends when no score is above the respective threshold anymore.
 
@@ -68,5 +68,15 @@ Usage:
 val execConfig = ExecutionConfiguration
       .withExecutionMode(SynchronousExecutionMode)
       .withStepsLimit(1)
+graph.execute(execConfig)
+}}}
+
+=Continuous Execution=
+Continuous execution is an asynchronous execution mode disables the automated termination upon convergence detection. The main use case is for dataflow computations where the system should keep running even if it should converge occasionally.
+
+
+Usage:
+{{{
+val execConfig = ExecutionConfiguration.withExecutionMode(ContinuousAsynchronousExecution)
 graph.execute(execConfig)
 }}}
