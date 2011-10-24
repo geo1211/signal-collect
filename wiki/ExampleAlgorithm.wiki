@@ -14,7 +14,7 @@ For our example we use the a variation of the [http://web.mit.edu/rajsingh/www/l
 
 The model states that even if the individual cells are relatively tolerant the space will be clearly separated.
 
-== Design of the Signal-Collect computation ==
+== Design of the Signal/Collect computation ==
 
 To map the algorithm described above in a computation suitable for the signal collect we need to construct a graph from the given grid. For this reason we view each cell as a vertex that is connected to its neighboring vertices. 
 
