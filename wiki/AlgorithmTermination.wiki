@@ -9,7 +9,7 @@ This is the usual way for a computation to end and it is enabled by default. See
 
 A computation ends when a computation has converged. Convergence is detected with the `scoreSignal`/`scoreCollect` functions on vertices and the respective `signalThreshold`/`collectThreshold` which are defined globally. The framework will execute `signal`/`collect` operations while the respective scores are above the thresholds. A computation ends when no score is above the respective threshold anymore.
 
-*IMPORTANT:* Vertices are only re-scored using`scoreCollect` if:
+*IMPORTANT:* Vertices are only re-scored using `scoreCollect` if:
   * At least one new signal was received
   * Or an outgoing edge was added/removed
   * Or an explicit re-scoring was triggered via `Graph.recalculateScoresForVertexWithId`/`Graph.recalculateScores`
