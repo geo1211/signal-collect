@@ -1,0 +1,44 @@
+#summary How to specifiy when a computation is done.
+
+=Automated Convergence Detection=
+
+A computation ends when a computation has converged. Convergence is detected with the `scoreSignal`/`scoreCollect` functions on vertices and the respective `signalThreshold`/`collectThreshold` which are defined globally. The framework will execute `signal`/`collect` operations while the respective scores are above the thresholds. A computation ends when no score is above the respective threshold anymore.
+
+*IMPORTANT:* The framework assumes that the result of `scoreCollect` can only change if:
+  * At least one new signal was received
+  * Or an outgoing edge was added/removed
+  * Or an explicit re-scoring was triggered via `Graph.recalculateScoresForVertexWithId`/`Graph.recalculateScores`
+
+The framework similarly assumes that the result of `scoreSignal` can only change if:
+  * The collect operation was executed
+  * Or an outgoing edge was added/removed
+  * Or an explicit re-scoring was triggered via `Graph.recalculateScoresForVertexWithId`/`Graph.recalculateScores`
+
+These are the default implementations in [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/implementations/graph/AbstractVertex.scala AbstractVertex]:
+
+{{{
+  def scoreSignal: Double = {
+    if (outgoingEdgeAddedSinceSignalOperation) {
+      1
+    } else {
+      lastSignalState match {
+        case Some(oldState) if oldState == state => 0
+        case noStateOrStateChanged => 1
+      }
+    }
+  }
+}}}
+
+The default implementation of the `scoreSignal` function indicates that a vertex should have its edges signal if a new edge was added or if the state has changed.
+
+*IMPORTANT:* Detection of a changed vertex state is by default done with a reference comparison, so if the state reference points to a mutable collection that has changed, no change will be detected! You should in this case either use immutable collections or override the `scoreSignal` function.
+
+The `scoreSignal` function can be overridden with an algorithm-specific implementation, for example to use the residual as a convergence criterium.
+
+{{{
+def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
+  signals.size
+}
+}}}
+
+The default implementation of the `scoreCollect` function indicates that a vertex should collect if it has received at least one signal.
