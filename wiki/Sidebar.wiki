@@ -3,7 +3,7 @@
   * [ExampleAlgorithm Running an Example Algorithm]
 
 *How it works*
-  * [TerminationDetection Termination Detection]
+  * [AlgorithmTermination Algorithm Termination]
   * [AggregationOperations Aggregation Operations]
   * [WriteCustomGraphElements Custom Graph-Elements]
   * [OnDiskStorage Scale to Disk]
