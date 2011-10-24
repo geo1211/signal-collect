@@ -1,4 +1,4 @@
-#summary Short example for a simple signal-collect computation
+#summary Short example for a simple Signal/Collect computation
 
 = Example Algorithm - Tutorial =
 
