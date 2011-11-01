@@ -7,13 +7,20 @@
 	<name>Signal/Collect Java API</name>
 	<modules>
 	</modules>
+	
+	<repositories>
+		<repository>
+			<id>ddis-public-release</id>
+			<name>DDIS Public Release Repository</name>
+			<url>https://bigblue.ifi.uzh.ch/nexus/content/repositories/ddis-public-release/</url>
+		</repository>
+	</repositories>
 
-	<!-- Dependencies -->
 	<dependencies>
 		<dependency>
 			<groupId>com.signalcollect</groupId>
 			<artifactId>core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -24,7 +31,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<!-- Dependencies -->
 
 	<build>
 		<plugins>

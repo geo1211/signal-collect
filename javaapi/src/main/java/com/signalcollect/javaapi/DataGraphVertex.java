@@ -60,36 +60,7 @@ public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, Signa
 			result.$plus$eq(id.sourceId());
 		}
 		
-		return new Some(result);
+		return Some(result);
 	}
 	
-//	  def getPredecessors(v: Vertex): java.lang.Iterable[Vertex] = {
-//			    val result = new LinkedList[Vertex]()
-//			    val predecessors = v.getVertexIdsOfPredecessors
-//			    if (predecessors.isDefined) {
-//			      for (neighborId <- predecessors.get) {
-//			        val neighbor = cg.forVertexWithId(neighborId, { v: Vertex => v })
-//			        if (neighbor.isDefined) {
-//			          result.add(neighbor.get)
-//			        }
-//			      }
-//			    }
-//			    result
-//			  }
-	
-	
-	
-	
-	
-	
-	
-	
-//	public scala.Option getVertexIdsOfPredecessors() {
-//		scala.collection.mutable.Buffer<Object> result = new scala.collection.mutable.ListBuffer<Object>();
-//		for(EdgeId id : mostRecentSignalMap.keySet()) {
-//			result.apply(id.sourceId());
-//		}
-//		
-//		return Option.apply(result);
-//	}
 }
