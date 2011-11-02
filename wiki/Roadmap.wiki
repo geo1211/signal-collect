@@ -1,7 +1,7 @@
 #summary Development Roadmap for Signal/Collect
 #labels Phase-Requirements
 
-All dates might still change.
+*All dates are subject to change.*
 
 =Bugfix Release 1.0.1=
 Planned for December 2011
