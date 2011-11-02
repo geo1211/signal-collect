@@ -13,8 +13,8 @@ Planned for January 2012
   * Issue 26
   * Issue 29
   * Issue 43
-  * Issue 44
 
 =Distributed Version 2.0=
 Planned for March 2012, depends on release of Akka 2.0
   * Distributed using Akka 2.0
+  * Issue 44
