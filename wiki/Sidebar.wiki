@@ -10,6 +10,7 @@
   * [OnDiskStorage Scale to Disk]
 
 *About the Project*
+  * Roadmap
   * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of Signal/Collect]
   * [ContinuousIntegrationServer Continuous Integration Server]
 
