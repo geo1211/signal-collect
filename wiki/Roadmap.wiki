@@ -1,0 +1,20 @@
+#summary Development Roadmap for Signal/Collect
+#labels Phase-Requirements
+
+All dates might still change.
+
+=Bugfix release 1.0.1=
+Planned for December 2011
+  * Issue 45
+
+=Features release 1.1=
+Planned for January 2012
+  * Issue 24
+  * Issue 26
+  * Issue 29
+  * Issue 43
+  * Issue 44
+
+=Distributed version 2.0=
+Planned for March 2012, depends on release of Akka 2.0
+  * Distributed using Akka 2.0
