@@ -27,6 +27,13 @@ graph.execute(execConfig)
 ==Asynchronous execution==
 In an asynchronous computation the framework does not give any guarantees about the order in which signal/collect operations get executed. This allows `workers` to operate without central synchronisation, which can improve performance. Some algorithms also have better convergence when run asynchronously, because it can prevent oscillations. This execution mode is closely related to the [http://en.wikipedia.org/wiki/Actor_model Actor Model]. *The default execution mode of Signal/Collect is to start with one synchronous signaling step followed by an asynchronous execution*, we refer to this mode as `OptimizedAsynchronousExecutionMode`.
 
+How to start a computation using the default execution mode:
+{{{
+val graph = GraphBuilder.build
+graph.execute
+}}}
+
+
 How to start a computation using the pure asynchronous execution mode:
 {{{
 val graph = GraphBuilder.build
