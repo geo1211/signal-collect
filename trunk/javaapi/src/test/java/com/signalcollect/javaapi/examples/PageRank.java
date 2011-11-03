@@ -1,10 +1,8 @@
 package com.signalcollect.javaapi.examples;
 
-import com.signalcollect.Vertex;
 import com.signalcollect.ExecutionInformation;
 import com.signalcollect.Graph;
 import com.signalcollect.javaapi.GraphBuilder;
-import com.signalcollect.javaapi.VertexCommand;
 
 public class PageRank {
 
@@ -24,17 +22,6 @@ public class PageRank {
 		cg.addEdge(new PageRankEdge(3, 2));
 		ExecutionInformation stats = cg.execute();
 		System.out.println(stats);
-//		cg.foreachVertex(new CommandJ() {
-//			public void f(Vertex v) {
-//				System.out.println(v);
-//			}
-//		});
-		cg.forVertexWithId(1, new VertexCommand() {
-			public void f(Vertex v) {
-				System.out.println(v);
-			}
-		});
-//		cg.countVertices(m)
 		cg.shutdown();
 	}
 }
