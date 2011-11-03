@@ -3,7 +3,8 @@
   * [ExampleAlgorithm Running an Example Algorithm]
 
 *How it works*
-  * DefaultVertexTypes
+  * [http://code.google.com/p/signal-collect/wiki/DefaultVertexTypes Vertex Types]
+  * [http://code.google.com/p/signal-collect/wiki/ExecutionModes Execution Modes]
   * [GraphEditor Interacting with the Graph]
   * [AlgorithmTermination Algorithm Termination]
   * [AggregationOperations Aggregation Operations]
