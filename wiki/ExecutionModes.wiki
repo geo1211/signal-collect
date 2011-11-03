@@ -41,7 +41,7 @@ val execConfig = ExecutionConfiguration.withExecutionMode(PureAsynchronousExecut
 graph.execute(execConfig)
 }}}
 
-There is also a continuous asynchronous execution mode, but apart from not using termination detection (see AlgorithmTermination), it is equivalent to the asynchronous execution mode:
+There is also a continuous asynchronous execution mode, but apart from not using termination detection (see AlgorithmTermination), it is equivalent to the pure asynchronous execution mode:
 {{{
 val graph = GraphBuilder.build
 val execConfig = ExecutionConfiguration.withExecutionMode(ContinuousAsynchronousExecution)
