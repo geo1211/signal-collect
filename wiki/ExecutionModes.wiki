@@ -17,5 +17,26 @@ Signal/Collect supports different execution modes. The execution mode determines
 ==Synchronous execution==
 A synchronous computation consists of alternating parallel signaling/collecting phases for vertices. Phase transitions are globally synchronized, which guarantees that all vertices are in the same phase at the same time. One signaling phase followed by one collecting phase is referred to as a computation `step`. This execution mode is closely related to the [http://en.wikipedia.org/wiki/Bulk_Synchronous_Parallel Bulk Synchronous Parallel (BSP)] model and [http://www-bd.lip6.fr/ens/grbd2011/extra/SIGMOD10_pregel.pdf Pregel].
 
+How to start a computation using the synchronous execution mode:
+{{{
+val graph = GraphBuilder.build
+val execConfig = ExecutionConfiguration.withExecutionMode(SynchronousExecutionMode)
+graph.execute(execConfig)
+}}}
+
 ==Asynchronous execution==
 In an asynchronous computation the framework does not give any guarantees about the order in which signal/collect operations get executed. This allows `workers` to operate without central synchronisation, which can improve performance. Some algorithms also have better convergence when run asynchronously, because it can prevent oscillations. This execution mode is closely related to the [http://en.wikipedia.org/wiki/Actor_model Actor Model]. The default execution mode of Signal/Collect is to start with one synchronous signaling step followed by an asynchronous execution, we refer to this mode as `OptimizedAsynchronousExecutionMode`.
+
+How to start a computation using the pure asynchronous execution mode:
+{{{
+val graph = GraphBuilder.build
+val execConfig = ExecutionConfiguration.withExecutionMode(PureAsynchronousExecutionMode)
+graph.execute(execConfig)
+}}}
+
+There is also a continuous asynchronous execution mode, but apart from not using termination detection (see AlgorithmTermination), it is equivalent to the asynchronous execution mode:
+{{{
+val graph = GraphBuilder.build
+val execConfig = ExecutionConfiguration.withExecutionMode(ContinuousAsynchronousExecution)
+graph.execute(execConfig)
+}}}
