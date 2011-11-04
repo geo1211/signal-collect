@@ -1,5 +1,5 @@
 #summary Description of the ideas behind the Signal/Collect programming model
-#labels Phase-Requirements
+#labels Phase-Requirements,Featured
 
 =Goals of the Programming Model=
 
