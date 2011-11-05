@@ -70,7 +70,7 @@ graph.execute(execConfig)
 }}}
 
 ==Computation Steps==
-For synchronous computations it is possible to limit the number of computation steps that get executed. A computation step is a signal step followed by a collect step. A signal step is the parallel execution of the signal operation on all edges of vertices that have a signal score > signal threshold. A collect step is the parallel execution of collect operations on vertices that have a collect score > 0.
+For synchronous computations it is possible to limit the number of computation steps that get executed. A computation step is a signal step followed by a collect step. A signal step is the parallel execution of the signal operation on all edges of vertices that have a signal score > signal threshold. A collect step is the parallel execution of collect operations on vertices that have a collect score > collect threshold.
 
 Usage:
 {{{
