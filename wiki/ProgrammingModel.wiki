@@ -45,6 +45,7 @@ The location vertices collect those signals by setting their new state to the lo
 
 {{{
 class SsspVertex extends Vertex {
+  type Signal = Int
   def collect(oldState: State, uncollectedSignals: Iterable[Int]): Int = {
     uncollectedSignals.foldLeft(oldState)(math.min(_, _)))
   }
