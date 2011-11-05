@@ -5,16 +5,13 @@
 ==Graph==
 The main way to interact with the graph is via the graph object which is usually created by calling {{{ GraphBuilder.build }}}. This returns an instance of [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/Graph.scala Graph]. [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/Graph.scala Graph] extends [http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/GraphEditor.scala GraphEditor] which offers various methods for interacting with the graph, such as `addVertex` and `addEdge`. There are also functions to send signals along virtual edges.
 
-Example:
+Example how to build a graph:
 {{{
 val graph = GraphBuilder.build
-graph.addVertex(new PageRankVertex(1))
-graph.addVertex(new PageRankVertex(2))
-graph.addVertex(new PageRankVertex(3))
-graph.addEdge(new PageRankEdge(1, 2))
-graph.addEdge(new PageRankEdge(2, 1))
-graph.addEdge(new PageRankEdge(2, 3))
-graph.addEdge(new PageRankEdge(3, 2))
+graph.addVertex(new PageRankVertex(id=1))
+graph.addVertex(new PageRankVertex(id=2))
+graph.addEdge(new PageRankEdge(sourceId=1, targetId=2))
+graph.addEdge(new PageRankEdge(sourceId=2, targetId=1))
 }}}
 
 ==VertexGraphEditor==
