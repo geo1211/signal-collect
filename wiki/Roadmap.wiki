@@ -11,6 +11,8 @@ Planned for December 2011
   * Issue 48
   * Issue 49
   * Issue 50
+  * Issue 51
+  * Issue 52
 
 =Features Release 1.1=
 Planned for January 2012
