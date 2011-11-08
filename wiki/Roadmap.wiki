@@ -6,6 +6,7 @@
 =Bugfix Release 1.0.1=
 Planned for December 2011
   * Issue 45
+  * Issue 46
 
 =Features Release 1.1=
 Planned for January 2012
