@@ -1,6 +1,7 @@
 *Getting Started*
   * [ProgrammingModel Programming Model]
-  * [ExampleAlgorithm Running an Example Algorithm]
+  * [JavaExampleAlgorithm Java Example Algorithm]
+  * [ExampleAlgorithm Scala Example Algorithm]
 
 *How it works*
   * [http://code.google.com/p/signal-collect/wiki/DefaultVertexTypes Vertex Types]
