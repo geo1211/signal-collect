@@ -101,5 +101,5 @@ public abstract class DataFlowVertex<IdTypeParameter, StateTypeParameter, Signal
 	 */
 	public abstract StateTypeParameter collect(StateTypeParameter oldState,
 			Iterable<SignalTypeParameter> uncollectedSignals);
-
+	
 }

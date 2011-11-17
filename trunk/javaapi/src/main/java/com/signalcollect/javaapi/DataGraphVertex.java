@@ -109,7 +109,6 @@ public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, Signa
 		for (EdgeId id : mostRecentSignalMap.keySet()) {
 			result.$plus$eq(id.sourceId());
 		}
-
 		return Some(result);
 	}
 
