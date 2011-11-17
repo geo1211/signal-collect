@@ -15,7 +15,6 @@ public class PixelMap extends JComponent {
 	private static final long serialVersionUID = 1L;
 	private int width = 500;
 	private int height = 500;
-	private Random rand = new Random();
 	private byte[] imageValues;
 	JFrame window;
 
