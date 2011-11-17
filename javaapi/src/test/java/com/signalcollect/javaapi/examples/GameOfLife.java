@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
-import com.signalcollect.Vertex;
 import com.signalcollect.Edge;
 import com.signalcollect.ExecutionInformation;
 import com.signalcollect.javaapi.*;
@@ -46,27 +45,19 @@ public class GameOfLife {
 	private final int COLUMNS = 20; // Number of columns in the simulation grid
 	private final int ROWS = 20; // Number of rows in the simulation grid
 	private static final int NUMBER_OF_ITERATIONS = 50; // Maximal number of
-													// synchronization steps.
+	// synchronization steps.
 	private PixelMap image = new PixelMap();
 	private Graph g;
 
 	/**
-	 * Sets up the graph and generate all vertices and edges.
-	 * Each vertex links to its direct neighbors.
+	 * Sets up the graph and generate all vertices and edges. Each vertex links
+	 * to its direct neighbors.
 	 * 
 	 * All neighbors of cell 'O' are marked with an 'X'
 	 * 
-	 * --------------------
-	 * |  |   |   |   |   |
-	 * --------------------
-	 * |  | X | X | X |   |
-	 * --------------------
-	 * |  | X | O | X |   |
-	 * --------------------
-	 * |  | X | X | X |   |
-	 * --------------------
-	 * |  |   |   |   |   |
-	 * --------------------
+	 * -------------------- | | | | | | -------------------- | | X | X | X | |
+	 * -------------------- | | X | O | X | | -------------------- | | X | X | X
+	 * | | -------------------- | | | | | | --------------------
 	 */
 	public void init() {
 		g = GraphBuilder.build();
@@ -87,7 +78,6 @@ public class GameOfLife {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void executionStep(boolean showImage) {
 
 		ExecutionInformation stats = g
@@ -105,39 +95,37 @@ public class GameOfLife {
 				}
 			}
 			image.setData(data);
-		} else {
-			g.foreachVertex(new VertexCommand() {
-				public void f(Vertex v) {
-					System.out.println(v);
-				}
-			});
-			
 		}
 		System.out.println(stats);
 	}
-	
+
 	public void shutDown() {
 		g.shutdown();
 	}
-	
+
 	/**
-	 * Creates a list of all edges that go from a cell to its neighbors.
-	 * Edges are only included if the coordinates are within the grid.
+	 * Creates a list of all edges that go from a cell to its neighbors. Edges
+	 * are only included if the coordinates are within the grid.
 	 * 
-	 * @param row horizontal coordinate of the source cell
-	 * @param column vertical coordinate of the source cell
-	 * @return list of all outgoing edges form the cell at the specified coordinates.
+	 * @param row
+	 *            horizontal coordinate of the source cell
+	 * @param column
+	 *            vertical coordinate of the source cell
+	 * @return list of all outgoing edges form the cell at the specified
+	 *         coordinates.
 	 */
 	private ArrayList<Edge> generateOutgoingLinks(int row, int column) {
 		int sourceId = generateVertexId(row, column);
 		ArrayList<Edge> outgoingLinks = new ArrayList<Edge>();
-		
-		//iterates over all neighbors and the cell itself but the link to itself is excluded.
-		for(int colIt = (column-1); colIt<=(column+1); colIt++) {
-			for(int rowIt = (row-1); rowIt<=(row+1); rowIt++) {
-				if((rowIt!=row||colIt!=column) && isValidCoordinate(rowIt,colIt)) {
-					outgoingLinks.add(new StateForwarderEdge<Integer, Integer>(sourceId,
-							generateVertexId(rowIt, colIt)));
+
+		// iterates over all neighbors and the cell itself but the link to
+		// itself is excluded.
+		for (int colIt = (column - 1); colIt <= (column + 1); colIt++) {
+			for (int rowIt = (row - 1); rowIt <= (row + 1); rowIt++) {
+				if ((rowIt != row || colIt != column)
+						&& isValidCoordinate(rowIt, colIt)) {
+					outgoingLinks.add(new StateForwarderEdge<Integer, Integer>(
+							sourceId, generateVertexId(rowIt, colIt)));
 				}
 			}
 		}
@@ -145,11 +133,11 @@ public class GameOfLife {
 	}
 
 	/**
-	 * utility method to convert grid coordinates to ids. Id starts with 0 in the top left corner and increments
-	 * row wise.
+	 * utility method to convert grid coordinates to ids. Id starts with 0 in
+	 * the top left corner and increments row wise.
 	 * 
-	 * if x1<x2 then generateVertexId(x1, y) < generateVertexId(x2, y)
-	 * if y1<y2 then generateVertexId(x, y1) < generateVertexId(x, y2)
+	 * if x1<x2 then generateVertexId(x1, y) < generateVertexId(x2, y) if y1<y2
+	 * then generateVertexId(x, y1) < generateVertexId(x, y2)
 	 * 
 	 * @param row
 	 * @param collumn
@@ -160,8 +148,9 @@ public class GameOfLife {
 	}
 
 	/**
-	 * Utility that checks if a coordinate is within the grid. All negative values and all values bigger or equal
-	 * to the size constraints of the grid are considered invalid.
+	 * Utility that checks if a coordinate is within the grid. All negative
+	 * values and all values bigger or equal to the size constraints of the grid
+	 * are considered invalid.
 	 * 
 	 * @param row
 	 * @param collumn
@@ -178,13 +167,16 @@ public class GameOfLife {
 
 	/**
 	 * Runs the Game of Live simulation with simple visualization.
+	 * 
 	 * @param args
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		GameOfLife simulation = new GameOfLife();
 		simulation.init();
-		for (int i=0; i<NUMBER_OF_ITERATIONS; i++) {
+		for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
 			simulation.executionStep(true);
+			Thread.sleep(100);
 		}
 		simulation.shutDown();
 	}

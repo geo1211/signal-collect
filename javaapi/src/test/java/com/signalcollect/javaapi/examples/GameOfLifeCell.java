@@ -1,10 +1,7 @@
 package com.signalcollect.javaapi.examples;
 
 import java.lang.Iterable;
-import java.util.HashMap;
 
-import com.signalcollect.interfaces.MessageBus;
-import com.signalcollect.interfaces.SignalMessage;
 import com.signalcollect.javaapi.*;
 
 /**
@@ -14,12 +11,8 @@ import com.signalcollect.javaapi.*;
  * @author Daniel Strebel
  *
  */
-public class GameOfLifeCell extends JavaVertex<Integer, Boolean, Boolean> {
-
-	private static final long serialVersionUID = 1L;
-	private HashMap<Integer, Boolean> neighbors = new HashMap<Integer, Boolean>(); //holds all states of the cell's neighbors
-	private boolean needsToSignal = true; //flag to signal if the cell has changed its state since the last signal step.
-										  // if set to true the cell needs to forward an update to its neighbors.
+@SuppressWarnings("serial")
+public class GameOfLifeCell extends DataGraphVertex<Integer, Boolean, Boolean> {
 	
 	/**
 	 * Constructor for a Game of Life cell.
@@ -52,54 +45,24 @@ public class GameOfLifeCell extends JavaVertex<Integer, Boolean, Boolean> {
 	 *  @param signals the newest signals that were sent to the cell
 	 *  @param messageBus
 	 */
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void executeCollect(Iterable signals, MessageBus messageBus) {
-		
-		// Inserts all new signal messages 
-		for (Object object : signals) {
-			SignalMessage<Integer, Integer, Boolean> message = (SignalMessage<Integer, Integer, Boolean>) object;
-			neighbors.put(message.edgeId().sourceId(), message.signal());
-		}
-		
+	public Boolean collect(Boolean oldState, Iterable<Boolean> signals) {		
 		//counts all alive neighbors of a cell.
 		int sumOfAliveNeighbors = 0;
-		for (Boolean isAlive : neighbors.values()) {
+		for (Boolean isAlive : signals) {
 			if(isAlive) {
 				sumOfAliveNeighbors+=1;
 			}
 		}
-		
-		boolean oldState = this.getState(); //To compare state to old state
+		Boolean alive = oldState;
 		
 		//checks if cell should change its state according to the rules stated above
 		if(sumOfAliveNeighbors<=1 || sumOfAliveNeighbors > 3) {
-			this.setState(false);	
+			alive = false;
 		}
 		else if(sumOfAliveNeighbors == 3) {
-			this.setState(true);
+			alive = true;
 		}
-		
-		//if the cell has changed its state the cell should signal its new state to its neighbors
-		if(oldState!=this.getState()) {
-			needsToSignal = true;
-		}
-		else {
-			needsToSignal = false;
-		}
+		return alive;
 	}
 	
-	
-	/**
-	 * This function determines if new signals should be sent along the outgoing edges.
-	 * The need to signal is controlled by the variable needsToSignal.
-	 */
-	public double scoreSignal() {
-		if(needsToSignal) {
-			return 1.0;
-		}
-		else {
-			return 0.0;
-		}
-	}
 }
