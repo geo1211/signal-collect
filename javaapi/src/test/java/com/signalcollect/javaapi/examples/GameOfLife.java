@@ -46,7 +46,7 @@ public class GameOfLife {
 	private final int ROWS = 20; // Number of rows in the simulation grid
 	private static final int NUMBER_OF_ITERATIONS = 50; // Maximal number of
 	// synchronization steps.
-	private PixelMap image = new PixelMap();
+	private PixelMap image = new PixelMap("Game of Life Simulation");
 	private Graph g;
 
 	/**
@@ -89,7 +89,6 @@ public class GameOfLife {
 
 		ExecutionInformation stats = g
 				.execute(new SynchronousExecutionConfiguration(1));
-
 		if (showImage) {
 			byte[] data = new byte[ROWS * COLUMNS];
 			Map<Integer, Boolean> idValueMap = g
@@ -102,6 +101,13 @@ public class GameOfLife {
 				}
 			}
 			image.setData(data);
+			while(image.isNotUpdated()) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		System.out.println(stats);
 	}
@@ -216,7 +222,6 @@ public class GameOfLife {
 //		simulation.init(simulation.randomSeed());
 		for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
 			simulation.executionStep(true);
-			Thread.sleep(100);
 		}
 		simulation.shutDown();
 	}
