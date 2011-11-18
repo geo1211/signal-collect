@@ -1,22 +1,23 @@
 *Getting Started*
-  * [ProgrammingModel Programming Model]
-  * [JavaExampleAlgorithm Java Example Algorithm]
-  * [ExampleAlgorithm Scala Example Algorithm]
+  * [http://code.google.com/p/signal-collect/wiki/ProgrammingModel Programming Model]
+  * [http://code.google.com/p/signal-collect/wiki/JavaExampleAlgorithm Java Example Algorithm]
+  * [http://code.google.com/p/signal-collect/wiki/ExampleAlgorithm Scala Example Algorithm]
 
 *How it works*
   * [http://code.google.com/p/signal-collect/wiki/DefaultVertexTypes Vertex Types]
+  * [http://code.google.com/p/signal-collect/wiki/DefaultEdgeTypes Edge Types]
   * [http://code.google.com/p/signal-collect/wiki/ExecutionModes Execution Modes]
-  * [GraphEditor Interacting with the Graph]
-  * [AlgorithmTermination Algorithm Termination]
-  * [AggregationOperations Aggregation Operations]
-  * [WriteCustomGraphElements Custom Graph-Elements]
-  * [OnDiskStorage Scale to Disk]
+  * [http://code.google.com/p/signal-collect/wiki/GraphEditor Interacting with the Graph]
+  * [http://code.google.com/p/signal-collect/wiki/AlgorithmTermination Algorithm Termination]
+  * [http://code.google.com/p/signal-collect/wiki/AggregationOperations Aggregation Operations]
+  * [http://code.google.com/p/signal-collect/wiki/WriteCustomGraphElements Custom Graph-Elements]
+  * [http://code.google.com/p/signal-collect/wiki/OnDiskStorage Scale to Disk]
 
 *About the Project*
   * [http://code.google.com/p/signal-collect/wiki/Roadmap Roadmap]
   * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of Signal/Collect]
-  * [ContinuousIntegrationServer Continuous Integration Server]
+  * [http://code.google.com/p/signal-collect/wiki/ContinuousIntegrationServer Continuous Integration Server]
 
 *For Developers*
-  * [RecommendedTools Recommended Tools]
-  * [SettingUpSignalCollectInEclipse Setting Up Signal/Collect]
+  * [http://code.google.com/p/signal-collect/wiki/RecommendedTools Recommended Tools]
+  * [http://code.google.com/p/signal-collect/wiki/SettingUpSignalCollectInEclipse Setting Up Signal/Collect]
