@@ -55,16 +55,23 @@ public class GameOfLife {
 	 * 
 	 * All neighbors of cell 'O' are marked with an 'X'
 	 * 
-	 * -------------------- | | | | | | -------------------- | | X | X | X | |
-	 * -------------------- | | X | O | X | | -------------------- | | X | X | X
-	 * | | -------------------- | | | | | | --------------------
+	 * -------------------- 
+	 * |  |   |   |   |  | 
+	 * -------------------- 
+	 * |  | X | X | X |  |
+	 * -------------------- 
+	 * |  | X | O | X |  | 
+	 * -------------------- 
+	 * |  | X | X | X |  | 
+	 * -------------------- 
+	 * |  |   |   |   |  | 
+	 * --------------------
 	 */
-	public void init() {
+	public void init(boolean[] seed) {
 		g = GraphBuilder.build();
 		// initialize vertices
-		Random rand = new Random();
-		for (int i = 0; i < COLUMNS * ROWS; i++) {
-			g.addVertex(new GameOfLifeCell(i, rand.nextBoolean()));
+		for (int i = 0; i < seed.length; i++) {
+			g.addVertex(new GameOfLifeCell(i, seed[i]));
 		}
 
 		// set up edges
@@ -166,6 +173,38 @@ public class GameOfLife {
 	}
 
 	/**
+	 * Generates random initialization data for the game of life grid
+	 * 
+	 * @return initialization data for the grid
+	 */
+	private boolean[] randomSeed() {
+		Random rand = new Random();
+		boolean[] seed = new boolean[ROWS*COLUMNS];
+		for(int i = 0; i< seed.length; i++) {
+			seed[i] = rand.nextBoolean();
+		}
+		return seed;
+	}
+	
+	/**
+	 * Generates the initialization data for a glider form that moves diagonally across the field
+	 * 
+	 * @return initialization data for a glider figure
+	 */
+	private boolean[] glider() {
+		boolean[] seed = new boolean[ROWS*COLUMNS];
+		for(int i=0; i<seed.length; i++) {
+			seed[i] = false;
+		}
+		seed[generateVertexId(0, 1)] = true;
+		seed[generateVertexId(1, 2)] = true;
+		seed[generateVertexId(2, 0)] = true;
+		seed[generateVertexId(2, 1)] = true;
+		seed[generateVertexId(2, 2)] = true;
+		return seed;
+	}
+	
+	/**
 	 * Runs the Game of Live simulation with simple visualization.
 	 * 
 	 * @param args
@@ -173,7 +212,8 @@ public class GameOfLife {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 		GameOfLife simulation = new GameOfLife();
-		simulation.init();
+		simulation.init(simulation.glider());
+//		simulation.init(simulation.randomSeed());
 		for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
 			simulation.executionStep(true);
 			Thread.sleep(100);

@@ -22,8 +22,7 @@ public class PixelMap extends JComponent {
 		window = new JFrame();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setBounds(30, 30, width, height);
-		PixelMap image = this;
-		window.getContentPane().add(image);
+		window.getContentPane().add(this);
 	}
 
 	/**
@@ -40,7 +39,7 @@ public class PixelMap extends JComponent {
 	/**
 	 * Displays an image if the data is available.
 	 * 
-	 * @note the data will be displayed as a suqared image.
+	 * @note the data will be displayed as a squared image.
 	 */
 	public void paint(Graphics g) {
 		if (imageValues != null) {
