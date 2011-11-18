@@ -21,13 +21,13 @@ package com.signalcollect.javaapi.examples;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
 
 import com.signalcollect.Edge;
 import com.signalcollect.ExecutionInformation;
 import com.signalcollect.javaapi.*;
 import com.signalcollect.Graph;
 import com.signalcollect.StateForwarderEdge;
+import com.signalcollect.configuration.ExecutionMode;
 
 /**
  * A simulation of a "Conway's Game of Life"
@@ -55,17 +55,9 @@ public class GameOfLife {
 	 * 
 	 * All neighbors of cell 'O' are marked with an 'X'
 	 * 
-	 * -------------------- 
-	 * |  |   |   |   |  | 
-	 * -------------------- 
-	 * |  | X | X | X |  |
-	 * -------------------- 
-	 * |  | X | O | X |  | 
-	 * -------------------- 
-	 * |  | X | X | X |  | 
-	 * -------------------- 
-	 * |  |   |   |   |  | 
-	 * --------------------
+	 * -------------------- | | | | | | -------------------- | | X | X | X | |
+	 * -------------------- | | X | O | X | | -------------------- | | X | X | X
+	 * | | -------------------- | | | | | | --------------------
 	 */
 	public void init(boolean[] seed) {
 		g = GraphBuilder.build();
@@ -87,8 +79,9 @@ public class GameOfLife {
 
 	public void executionStep(boolean showImage) {
 
-		ExecutionInformation stats = g
-				.execute(new SynchronousExecutionConfiguration(1));
+		ExecutionInformation stats = g.execute(ExecutionConfiguration
+				.withExecutionMode(ExecutionMode.Synchronous()).withStepsLimit(
+						1));
 		if (showImage) {
 			byte[] data = new byte[ROWS * COLUMNS];
 			Map<Integer, Boolean> idValueMap = g
@@ -101,7 +94,7 @@ public class GameOfLife {
 				}
 			}
 			image.setData(data);
-			while(image.isNotUpdated()) {
+			while (image.isNotUpdated()) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -179,27 +172,14 @@ public class GameOfLife {
 	}
 
 	/**
-	 * Generates random initialization data for the game of life grid
-	 * 
-	 * @return initialization data for the grid
-	 */
-	private boolean[] randomSeed() {
-		Random rand = new Random();
-		boolean[] seed = new boolean[ROWS*COLUMNS];
-		for(int i = 0; i< seed.length; i++) {
-			seed[i] = rand.nextBoolean();
-		}
-		return seed;
-	}
-	
-	/**
-	 * Generates the initialization data for a glider form that moves diagonally across the field
+	 * Generates the initialization data for a glider form that moves diagonally
+	 * across the field
 	 * 
 	 * @return initialization data for a glider figure
 	 */
 	private boolean[] glider() {
-		boolean[] seed = new boolean[ROWS*COLUMNS];
-		for(int i=0; i<seed.length; i++) {
+		boolean[] seed = new boolean[ROWS * COLUMNS];
+		for (int i = 0; i < seed.length; i++) {
 			seed[i] = false;
 		}
 		seed[generateVertexId(0, 1)] = true;
@@ -209,17 +189,17 @@ public class GameOfLife {
 		seed[generateVertexId(2, 2)] = true;
 		return seed;
 	}
-	
+
 	/**
 	 * Runs the Game of Live simulation with simple visualization.
 	 * 
 	 * @param args
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public static void main(String[] args) throws InterruptedException {
 		GameOfLife simulation = new GameOfLife();
 		simulation.init(simulation.glider());
-//		simulation.init(simulation.randomSeed());
+		// simulation.init(simulation.randomSeed());
 		for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
 			simulation.executionStep(true);
 		}

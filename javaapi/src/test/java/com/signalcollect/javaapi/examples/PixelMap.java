@@ -1,7 +1,6 @@
 package com.signalcollect.javaapi.examples;
 
 import java.awt.*;
-import java.util.Random;
 import javax.swing.*;
 
 /**
