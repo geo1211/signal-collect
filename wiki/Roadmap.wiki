@@ -3,7 +3,7 @@
 
 *All dates are subject to change.*
 
-=Java/Bugfix Release 1.1=
+=`Java` Release 1.1=
 To be released on November 19th, 2011
   * [http://code.google.com/p/signal-collect/wiki/JavaExampleAlgorithm Added Java support]
   * Changed implementation of factory objects, execution mode objects and termination reason objects to make access from Java straightforward and moved them to the package com.signalcollect.configuration
