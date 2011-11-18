@@ -4,6 +4,12 @@ import com.signalcollect.ExecutionInformation;
 import com.signalcollect.Graph;
 import com.signalcollect.javaapi.GraphBuilder;
 
+/**
+ * Test driver for a PageRank computation
+ * @see <a href="http://en.wikipedia.org/wiki/PageRank">PageRank algorithm</a>
+ * 
+ * @author Philip Stutz
+ */
 public class PageRank {
 
 	public static void main(String[] args) {
@@ -11,6 +17,14 @@ public class PageRank {
 		pr.executePageRank();
 	}
 
+	/**
+	 * Executes an example PageRank computation on a small synthetic graph with
+	 * default execution parameters.
+	 * 
+	 * the graph has the following structure:
+	 *  
+	 * (1) <=> (2) <=> (3)
+	 */
 	public void executePageRank() {
 		Graph cg = GraphBuilder.build();
 		cg.addVertex(new PageRankVertex(1, 0.15));
