@@ -1,0 +1,24 @@
+#summary Example Signal/Collect algorithm using the Java API
+
+= Example Algorithm Java API =
+
+An algorithm that can be naturally expressed as a Signal/Collect computation is the Single Source Shortest Path (SSSP) algorithm. For this algorithm we need a graph of connected vertices where exactly one vertex serves as the source of the graph and we compute the shortest distance from this source vertex to any other vertex in the graph. The distance is expressed as the sum of the weights of all the edges traversed on the path between the source and another vertex.
+
+To fit this algorithm in the computation model of Signal/Collect we need to describe the computation from the perspective of a vertex. A vertex can learn about its distance to the source by comparing the distance of its neighbors to the source plus the weight of the incoming edge from this neighbor. When the vertex has learned about a shorter distance than the currently assumed one it needs to inform its own neighbors about this fact. If the distance does not change there is no need for the vertex to send out new updates because it's neighbors already know about its distance. This guaranties the global convergence of the SSSP algorithm (assuming a non-negative edge weight of course).
+
+== Vertex implementation (Collect) ==
+To achieve the behavior described above, the vertex must collect its received signals by computing the minimum among all signals and the current state. The full implementation of the collect function is shown here:
+{{{
+public Integer collect(Integer oldState, Iterable<Integer> mostRecentSignals) {
+	int minDistance = oldState;
+	for (int signal : mostRecentSignals) {
+		if (signal < minDistance) {
+			minDistance = signal;
+		}
+	}
+	return minDistance;
+}
+}}}
+The returned value of the collect function automatically becomes the new state of the vertex. If the state has changed its value the state update should be sent to all vertices this vertex has outgoing edges to. This functionality is provided by the Superclass and does not need to be specified it could however be changed to support other termination criteria.
+
+== Edge implementation (Signal) ==
