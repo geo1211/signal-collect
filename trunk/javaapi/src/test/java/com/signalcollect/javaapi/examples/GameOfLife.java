@@ -21,6 +21,7 @@ package com.signalcollect.javaapi.examples;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 import com.signalcollect.Edge;
 import com.signalcollect.ExecutionInformation;
@@ -60,7 +61,7 @@ public class GameOfLife {
 	 * | | -------------------- | | | | | | --------------------
 	 */
 	public void init(boolean[] seed) {
-		g = GraphBuilder.build();
+		g = GraphBuilder.withNumberOfWorkers(1).build();
 		// initialize vertices
 		for (int i = 0; i < seed.length; i++) {
 			g.addVertex(new GameOfLifeCell(i, seed[i]));
@@ -96,7 +97,7 @@ public class GameOfLife {
 			image.setData(data);
 			while (image.isNotUpdated()) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(300);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -172,6 +173,20 @@ public class GameOfLife {
 	}
 
 	/**
+	 * Generates random initialization data for the game of life grid
+	 * 
+	 * @return initialization data for the grid
+	 */
+	private boolean[] randomSeed() {
+		Random rand = new Random();
+		boolean[] seed = new boolean[ROWS * COLUMNS];
+		for (int i = 0; i < seed.length; i++) {
+			seed[i] = rand.nextBoolean();
+		}
+		return seed;
+	}
+
+	/**
 	 * Generates the initialization data for a glider form that moves diagonally
 	 * across the field
 	 * 
@@ -198,8 +213,8 @@ public class GameOfLife {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 		GameOfLife simulation = new GameOfLife();
-		simulation.init(simulation.glider());
-		// simulation.init(simulation.randomSeed());
+//		simulation.init(simulation.glider());
+		 simulation.init(simulation.randomSeed());
 		for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
 			simulation.executionStep(true);
 		}
