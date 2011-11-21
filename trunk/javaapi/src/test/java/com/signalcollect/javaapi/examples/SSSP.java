@@ -35,12 +35,11 @@ public class SSSP {
 		System.out.println(stats);
 		
 		//print the state of every vertex in the graph.
-		graph.foreachVertex(new VertexCommand(){
-			@Override
+		graph.foreachVertex(FunUtil.convert(new VertexCommand(){
 			public void f(Vertex v) {
 				System.out.println(v);
 			}
-		});
+		}));
 		graph.shutdown();
 		
 	}
