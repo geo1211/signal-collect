@@ -4,7 +4,7 @@
 *All dates are subject to change.*
 
 =`Java` Release 1.1=
-To be released on November 21th, 2011
+To be released on November 28th, 2011
   * [http://code.google.com/p/signal-collect/wiki/JavaExampleAlgorithm Added Java support]
   * Issue 54 Documented implementation of Java example algorithms
   * Changed implementation of factory objects, execution mode objects and termination reason objects to make access from Java straightforward and moved them to the package com.signalcollect.configuration
