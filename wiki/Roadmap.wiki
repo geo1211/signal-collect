@@ -4,9 +4,8 @@
 *All dates are subject to change.*
 
 =`Java` Release 1.1=
-To be released on November 28th, 2011
+Released on November 28th, 2011
   * [http://code.google.com/p/signal-collect/wiki/JavaExampleAlgorithm Added Java support]
-  * Issue 54 Documented implementation of Java example algorithms
   * Changed implementation of factory objects, execution mode objects and termination reason objects to make access from Java straightforward and moved them to the package com.signalcollect.configuration
   * Issue 45 `Graph.forVertexWithId` is much faster now, but doesn't guarantee that all graph modifications have been executed on the vertex yet. To get the old semantics, call `Graph.awaitIdle()` first.
   * Issue 46 `GraphEditor` can be used concurrently now, which allows parallel graph loading (for example using parallel collections).
@@ -20,6 +19,7 @@ To be released on November 28th, 2011
 
 =Features Release 1.2=
 Planned for January 2012
+  * Issue 54 Documented implementation of Java example algorithms
   * Issue 24
   * Issue 26
   * Issue 29
