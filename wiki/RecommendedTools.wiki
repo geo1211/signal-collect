@@ -12,7 +12,7 @@ Optional steps, potentially different depending on your platform and how much me
 ==Scala==
 Install the Scala plugin for Eclipse:
   * Within Eclipse go to _Help_, _Install New Software..._
-  * Add as a new location: http://download.scala-ide.org/releases/2.0.0-beta
+  * Add as a new location: http://download.scala-ide.org/releases-29/2.0.0-beta
   * Install all the available items from that source.
 
 ==Maven-Scala Integration==
