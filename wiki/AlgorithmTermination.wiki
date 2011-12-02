@@ -2,7 +2,7 @@
 
 =Algorithm Termination=
 
-There are several different mechanism to terminate algorithm execution.
+There are several different mechanisms to terminate algorithm execution.
 
 ==Automated Convergence Detection==
 This is the usual way for a computation to end and it is enabled by default. See `Continuous Execution` below to find out how to explicitly disable it.
