@@ -20,7 +20,7 @@ A synchronous computation consists of alternating parallel signaling/collecting 
 How to start a computation using the synchronous execution mode:
 {{{
 val graph = GraphBuilder.build
-val execConfig = ExecutionConfiguration.withExecutionMode(SynchronousExecutionMode)
+val execConfig = ExecutionConfiguration.withExecutionMode(ExecutionMode.Synchronous)
 graph.execute(execConfig)
 }}}
 
@@ -37,13 +37,13 @@ graph.execute
 How to start a computation using the pure asynchronous execution mode:
 {{{
 val graph = GraphBuilder.build
-val execConfig = ExecutionConfiguration.withExecutionMode(PureAsynchronousExecutionMode)
+val execConfig = ExecutionConfiguration.withExecutionMode(ExecutionMode.PureAsynchronous)
 graph.execute(execConfig)
 }}}
 
 There is also a continuous asynchronous execution mode, but apart from not blocking, but immediately returning and from not using termination detection (see AlgorithmTermination), it is equivalent to the pure asynchronous execution mode:
 {{{
 val graph = GraphBuilder.build
-val execConfig = ExecutionConfiguration.withExecutionMode(ContinuousAsynchronousExecution)
+val execConfig = ExecutionConfiguration.withExecutionMode(ExecutionMode.ContinuousAsynchronous)
 graph.execute(execConfig)
 }}}
