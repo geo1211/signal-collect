@@ -75,7 +75,7 @@ For synchronous computations it is possible to limit the number of computation s
 Usage:
 {{{
 val execConfig = ExecutionConfiguration
-      .withExecutionMode(SynchronousExecutionMode)
+      .withExecutionMode(ExecutionMode.Synchronous)
       .withStepsLimit(1)
 graph.execute(execConfig)
 }}}
@@ -86,6 +86,6 @@ Continuous execution is an asynchronous execution mode that disables the automat
 
 Usage:
 {{{
-val execConfig = ExecutionConfiguration.withExecutionMode(ContinuousAsynchronousExecution)
+val execConfig = ExecutionConfiguration.withExecutionMode(ExecutionMode.ContinuousAsynchronous)
 graph.execute(execConfig)
 }}}
