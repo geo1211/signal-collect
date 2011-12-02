@@ -114,7 +114,7 @@ This example shows how to specify a global termination condition that gets check
       }
     val execConfig = ExecutionConfiguration
       .withGlobalTerminationCondition(terminationCondition)
-      .withExecutionMode(SynchronousExecutionMode)
+      .withExecutionMode(ExecutionMode.Synchronous)
     val info = graph.execute(execConfig)
 }}}
 
