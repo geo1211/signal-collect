@@ -48,7 +48,7 @@ override def scoreSignal: Double = {
 }
 }}}
 
-The default implementation of the `scoreCollect` function indicates that a vertex should collect if it has received at least one signal:
+The default implementation of the `scoreCollect` function indicates that a the importance of collecting is proportional to the number of signals it has received since the last time it collected:
 
 {{{
 def scoreCollect(signals: Iterable[SignalMessage[_, _, _]]): Double = {
