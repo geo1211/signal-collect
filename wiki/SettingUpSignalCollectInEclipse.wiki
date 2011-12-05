@@ -1,4 +1,4 @@
-#summary This will help you have a working environment for developing signal-collect
+#summary This will help you have a working environment for developing Signal/Collect
 
 = Introduction =
 
