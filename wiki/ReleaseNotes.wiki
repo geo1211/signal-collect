@@ -1,4 +1,5 @@
 =Bugfix Release 1.1.1=
+Released on December 5th, 2011
   * Issue 55 Fixed a bug related to Java/Scala interoperability.
 
 =Java Release 1.1=
