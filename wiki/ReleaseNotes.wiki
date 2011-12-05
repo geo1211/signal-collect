@@ -1,4 +1,7 @@
-=`Java` Release 1.1=
+=Bugfix Release 1.1.1=
+  * Issue 53 Fixed a bug related to Java/Scala interoperability.
+
+=Java Release 1.1=
 Released on November 28th, 2011
   * [http://code.google.com/p/signal-collect/wiki/JavaExampleAlgorithm Added Java support]
   * Changed implementation of factory objects, execution mode objects and termination reason objects to make access from Java straightforward and moved them to the package `com.signalcollect.configuration`
