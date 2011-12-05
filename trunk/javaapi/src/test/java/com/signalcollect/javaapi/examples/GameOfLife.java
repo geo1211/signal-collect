@@ -186,24 +186,24 @@ public class GameOfLife {
 		return seed;
 	}
 
-	/**
-	 * Generates the initialization data for a glider form that moves diagonally
-	 * across the field
-	 * 
-	 * @return initialization data for a glider figure
-	 */
-	private boolean[] glider() {
-		boolean[] seed = new boolean[ROWS * COLUMNS];
-		for (int i = 0; i < seed.length; i++) {
-			seed[i] = false;
-		}
-		seed[generateVertexId(0, 1)] = true;
-		seed[generateVertexId(1, 2)] = true;
-		seed[generateVertexId(2, 0)] = true;
-		seed[generateVertexId(2, 1)] = true;
-		seed[generateVertexId(2, 2)] = true;
-		return seed;
-	}
+//	/**
+//	 * Generates the initialization data for a glider form that moves diagonally
+//	 * across the field
+//	 * 
+//	 * @return initialization data for a glider figure
+//	 */
+//	private boolean[] glider() {
+//		boolean[] seed = new boolean[ROWS * COLUMNS];
+//		for (int i = 0; i < seed.length; i++) {
+//			seed[i] = false;
+//		}
+//		seed[generateVertexId(0, 1)] = true;
+//		seed[generateVertexId(1, 2)] = true;
+//		seed[generateVertexId(2, 0)] = true;
+//		seed[generateVertexId(2, 1)] = true;
+//		seed[generateVertexId(2, 2)] = true;
+//		return seed;
+//	}
 
 	/**
 	 * Runs the Game of Live simulation with simple visualization.

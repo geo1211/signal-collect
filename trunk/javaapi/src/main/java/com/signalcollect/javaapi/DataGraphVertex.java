@@ -27,8 +27,6 @@ import com.signalcollect.interfaces.MessageBus;
 import com.signalcollect.interfaces.SignalMessage;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Vertex implementation that collects the most recent signals that have arrived
@@ -104,12 +102,12 @@ public abstract class DataGraphVertex<IdTypeParameter, StateTypeParameter, Signa
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public scala.Option<scala.collection.Iterable<?>> getVertexIdsOfPredecessors() {
+	public scala.Option<scala.collection.Iterable<Object>> getVertexIdsOfPredecessors() {
 		scala.collection.mutable.ListBuffer<Object> result = new scala.collection.mutable.ListBuffer<Object>();
 		for (EdgeId id : mostRecentSignalMap.keySet()) {
 			result.$plus$eq(id.sourceId());
 		}
-		return Some(result);
+		return new Some(result);
 	}
 
 }
