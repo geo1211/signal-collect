@@ -15,6 +15,7 @@
 
 *About the Project*
   * [http://code.google.com/p/signal-collect/wiki/Roadmap Roadmap]
+  * [http://code.google.com/p/signal-collect/wiki/ReleaseNotes Release Notes]
   * [http://code.google.com/p/signal-collect/wiki/Achitecture Architecture of Signal/Collect]
   * [http://code.google.com/p/signal-collect/wiki/ContinuousIntegrationServer Continuous Integration Server]
 
