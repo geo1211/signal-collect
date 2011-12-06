@@ -61,7 +61,7 @@ For our SSSP graph, an edge holds the following static information:
   * The id of the target vertex
   * The weight of the path (default value = 1.0)
 
-Together with the current state of the source vertex is enough to compute the signal that should be sent along the edge from the source to the target vertex. Again we use the a predefined library class that handles generic edge functionality such as how to forward the computed signal to the target vertex. The library class `DefaultEdge` that is used as a basis for the `SSSPEdge` needs to be parametrized with the source vertex's type to know how to extract its state information.
+Together with the current state of the source vertex this is sufficient to compute the signal that should be sent along the edge from the source to the target vertex. Again we use the a predefined library class that handles generic edge functionality such as how to forward the computed signal to the target vertex. The library class `DefaultEdge` that is used as a basis for the `SSSPEdge` needs to be parametrized with the source vertex's type to know how to extract its state information.
 
 {{{
 import com.signalcollect.javaapi.*;
@@ -86,7 +86,7 @@ public class SSSPEdge extends DefaultEdge<SSSPNode> {
 }}}
 
 == Run the algorithm ==
-We now have implemented the components of the graph that are responsible for computing the states based on signals from neighboring vertices and for computing and forwarding signals from one vertex to its neighboring vertices. This is it! To build an SSSP graph all we have to do is to construct a graph with the elements above and start the computation. For the SSSP we don't need to enforce synchronous execution because the algorithm will also run correctly for asynchronous execution. After the termination of the algorithm we print out all some statistics about the execution and then print each vertex to the standard output to check whether the distances were computed correctly.
+We now have implemented the components of the graph that are responsible for computing the states based on signals from neighboring vertices and for computing and forwarding signals from one vertex to its neighboring vertices. This is it! To build an SSSP graph all we have to do is to construct a graph with the elements above and start the computation. For the SSSP we don't need to enforce synchronous execution because the algorithm will also run correctly for asynchronous execution. After the termination of the algorithm we print some statistics about the execution and then print each vertex to the standard output to check whether the distances were computed correctly.
  
 {{{
 import com.signalcollect.ExecutionInformation;
