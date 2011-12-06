@@ -9,5 +9,5 @@ Three abstract edge implementations exist (the signal functionality needs to be 
   * *[http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/OnlySignalOnChangeEdge.scala OnlySignalOnChangeEdge]* extends the default edge implementation but keeps track of the last signal sent and only sends a new signal if the current signal differs from it.
   * *[http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/OptionalSignalEdge.scala OptionalSignalEdge]* extends the default edge implementation but requires the signal function to return an `Option[_]`- type and sends the contained signal if the return differed from None.
 
-Edges don't necessarily have to be algorithm specific. Sometimes one of the provided concrete edge implementations can directly be used:
+Edges don't necessarily have to be algorithm specific. Sometimes one of the provided concrete edge implementations can be used without any modifications:
   * *[http://code.google.com/p/signal-collect/source/browse/trunk/core/src/main/scala/com/signalcollect/StateForwarderEdge.scala StateForwarderEdge]* forwards its current state whenever the signal method is invoked by the source vertex.
