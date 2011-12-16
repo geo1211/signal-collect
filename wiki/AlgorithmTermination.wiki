@@ -81,7 +81,7 @@ graph.execute(execConfig)
 }}}
 
 ==Continuous Execution==
-Continuous execution is an asynchronous execution mode that disables the automated termination upon convergence detection. The main use case is for dataflow computations where the system should keep running even if it converges occasionally. When in this execution mode the `Graph.execute` does not block, but it returns immediately.
+Continuous execution is an asynchronous execution mode that disables the automated termination upon convergence detection. The main use case is for dataflow computations where the system should keep running even if it converges occasionally. When in this execution mode the `Graph.execute` method does not block, but it returns immediately.
 
 
 Usage:
