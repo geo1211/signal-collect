@@ -19,19 +19,20 @@
 package com.signalcollect.implementations.storage
 
 import org.specs2.mutable._
+import org.specs2.mock.Mockito
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.matcher.Matcher
 import com.signalcollect._
 import com.signalcollect.interfaces._
 import com.signalcollect.implementations.messaging.DefaultMessageBus
-import com.signalcollect.examples.Page
 import java.io._
 import com.mongodb.casbah.Imports._
 import org.apache.log4j.helpers.LogLog
+import scala.collection.mutable.ListBuffer
 
 @RunWith(classOf[JUnitRunner])
-class AlternativeStorageSpec extends SpecificationWithJUnit {
+class AlternativeStorageSpec extends SpecificationWithJUnit with Mockito {
   LogLog.setQuietMode(true)
 
   /**
@@ -61,42 +62,48 @@ class AlternativeStorageSpec extends SpecificationWithJUnit {
         1 === 1
       }
     } else {
-      val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
+
+      val dummyVertices = ListBuffer[Vertex]()
+      for (i <- 0 until 3) {
+        dummyVertices += new DummyVertex(i, i)
+      }
+
       class MongoDBStorage extends DefaultStorage with MongoDB
       val mongoStore = new MongoDBStorage
-      vertexList.foreach(v => mongoStore.vertices.put(v))
+      dummyVertices.foreach(v => mongoStore.vertices.put(v))
 
       "Hold all inserted Vertices" in {
-        vertexList.size === mongoStore.vertices.size
-      }
-
-      "add all added vertices to the toSignal list" in {
-        mongoStore.toSignal.size must_== vertexList.size
-      }
-
-      "add all added vertices to the toCollect list" in {
-        mongoStore.toCollect.size must_== vertexList.size
+        dummyVertices.size === mongoStore.vertices.size
       }
 
       "retreive an added vertex" in {
-        mongoStore.vertices.get(1).hashCode === vertexList(1).hashCode
+        mongoStore.vertices.get(0).hashCode === dummyVertices(0).hashCode
+        mongoStore.vertices.get(1).hashCode === dummyVertices(1).hashCode
+        mongoStore.vertices.get(2).hashCode === dummyVertices(2).hashCode
       }
 
       "reflect changes" in {
+        
+        // Save the current entry for later comparison
         val v1_old: Vertex = mongoStore.vertices.get(1)
-        val v1_changed = new Page(1, 0.4)
-        mongoStore.vertices.updateStateOfVertex(v1_changed)
+
+        // Enter modifications with the same vetex-ID
+        mongoStore.vertices.updateStateOfVertex(new DummyVertex(1, 7))
+        mongoStore.vertices.updateStateOfVertex(new DummyVertex(1, 6))
+        mongoStore.vertices.updateStateOfVertex(new DummyVertex(1, 5))
+        mongoStore.vertices.updateStateOfVertex(new DummyVertex(1, 4))
+
+        // Retrieve current vertex for the ID
         val v1_new = mongoStore.vertices.get(1)
-        if (v1_old != v1_changed) {
-          v1_new.state must_!= v1_old.state //Entries returned differ
-        }
-        v1_new.state === v1_changed.state
+
+        //Tests
+        v1_new.state === 4 //state equals state of the last update
+        v1_old.state !== v1_new.state
         mongoStore.vertices.size === 3l //old entry is replaced
       }
-      
       "clean up after execution" in {
-    	  mongoStore.cleanUp
-    	  1===1
+        mongoStore.cleanUp
+        1 === 1
       }
     }
   }
@@ -104,46 +111,46 @@ class AlternativeStorageSpec extends SpecificationWithJUnit {
   "OrientDB" should {
     val currentDir = new java.io.File(".")
     if (hasReadAndWritePermission(currentDir.getCanonicalPath)) {
-      val vertexList = List(new Page(0, 0.1), new Page(1, 0.1), new Page(2, 0.1))
+
+      val dummyVertices = ListBuffer[Vertex]()
+      for (i <- 0 until 3) {
+        dummyVertices += new DummyVertex(i, i)
+      }
+
+      val page1 = mock[Vertex]
+      val page2 = mock[Vertex]
+
       class OrientDB extends DefaultStorage with Orient
       val orientStore = new OrientDB
-      vertexList.foreach(v => orientStore.vertices.put(v))
+      dummyVertices.foreach(v => orientStore.vertices.put(v))
 
       "Hold all inserted Vertices" in {
-        vertexList.size === orientStore.vertices.size
-      }
-
-      "add all added vertices to the toSignal list" in {
-        orientStore.toSignal.size must_== vertexList.size
-      }
-
-      "add all added vertices to the toCollect list" in {
-        orientStore.toCollect.size must_== vertexList.size
+        dummyVertices.size === orientStore.vertices.size
       }
 
       "retreive an added vertex" in {
-        orientStore.vertices.get(1).hashCode === vertexList(1).hashCode
+        orientStore.vertices.get(0).hashCode === dummyVertices(0).hashCode
+        orientStore.vertices.get(1).hashCode === dummyVertices(1).hashCode
+        orientStore.vertices.get(2).hashCode === dummyVertices(2).hashCode
+
       }
 
       "reflect Changes" in {
+        // Save the current entry for later comparison
         val v1_old: Vertex = orientStore.vertices.get(1)
-        var v1_changed = new Page(1, 0.9)
-        orientStore.vertices.updateStateOfVertex(v1_changed)
-        v1_changed = new Page(1, 0.8)
-        orientStore.vertices.updateStateOfVertex(v1_changed)
-        v1_changed = new Page(1, 0.7)
-        orientStore.vertices.updateStateOfVertex(v1_changed)
-        v1_changed = new Page(1, 0.6)
-        orientStore.vertices.updateStateOfVertex(v1_changed)
-        v1_changed = new Page(1, 0.5)
-        orientStore.vertices.updateStateOfVertex(v1_changed)
-        v1_changed = new Page(1, 0.4)
-        orientStore.vertices.updateStateOfVertex(v1_changed)
+
+        // Enter modifications with the same vetex-ID
+        orientStore.vertices.updateStateOfVertex(new DummyVertex(1, 7))
+        orientStore.vertices.updateStateOfVertex(new DummyVertex(1, 6))
+        orientStore.vertices.updateStateOfVertex(new DummyVertex(1, 5))
+        orientStore.vertices.updateStateOfVertex(new DummyVertex(1, 4))
+
+        // Retrieve current vertex for the ID
         val v1_new = orientStore.vertices.get(1)
-        if (v1_old != v1_changed) {
-          v1_new.state must_!= v1_old.state //Entries returned differ
-        }
-        v1_new.state === v1_changed.state
+
+        //Tests
+        v1_new.state === 4 //state equals state of the last update
+        v1_old.state !== v1_new.state
         orientStore.vertices.size === 3l //old entry is replaced
       }
 
@@ -151,10 +158,10 @@ class AlternativeStorageSpec extends SpecificationWithJUnit {
         orientStore.vertices.remove(1)
         orientStore.vertices.size === 2l //old entry is replaced
       }
-      
+
       "clean up after execution" in {
         orientStore.cleanUp
-        1===1
+        1 === 1
       }
     } else { //No permission in current folder
       "fail gracefully because no write permissions for temp folder exist" in {
@@ -163,3 +170,19 @@ class AlternativeStorageSpec extends SpecificationWithJUnit {
     }
   }
 }
+
+class DummyVertex(id: Int, value: Int) extends DataGraphVertex(id, value) {
+
+  type Signal = Int
+
+  def collect(oldState: State, mostRecentSignals: Iterable[Int]): Int = {
+    id + 1
+  }
+
+  override def scoreSignal: Double = {
+    print("hello")
+    1
+  }
+
+}
+
