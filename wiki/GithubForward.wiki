@@ -1,2 +1,2 @@
-=Join our development on=
-[https://github.com/uzh/signal-collect http://octodex.github.com/images/total-eclipse-of-the-octocat.jpg]
+=Join the Development of Signal/Collect on [https://github.com/uzh/signal-collect Github]=
+[https://github.com/uzh/signal-collect http://octodex.github.com/images/repo.jpg]
