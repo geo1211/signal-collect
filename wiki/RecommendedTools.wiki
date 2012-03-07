@@ -4,7 +4,7 @@ This is a short guide that describes how to get the tools that we recommend for 
 
 
 ==Eclipse==
- * Install the Eclipse IDE for Java Developers 3.7 (_INDIGO_) from http://www.eclipse.org/downloads
+ * Install the *Eclipse IDE for Java Developers 3.7* (_INDIGO_) from http://www.eclipse.org/downloads
 Optional steps, potentially different depending on your platform and how much memory your PC has: 
  * Find the eclipse.ini file within the eclipse folder/package.
  * Within that file, adjust the -Xms vaue to 800m and the -Xmx value to 2048m
