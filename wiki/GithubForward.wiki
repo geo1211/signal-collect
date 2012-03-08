@@ -1,4 +1,4 @@
-= Signal/Collect 1.1.1 Source Code @ [http://code.google.com/p/signal-collect/source GoogleCode]
+= Signal/Collect 1.1.1 Source Code @ [http://code.google.com/p/signal-collect/source GoogleCode] =
 
 =Join the Development of Signal/Collect on [https://github.com/uzh/signal-collect Github]=
 [https://github.com/uzh/signal-collect http://octodex.github.com/images/repo.jpg]
