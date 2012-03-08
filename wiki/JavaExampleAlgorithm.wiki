@@ -127,8 +127,6 @@ public class SSSP {
 }
 }}}
 
-_*Note:* Eclipse might complain about the `graph.foreachVertex(..);` invocation. Don't worry this is a problem with the IDE and not with the code._
-
 After the execution of the algorithm the printout of the vertices should look similar to this this (note that the order of execution by the `graph.foreachVertex(..);` method is not guaranteed):
 
 {{{
