@@ -15,9 +15,15 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<scm>
+		<connection>scm:svn:http://signal-collect.googlecode.com/svn/trunk/core/</connection>
+		<developerConnection>scm:svn:https://signal-collect.googlecode.com/svn/trunk/core/</developerConnection>
 		<url>http://signal-collect.googlecode.com/svn/trunk/core/</url>
-		<connection>http://signal-collect.googlecode.com/svn/trunk/core/</connection>
 	</scm>
 	<developers>
 		<developer>
