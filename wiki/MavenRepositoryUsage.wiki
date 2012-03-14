@@ -1,7 +1,7 @@
 =How I got Maven Repo Sync to Work=
 
-- Install gpg
-- Followed tutorial @ https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
+  * Install gpg
+  * Followed tutorial @ https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
 
 Special commands that were required:
 mvn release:clean
