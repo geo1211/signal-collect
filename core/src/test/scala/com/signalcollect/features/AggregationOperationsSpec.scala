@@ -27,9 +27,7 @@ import org.specs2.mock.Mockito
 import com.signalcollect.interfaces._
 import java.util.Map.Entry
 import com.signalcollect._
-import com.signalcollect.examples.PageRankVertex
-import com.signalcollect.examples.PageRankEdge
-import com.signalcollect.examples.SudokuCell
+import com.signalcollect.examples._
 
 @RunWith(classOf[JUnitRunner])
 class AggregationOperationsSpec extends SpecificationWithJUnit with Mockito {
@@ -99,7 +97,7 @@ class AggregationOperationsSpec extends SpecificationWithJUnit with Mockito {
       val vertexSample = graph.aggregate(new SampleVertexIds(50))
       vertexSample.size == 50 && vertexSample.forall(id => idSet.contains(id.asInstanceOf[Int]))
     }
-    
+
     "sample 50 vertex ids correclty" in {
       val vertexSample = graph.aggregate(new SampleVertexIds(1000))
       vertexSample.size == 1000 && vertexSample.forall(id => idSet.contains(id.asInstanceOf[Int]))
