@@ -30,7 +30,7 @@ class InMemoryVertexIdSet(vertexStore: Storage) extends VertexIdSet {
 
   /**
    * Adds a new ID to the collection
-   * 
+   *
    * @param vetexId the ID of the vertex that should be added to the collection.
    */
   def add(vertexId: Any): Unit = {
@@ -39,7 +39,7 @@ class InMemoryVertexIdSet(vertexStore: Storage) extends VertexIdSet {
 
   /**
    * Removes an ID from the collection
-   * 
+   *
    * @param vertexId the ID of the vertex that should be removed
    */
   def remove(vertexId: Any): Unit = {
@@ -52,17 +52,19 @@ class InMemoryVertexIdSet(vertexStore: Storage) extends VertexIdSet {
 
   /**
    * Applies the specified function to each vertex id and removes the ids if necessary
-   * 
+   *
    * @param f the function to apply to each id
    * @removeAfterProcessing whether the ids should be deleted after they are covered by the function
    */
   def foreach[U](f: (Any) => U, removeAfterProcessing: Boolean) = {
-    val i = toHandle.iterator
-    while (i.hasNext) {
-      f(i.next)
-    }
-    if (removeAfterProcessing) {
-      toHandle.clear
+    if (!toHandle.isEmpty()) {
+      val i = toHandle.iterator
+      while (i.hasNext) {
+        f(i.next)
+      }
+      if (removeAfterProcessing) {
+        cleanUp
+      }
     }
   }
 
