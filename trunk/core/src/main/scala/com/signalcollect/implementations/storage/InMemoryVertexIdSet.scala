@@ -72,6 +72,8 @@ class InMemoryVertexIdSet(vertexStore: Storage) extends VertexIdSet {
    * Removes all entries from the collection.
    */
   def cleanUp = {
-    toHandle.clear
+    toHandle = null
+    toHandle = new HashSet[Any]()
+
   }
 }
