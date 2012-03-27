@@ -35,6 +35,7 @@ import java.util.Set
 import com.signalcollect._
 import com.signalcollect.implementations.serialization.DefaultSerializer
 import com.signalcollect.implementations.graph.DefaultGraphEditor
+import scala.collection.mutable.ListBuffer
 
 class WorkerOperationCounters(
   var messagesReceived: Long = 0l,
@@ -242,11 +243,7 @@ class LocalWorker(val workerId: Int,
   }
 
   def removeVertices(shouldRemove: Vertex => Boolean) {
-    vertexStore.vertices foreach { vertex =>
-      if (shouldRemove(vertex)) {
-        processRemoveVertex(vertex)
-      }
-    }
+    vertexStore.vertices.remove(shouldRemove)
   }
 
   protected def processRemoveVertex(vertex: Vertex) {

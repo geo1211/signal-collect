@@ -91,6 +91,22 @@ class LRUVertexCache(persistentStorageFactory: Storage => VertexStore,
       persistentStore.remove(id)
     }
   }
+  
+  /**
+   * Removes all vertices that satisfy the removal condition.
+   *
+   * @param removeCondition condition to check if a vertex should be removed.
+   */
+  def remove(removeCondition: Vertex => Boolean) {
+    val it = cache.iterator
+    while(it.hasNext) {
+      val vertex = it.next
+      if(removeCondition(vertex._2)) {
+         remove(vertex._1)
+      }
+    }
+    persistentStore.remove(removeCondition)
+  }
 
   /**
    * Updates the state of the vertex if the vertex is not contained in the cache.

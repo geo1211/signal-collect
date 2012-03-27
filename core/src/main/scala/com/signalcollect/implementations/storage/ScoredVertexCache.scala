@@ -112,6 +112,11 @@ class ScoredVertexCache(persistentStorageFactory: Storage => VertexStore,
       cacheRatioReached = false
     }
   }
+  
+  def remove(removeCondition: Vertex => Boolean) {
+    inMemoryCache.remove(removeCondition)
+    persistentStore.remove(removeCondition)
+  }
 
   /**
    * Retains the changed state of a vertex if it is not held in memory
@@ -183,6 +188,17 @@ class ScoredVertexCache(persistentStorageFactory: Storage => VertexStore,
       storage.toCollect.remove(id)
       storage.toSignal.remove(id)
     }
+    
+
+  def remove(removeCondition: Vertex => Boolean) {
+    val it = cachedVertices.values.iterator()
+    while(it.hasNext) {
+      val vertex = it.next
+      if(removeCondition(vertex)) {
+         it.remove()
+      }
+    }
+  }
 
     def updateStateOfVertex(vertex: Vertex) = {} // Not needed for in-memory implementation
 
