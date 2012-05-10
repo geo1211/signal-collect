@@ -4,7 +4,7 @@
 *All dates are subject to change.*
 
 =Distributed Version 2.0=
-Planned for May 2012, depends on release of Akka 2.0
+Planned for November 2012.
   * Distributed using Akka 2.0
   * Issue 44
   * Issue 54 Documented implementation of Java example algorithms
