@@ -17,7 +17,7 @@
  *  
  */
 
-package com.signalcollect.javaapi.examples;
+package com.signalcollect.javaapi.examples.gameoflife;
 
 import java.util.ArrayList;
 import java.util.Map;
