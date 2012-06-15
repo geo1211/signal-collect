@@ -1,4 +1,4 @@
-package com.signalcollect.javaapi.examples;
+package com.signalcollect.javaapi.examples.pagerank;
 
 import com.signalcollect.javaapi.*;
 

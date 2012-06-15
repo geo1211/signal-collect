@@ -1,4 +1,4 @@
-package com.signalcollect.javaapi.examples;
+package com.signalcollect.javaapi.examples.gameoflife;
 
 import java.awt.*;
 import javax.swing.*;

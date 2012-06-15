@@ -1,4 +1,4 @@
-package com.signalcollect.javaapi.examples;
+package com.signalcollect.javaapi.examples.sssp;
 
 import com.signalcollect.javaapi.*;
 
